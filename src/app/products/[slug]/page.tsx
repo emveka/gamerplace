@@ -14,6 +14,8 @@ import { ProductVideoPlayer } from '@/components/product/ProductVideoPlayer';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Suspense } from 'react';
+import { ProductSpecTest } from '@/components/product/ProductSpecTest';
+import { ProductSpecTest2 } from '@/components/product/ProductSpecTest2';
 
 
 interface BreadcrumbItem {
@@ -208,9 +210,11 @@ export default async function ProductPage({
           />
         </div>
 
+        
+
         {/* Spécifications techniques */}
         <div className="mb-12">
-          <ProductSpecifications product={serializedProduct} />
+          <ProductSpecTest2 />
         </div>
 
         {/* Sections de description détaillées */}

@@ -4,6 +4,8 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { NavigationMenu } from "@/components/layout/NavigationMenu";
 import { SEODebug } from "@/components/debug/SEODebug"; // Ajout du composant debug
+import {  Roboto, Inter, } from 'next/font/google'
+
 
 export const metadata: Metadata = {
   title: "PC Gamers, Cartes Graphiques, Matériels Gamings - Gamerplace.ma",
@@ -21,6 +23,14 @@ export const metadata: Metadata = {
   },
 };
 
+const inter = Inter({
+  subsets: ['latin'],
+})
+
+const roboto = Roboto({
+  subsets: ['latin'],
+})
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -33,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body style={{ fontFamily: 'Arial, sans-serif' }} className="min-h-screen bg-gray-50">
+      <body style={{ fontFamily: 'inter, sans-serif' }} className="min-h-screen bg-gray-50">
         <Header />
         <NavigationMenu />
         <main className="min-h-screen">

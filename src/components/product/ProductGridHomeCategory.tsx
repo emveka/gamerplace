@@ -264,7 +264,7 @@ export function ProductGridHomeCategory({
   }
 
   return (
-    <section className={`w-full max-w-[1500px] mx-auto  py-4 ${className}`}>
+    <section className={`w-full max-w-[1500px] mx-auto px-1 py-4 ${className}`}>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl md:text-2xl font-bold text-gray-900">
           {title}
@@ -288,7 +288,7 @@ export function ProductGridHomeCategory({
         )}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-1 md:gap-1">
         {products.map((product, index) => (
           <div key={product.id} className="w-full">
             <ProductCard
