@@ -1,23 +1,49 @@
-// types/product.ts - Version mise à jour avec types corrects
+// types/product.ts
 
 import { Timestamp } from "firebase/firestore";
 
-// Interface pour une description de produit individuelle
 export interface ProductDescription {
-  id: string;          // ID unique pour chaque description
-  title: string;       // Titre de la section (ex: "6 CŒURS NATIFS ET 12 CŒURS LOGIQUES")
-  description: string; // Description détaillée
-  imageUrl: string;    // URL de l'image
-  imageAlt: string;    // Texte alternatif pour l'accessibilité
-  order: number;       // Ordre d'affichage (0, 1, 2, etc.)
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  imageAlt: string;
+  order: number;
+}
+
+// 🆕 Type pour les informations techniques
+export interface TechnicalInfo {
+  [sectionId: string]: {
+    [fieldId: string]: string | number | boolean;
+  };
+}
+
+// 🆕 Interface pour un champ technique
+export interface TechnicalField {
+  id: string;
+  label: string;
+  value: string | number | boolean;
+  type: 'text' | 'combo' | 'select' | 'number' | 'boolean';
+  section: string;
+  sectionName: string;
+  required?: boolean;
+  unit?: string;
+}
+
+// 🆕 Interface pour une section technique
+export interface TechnicalSection {
+  id: string;
+  name: string;
+  icon?: string;
+  order: number;
+  fields: TechnicalField[];
 }
 
 export interface Product {
   id: string;
   title: string;
   slug: string;
-  shortDescription?: string;
-  description?: string;
+  shortDescription: string;
   
   brandId: string;
   brandName: string;
@@ -28,7 +54,7 @@ export interface Product {
   primaryCategoryName: string;
   
   price: number;
-  oldPrice?: number;
+  oldPrice?: number | null;
   costPrice?: number;
   
   images: string[];
@@ -37,21 +63,18 @@ export interface Product {
   stock: number;
   sku?: string;
   barcode?: string;
+  order?: number;
   
   specifications?: {
     [key: string]: string;
   };
   
+  // 🆕 Informations techniques dynamiques
+  technicalInfo?: TechnicalInfo;
+  
   tags?: string[];
-  
-  // Badge singulier au lieu de badges pluriel
   badges?: ProductBadge[];
-  
-  // Tableau de descriptions (maximum 5)
   productDescriptions?: ProductDescription[];
-  
-  // NOUVEAU: URL de vidéo YouTube
-  videoUrl?: string;
   
   metaTitle: string;
   metaDescription: string;
@@ -61,9 +84,8 @@ export interface Product {
   isActive: boolean;
   isNewArrival: boolean;
   
-  // CORRECTION: Permettre null pour ces champs
-  createdAt: Timestamp | null;
-  updatedAt: Timestamp | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 export type ProductFormData = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>;

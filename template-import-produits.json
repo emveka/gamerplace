@@ -1,0 +1,57 @@
+{
+  "products": [
+    {
+      "title": "RTX 4090 Gaming",
+      "slug": "rtx-4090-gaming",
+      "shortDescription": "Carte graphique haute performance",
+      "brandName": "NVIDIA",
+      "categoryName": "Cartes Graphiques",
+      "price": 15000,
+      "oldPrice": 18000,
+      "costPrice": 12000,
+      "stock": 50,
+      "sku": "SKU-RTX4090",
+      "barcode": "1234567890123",
+      "images": [
+        "https://example.com/img1.jpg",
+        "https://example.com/img2.jpg",
+        "https://example.com/img3.jpg"
+      ],
+      "imageAlts": [
+        "Image principale RTX 4090",
+        "Vue latérale",
+        "Vue arrière"
+      ],
+      "tags": [
+        "gaming",
+        "gpu",
+        "nvidia",
+        "rtx"
+      ],
+      "specifications": {
+        "Processeur graphique": "Ada Lovelace",
+        "Mémoire": "24GB GDDR6X",
+        "Boost Clock": "2520 MHz"
+      },
+      "badges": [
+        {
+          "text": "NOUVEAU",
+          "backgroundColor": "#3b82f6",
+          "textColor": "#ffffff",
+          "position": "top-left"
+        }
+      ],
+      "productDescriptions": [
+        {
+          "title": "Performance exceptionnelle",
+          "description": "Architecture Ada Lovelace pour des performances inégalées",
+          "imageUrl": "https://example.com/desc1.jpg",
+          "imageAlt": "Architecture GPU",
+          "order": 0
+        }
+      ],
+      "isActive": true,
+      "isNewArrival": true
+    }
+  ]
+}

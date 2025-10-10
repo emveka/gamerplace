@@ -1,4 +1,4 @@
-// src/components/category/CategoryFilters.tsx - Version optimisée avec sidebar réduit
+// src/components/category/CategoryFilters.tsx - Version optimisée avec sidebar réduit et trait jaune décoratif
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -35,7 +35,7 @@ const CategoryTreeNode = ({
   const isCurrentCategory = category.id === currentCategoryId;
   const hasChildren = category.children.length > 0;
   
-  // Auto-expand si la catégorie actuelle ou un de ses enfants est sélectionné
+  // Auto-expand si la catégorie actuelle ou un de ses enfants est sélectionnée
   useEffect(() => {
     const isCurrentOrParentOfCurrent = (cat: CategoryWithChildren): boolean => {
       if (cat.id === currentCategoryId) return true;
@@ -278,7 +278,7 @@ export function CategoryFilters({
   const showCategoriesSection = categoriesHierarchy.length > 0;
   const totalActiveFilters = selectedPriceRanges.length + selectedBrands.length + selectedStock.length;
 
-  // Composant pour une section pliable
+  // Composant pour une section pliable avec trait jaune décoratif
   const CollapsibleSection = ({ 
     id, 
     title, 
@@ -289,39 +289,59 @@ export function CategoryFilters({
     title: string; 
     count?: number; 
     children: React.ReactNode; 
-  }) => (
-    <div>
-      <button
-        onClick={() => toggleSection(id)}
-        className="w-full flex items-center justify-between py-2 text-left px-2 lg:px-0"
-        type="button"
-      >
-        <span className="font-medium text-gray-900 text-sm">
-          {title} {count !== undefined && `(${count})`}
-        </span>
-        <svg 
-          className={`w-4 h-4 text-yellow-500 transform transition-transform ${
-            expandedSections[id] ? 'rotate-45' : ''
-          }`} 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
+  }) => {
+    // Sections qui doivent avoir le trait jaune décoratif
+    const sectionsWithYellowLine = ['price', 'brands', 'stock'];
+    const shouldShowYellowLine = sectionsWithYellowLine.includes(id);
+
+    return (
+      <div>
+        <button
+          onClick={() => toggleSection(id)}
+          className="w-full flex items-center justify-between py-2 text-left px-2 lg:px-0"
+          type="button"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-      </button>
-      
-      {expandedSections[id] && (
-        <div className="pb-3 px-2 lg:px-0">
-          {children}
-        </div>
-      )}
-    </div>
-  );
+          {/* Conteneur pour le texte et la ligne décorative */}
+          <div className="flex items-center flex-1 min-w-0">
+            <span className="font-medium text-gray-900 text-sm">
+              {title} {count !== undefined && `(${count})`}
+            </span>
+            
+            {/* Trait jaune décoratif - uniquement pour certaines sections */}
+            {shouldShowYellowLine && (
+              <div className="flex-1 mx-3 min-w-[20px]">
+                <div className="h-0.5 bg-yellow-400 w-full"></div>
+              </div>
+            )}
+          </div>
+          
+          {/* Icône de pliage/dépliage */}
+          <div className="flex-shrink-0">
+            <svg 
+              className={`w-4 h-4 text-yellow-500 transform transition-transform ${
+                expandedSections[id] ? 'rotate-45' : ''
+              }`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+        </button>
+        
+        {expandedSections[id] && (
+          <div className="pb-3 px-2 lg:px-0">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const FiltersContent = () => (
     <div>
-      {/* Navigation Catégories hiérarchique compacte */}
+      {/* Navigation Catégories hiérarchique compacte - SANS trait jaune */}
       {showCategoriesSection && (
         <CollapsibleSection id="categories" title="Catégories">
           <div className="space-y-1">
@@ -338,7 +358,7 @@ export function CategoryFilters({
         </CollapsibleSection>
       )}
 
-      {/* Prix */}
+      {/* Prix - AVEC trait jaune */}
       <CollapsibleSection id="price" title="Prix">
         <div className="space-y-2">
           {priceRanges.map((range) => (
@@ -357,7 +377,7 @@ export function CategoryFilters({
         </div>
       </CollapsibleSection>
       
-      {/* Marques */}
+      {/* Marques - AVEC trait jaune */}
       {brands.length > 0 && (
         <CollapsibleSection id="brands" title="Marque">
           <div className="space-y-2 max-h-56 overflow-y-auto">
@@ -391,7 +411,7 @@ export function CategoryFilters({
         </CollapsibleSection>
       )}
       
-      {/* Stock */}
+      {/* Stock - AVEC trait jaune */}
       <CollapsibleSection id="stock" title="Disponibilité">
         <div className="space-y-2">
           {stockOptions.map((option) => (

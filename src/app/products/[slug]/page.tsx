@@ -5,18 +5,16 @@ import { notFound } from 'next/navigation';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/types/product';
-import { serializeProduct } from '@/utils/serialization';
+import { serializeProduct, SerializedProduct } from '@/utils/serialization';
 import { ProductImageGallery } from '@/components/product/ProductImageGallery';
 import { ProductInfo } from '@/components/product/ProductInfo';
-import { ProductSpecifications } from '@/components/product/ProductSpecifications'; // Import corrigé
 import { ProductDescriptionSections } from '@/components/product/ProductDescriptionSections';
 import { ProductVideoPlayer } from '@/components/product/ProductVideoPlayer';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Suspense } from 'react';
-import { ProductSpecTest } from '@/components/product/ProductSpecTest';
-import { ProductSpecTest2 } from '@/components/product/ProductSpecTest2';
-
+// 🆕 Import du nouveau composant ProductSpecinfo (attention à la casse exacte)
+import { ProductSpecinfo } from '@/components/product/ProductSpecInfo';
 
 interface BreadcrumbItem {
   href: string;
@@ -57,7 +55,7 @@ async function getProduct(slug: string): Promise<Product | null> {
       primaryCategoryId: data.primaryCategoryId || '',
       primaryCategoryName: data.primaryCategoryName || '',
       price: data.price || 0,
-      oldPrice: data.oldPrice,
+      oldPrice: data.oldPrice || undefined, // 🔧 Convertir null en undefined
       costPrice: data.costPrice,
       images: data.images || [],
       imageAlts: data.imageAlts || [],
@@ -65,6 +63,8 @@ async function getProduct(slug: string): Promise<Product | null> {
       sku: data.sku,
       barcode: data.barcode,
       specifications: data.specifications || {},
+      // 🆕 Récupération des informations techniques
+      technicalInfo: data.technicalInfo || {},
       tags: data.tags || [],
       badges: data.badges || [],
       productDescriptions: data.productDescriptions || [],
@@ -210,11 +210,9 @@ export default async function ProductPage({
           />
         </div>
 
-        
-
-        {/* Spécifications techniques */}
+        {/* 🆕 Spécifications techniques avec vraies données Firebase */}
         <div className="mb-12">
-          <ProductSpecTest2 />
+          <ProductSpecinfo product={serializedProduct} />
         </div>
 
         {/* Sections de description détaillées */}

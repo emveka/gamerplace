@@ -4,8 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
-
-
 // Types pour les éléments du menu
 type SubMenuItem = {
   label: string;
@@ -35,21 +33,21 @@ type MenuItem = {
 };
 
 // Configuration des mega menus pour vos catégories gaming
+// SECTION PC GAMERS - Liens adaptés au format /categories/slug
 const pcGamersMenu: MenuCategory[] = [
   {
     title: "PC Gamer AMD",
-    titleHref: "/categories/pc-gamer-amd", // Nouveau champ pour le lien du titre
+    titleHref: "/categories/pc-gamer-amd", // Lien principal pour la catégorie AMD
     items: [
       { label: "PC Gamer AMD Ryzen 3", href: "/categories/pc-gamer-amd-ryzen-3" },
       { label: "PC Gamer AMD Ryzen 5", href: "/categories/pc-gamer-amd-ryzen-5" },
       { label: "PC Gamer AMD Ryzen 7", href: "/categories/pc-gamer-amd-ryzen-7" },
       { label: "PC Gamer AMD Ryzen 9", href: "/categories/pc-gamer-amd-ryzen-9" },
-      
     ]
   },
   {
-    title: "PC Gamer INTEL ",
-    titleHref: "/categories/pc-gamer-intel", // Nouveau champ pour le lien du titre
+    title: "PC Gamer INTEL",
+    titleHref: "/categories/pc-gamer-intel", // Lien principal pour la catégorie Intel
     items: [
       { label: "PC GAMER INTEL Core i3", href: "/categories/pc-gamer-intel-core-i3" },
       { label: "PC GAMER INTEL Core i5", href: "/categories/pc-gamer-intel-core-i5" },
@@ -59,179 +57,249 @@ const pcGamersMenu: MenuCategory[] = [
   },
   {
     title: "PC Gamer PRO",
-    titleHref: "/categories/pc-gamer-professionnel", // Nouveau champ pour le lien du titre
+    titleHref: "/categories/pc-gamer-professionnel", // Lien principal pour la catégorie Pro
     items: [
-      { label: "PC GAMER Ia", href: "/categories/pc-gamer-for-ia" },
-      { label: "PC GAMER Architects", href: "/categories/pc-gamer-for-architects" },
-      { label: "PC GAMER Streamers", href: "/categories/pc-gamer-for-streamers" },
-      { label: "PC GAMER Designers", href: "/categories/pc-gamer-for-designers" },
-      { label: "PC GAMER Business", href: "/categories/pc-gamer-for-music-producers" },
-      { label: "PC GAMER Developers", href: "/categories/pc-gamer-for-developers" },
-      
+      { label: "PC GAMER IA", href: "/categories/pc-gamer-ia" }, // Corrigé "Ia" en "IA"
+      { label: "PC GAMER Architects", href: "/categories/pc-gamer-architectes" },
+      { label: "PC GAMER Streamers", href: "/categories/pc-gamer-streamers" },
+      { label: "PC GAMER Designers", href: "/categories/pc-gamer-designers" },
+      { label: "PC GAMER Business", href: "/categories/pc-gamer-business" },
+      { label: "PC GAMER Developers", href: "/categories/pc-gamer-developpeurs" },
     ]
   }
 ];
 
-const setupGamersMenu: MenuCategory[] = [
+// SECTION KIT EVO GAMERS - Tous les liens adaptés au format /categories/slug
+const kitevoGamersMenu: MenuCategory[] = [
   {
-    title: "Écrans Gaming",
+    title: "Packs Composants",
+    titleHref: "/categories/packs-composants", // Nouveau lien principal
     items: [
-      { label: "Écrans 4K Gaming", href: "/setup-gamers/ecrans-4k" },
-      { label: "Écrans 1440p 144Hz", href: "/setup-gamers/ecrans-1440p" },
-      { label: "Écrans 1080p 240Hz", href: "/setup-gamers/ecrans-240hz" },
-      { label: "Écrans Ultrawide", href: "/setup-gamers/ultrawide" },
-      { label: "Écrans OLED", href: "/setup-gamers/oled" },
+      { label: "CPU/CM", href: "/categories/pack-cpu-carte-mere" },
+      { label: "CPU/CM/RAM", href: "/categories/pack-cpu-carte-mere-ram" },
+      { label: "CPU/CM/Boitier", href: "/categories/pack-cpu-carte-mere-boitier" },
+      { label: "Boitier/Alimentation", href: "/categories/pack-boitier-alimentation" },
+      { label: "Pack RGB", href: "/categories/pack-rgb" },
     ]
   },
   {
-    title: "Audio Gaming",
+    title: "Packs Périphériques",
+    titleHref: "/categories/packs-peripheriques", // Nouveau lien principal
     items: [
-      { label: "Casques Gaming", href: "/setup-gamers/casques" },
-      { label: "Enceintes Gaming", href: "/setup-gamers/enceintes" },
-      { label: "Microphones", href: "/setup-gamers/microphones" },
-      { label: "Cartes Son", href: "/setup-gamers/cartes-son" },
+      { label: "Souris/Tapis", href: "/categories/pack-souris-tapis" },
+      { label: "Souris/Clavier", href: "/categories/pack-souris-clavier" },
+      { label: "Ecrans/autres", href: "/categories/pack-ecrans-accessoires" },
+      { label: "Pack Périphériques", href: "/categories/pack-peripheriques-complet" },
     ]
   },
   {
-    title: "Éclairage RGB",
+    title: "Nos Packs Gamers",
+    titleHref: "/categories/packs-gamers-specialises", // Nouveau lien principal
     items: [
-      { label: "Bandes LED RGB", href: "/setup-gamers/led-rgb" },
-      { label: "Éclairage Ambiant", href: "/setup-gamers/eclairage" },
-      { label: "Accessoires RGB", href: "/setup-gamers/accessoires-rgb" },
+      { label: "Pack for Streaming", href: "/categories/pack-streaming" },
+      { label: "Pack for Mobilier", href: "/categories/pack-mobilier-gaming" },
+      { label: "Pack for Designers", href: "/categories/pack-designers" },
+      { label: "Pack for Business", href: "/categories/pack-business" },
     ]
-  }
+  },
 ];
 
+// SECTION LAPTOP GAMERS - Tous les liens adaptés au format /categories/slug
 const laptopGamersMenu: MenuCategory[] = [
   {
-    title: "Laptops RTX",
+    title: "Laptops",
+    titleHref: "/categories/laptops-gaming", // Nouveau lien principal
     items: [
-      { label: "Laptops RTX 4090", href: "/laptop-gamers/rtx-4090" },
-      { label: "Laptops RTX 4080", href: "/laptop-gamers/rtx-4080" },
-      { label: "Laptops RTX 4070", href: "/laptop-gamers/rtx-4070" },
-      { label: "Laptops RTX 4060", href: "/laptop-gamers/rtx-4060" },
-    ]
-  },
-  {
-    title: "Marques",
-    items: [
-      { label: "ASUS ROG", href: "/laptop-gamers/asus-rog" },
-      { label: "MSI Gaming", href: "/laptop-gamers/msi" },
-      { label: "Alienware", href: "/laptop-gamers/alienware" },
-      { label: "Razer Blade", href: "/laptop-gamers/razer" },
-      { label: "HP Omen", href: "/laptop-gamers/hp-omen" },
+      { label: "Laptops AMD", href: "/categories/laptops-amd" },
+      { label: "Laptops INTEL", href: "/categories/laptops-intel" },
     ]
   },
   {
     title: "Accessoires",
+    titleHref: "/categories/accessoires-laptop", // Nouveau lien principal
     items: [
-      { label: "Refroidisseurs", href: "/laptop-gamers/refroidisseurs" },
-      { label: "Sacs Gaming", href: "/laptop-gamers/sacs" },
-      { label: "Supports", href: "/laptop-gamers/supports" },
+      { label: "Refroidisseurs", href: "/categories/refroidisseurs-laptop" },
+      { label: "Sacs Gaming", href: "/categories/sacs-gaming-laptop" },
+      { label: "Supports", href: "/categories/supports-laptop" },
+    ]
+  },
+  {
+    title: "Marques",
+    titleHref: "/categories/marques-laptop", // Nouveau lien principal
+    items: [
+      { label: "ASUS ROG", href: "/categories/laptop-asus-rog" },
+      { label: "MSI Gaming", href: "/categories/laptop-msi-gaming" },
+      { label: "Alienware", href: "/categories/laptop-alienware" },
+      { label: "Razer Blade", href: "/categories/laptop-razer-blade" },
+      { label: "HP Omen", href: "/categories/laptop-hp-omen" },
     ]
   }
 ];
 
+// SECTION COMPOSANTS - Liens adaptés et organisés
 const composantsMenu: MenuCategory[] = [
   {
     title: "Cartes Graphiques",
+    titleHref: "/categories/cartes-graphiques", // Nouveau lien principal
     items: [
-      { label: "NVIDIA RTX 40 Series", href: "/composants/rtx-40" },
-      { label: "NVIDIA RTX 30 Series", href: "/composants/rtx-30" },
-      { label: "AMD Radeon RX 7000", href: "/composants/rx-7000" },
-      { label: "AMD Radeon RX 6000", href: "/composants/rx-6000" },
+      { label: "NVIDIA GeForce", href: "/categories/nvidia-geforce" }, // Déjà correct
+      { label: "AMD Radeon", href: "/categories/amd-radeon" }, // Déjà correct
     ]
   },
   {
     title: "Processeurs",
+    titleHref: "/categories/processeurs", // Nouveau lien principal
     items: [
-      { label: "Intel 13ème Génération", href: "/composants/intel-13gen" },
-      { label: "Intel 12ème Génération", href: "/composants/intel-12gen" },
-      { label: "AMD Ryzen 7000", href: "/composants/ryzen-7000" },
-      { label: "AMD Ryzen 5000", href: "/composants/ryzen-5000" },
-    ]
-  },
-  {
-    title: "Mémoire & Stockage",
-    items: [
-      { label: "RAM DDR5", href: "/composants/ram-ddr5" },
-      { label: "RAM DDR4", href: "/composants/ram-ddr4" },
-      { label: "SSD NVMe", href: "/composants/ssd-nvme" },
-      { label: "SSD SATA", href: "/composants/ssd-sata" },
+      { label: "Processeurs INTEL Core", href: "/categories/processeurs-intel-core" },
+      { label: "Processeurs AMD Ryzen", href: "/categories/processeurs-amd-ryzen" },
     ]
   },
   {
     title: "Cartes Mères",
+    titleHref: "/categories/cartes-meres", // Nouveau lien principal
     items: [
-      { label: "Intel Z790", href: "/composants/z790" },
-      { label: "Intel B760", href: "/composants/b760" },
-      { label: "AMD X670E", href: "/composants/x670e" },
-      { label: "AMD B650", href: "/composants/b650" },
+      { label: "Cartes mère INTEL", href: "/categories/cartes-meres-intel" },
+      { label: "Cartes mère AMD", href: "/categories/cartes-meres-amd" },
     ]
-  }
+  },
+  {
+    title: "Stockage Disques",
+    titleHref: "/categories/stockage", // Nouveau lien principal
+    items: [
+      { label: "SSD NVMe", href: "/categories/ssd-nvme" },
+      { label: "SSD SATA", href: "/categories/ssd-sata" },
+      { label: "Disques durs HDD", href: "/categories/disques-durs-hdd" },
+    ]
+  },
+  {
+    title: "Boitiers",
+    titleHref: "/categories/boitiers", // Nouveau lien principal
+    items: [
+      { label: "Boitiers avec RGB", href: "/categories/boitiers-rgb" },
+      { label: "Boitiers sans RGB", href: "/categories/boitiers-classiques" },
+    ]
+  },
+  {
+    title: "Mémoire RAM",
+    titleHref: "/categories/memoire-ram", // Nouveau lien principal
+    items: [
+      { label: "RAM DDR5", href: "/categories/ram-ddr5" }, // Déjà correct
+      { label: "RAM DDR4", href: "/categories/ram-ddr4" }, // Déjà correct
+    ]
+  },
+  {
+    title: "Alimentation",
+    titleHref: "/categories/alimentations", // Nouveau lien principal
+    items: [
+      { label: "Alimentations Modulaires", href: "/categories/alimentations-modulaires" },
+      { label: "Alimentations Standards", href: "/categories/alimentations-standards" },
+    ]
+  },
+  {
+    title: "Refroidissement",
+    titleHref: "/categories/refroidissement", // Nouveau lien principal
+    items: [
+      { label: "AirCooling", href: "/categories/refroidissement-air" },
+      { label: "WaterCooling", href: "/categories/refroidissement-liquide" },
+    ]
+  },
 ];
 
+// SECTION PERIPHERIQUES - Tous les liens adaptés au format /categories/slug
 const peripheriquesMenu: MenuCategory[] = [
   {
-    title: "Souris Gaming",
+    title: "Mobilier Gaming",
+    titleHref: "/categories/mobilier-gaming", // Nouveau lien principal
     items: [
-      { label: "Souris Sans Fil", href: "/peripheriques/souris-wireless" },
-      { label: "Souris Filaires", href: "/peripheriques/souris-filaires" },
-      { label: "Tapis de Souris", href: "/peripheriques/tapis-souris" },
+      { label: "Chaises Gamer", href: "/categories/chaises-gamer" },
+      { label: "Bureaux Gamer", href: "/categories/bureaux-gamer" },
+      { label: "Tapis de Sol Gamer", href: "/categories/tapis-sol-gamer" },
     ]
   },
   {
-    title: "Claviers Gaming",
+    title: "Souris",
+    titleHref: "/categories/souris", // Nouveau lien principal
     items: [
-      { label: "Claviers Mécaniques", href: "/peripheriques/claviers-mecaniques" },
-      { label: "Claviers Sans Fil", href: "/peripheriques/claviers-wireless" },
-      { label: "Switches Mécaniques", href: "/peripheriques/switches" },
+      { label: "Souris Professionnelles", href: "/categories/souris-professionnelles" },
+      { label: "Souris Gamer", href: "/categories/souris-gamer" },
+      { label: "Tapis de Souris", href: "/categories/tapis-souris" },
     ]
   },
   {
-    title: "Manettes",
+    title: "Claviers",
+    titleHref: "/categories/claviers", // Nouveau lien principal
     items: [
-      { label: "Xbox Controller", href: "/peripheriques/xbox-controller" },
-      { label: "PlayStation Controller", href: "/peripheriques/ps-controller" },
-      { label: "Manettes Pro", href: "/peripheriques/manettes-pro" },
+      { label: "Claviers Professionnels", href: "/categories/claviers-professionnels" },
+      { label: "Claviers Gamers", href: "/categories/claviers-gamer" },
     ]
-  }
+  },
+  {
+    title: "Audio",
+    titleHref: "/categories/audio", // Nouveau lien principal
+    items: [
+      { label: "Casques Gamer", href: "/categories/casques-gamer" },
+      { label: "Haut-Parleurs", href: "/categories/haut-parleurs" },
+      { label: "Microphones", href: "/categories/microphones" },
+    ]
+  },
+  {
+    title: "Streaming",
+    titleHref: "/categories/streaming", // Nouveau lien principal
+    items: [
+      { label: "Cartes Vidéos Streaming", href: "/categories/cartes-videos-streaming" },
+      { label: "Cartes Son", href: "/categories/cartes-son" },
+      { label: "Déco Streaming", href: "/categories/decoration-streaming" },
+      { label: "Accessoires Streaming", href: "/categories/accessoires-streaming" },
+    ]
+  },
+  {
+    title: "Ecrans Moniteurs",
+    titleHref: "/categories/moniteurs", // Nouveau lien principal
+    items: [
+      { label: "Moniteurs Gaming", href: "/categories/moniteurs-gaming" },
+      { label: "Accessoires Ecrans", href: "/categories/accessoires-moniteurs" },
+    ]
+  },
 ];
 
+// SECTION CONSOLES - Tous les liens adaptés au format /categories/slug
 const consolesMenu: MenuCategory[] = [
   {
-    title: "PlayStation",
+    title: "Consoles",
+    titleHref: "/categories/consoles", // Nouveau lien principal
     items: [
-      { label: "PlayStation 5", href: "/consoles/ps5" },
-      { label: "PlayStation 5 Slim", href: "/consoles/ps5-slim" },
-      { label: "Accessoires PS5", href: "/consoles/accessoires-ps5" },
-      { label: "Jeux PS5", href: "/consoles/jeux-ps5" },
+      { label: "PlayStation 5", href: "/categories/playstation-5" },
+      { label: "Xbox", href: "/categories/xbox" },
+      { label: "Nintendo", href: "/categories/nintendo" },
+      { label: "Jeux Vidéos", href: "/categories/jeux-videos" },
+      { label: "Accessoires Consoles", href: "/categories/accessoires-consoles" },
     ]
   },
   {
-    title: "Xbox",
+    title: "Rétro Gaming",
+    titleHref: "/categories/retro-gaming", // Nouveau lien principal
     items: [
-      { label: "Xbox Series X", href: "/consoles/xbox-series-x" },
-      { label: "Xbox Series S", href: "/consoles/xbox-series-s" },
-      { label: "Accessoires Xbox", href: "/consoles/accessoires-xbox" },
-      { label: "Game Pass", href: "/consoles/game-pass" },
+      { label: "Consoles Rétro Gaming", href: "/categories/consoles-retro" },
+      { label: "Jeux Rétro", href: "/categories/jeux-retro" },
+      { label: "Accessoires Rétro Gaming", href: "/categories/accessoires-retro" },
     ]
   },
   {
-    title: "Nintendo",
+    title: "Arcades",
+    titleHref: "/categories/arcades", // Nouveau lien principal
     items: [
-      { label: "Nintendo Switch", href: "/consoles/nintendo-switch" },
-      { label: "Nintendo Switch OLED", href: "/consoles/switch-oled" },
-      { label: "Jeux Nintendo", href: "/consoles/jeux-nintendo" },
+      { label: "Bornes Arcade", href: "/categories/bornes-arcade" },
+      { label: "Bartop", href: "/categories/bartop" },
     ]
   }
 ];
 
 // Configuration du menu principal avec vos vraies catégories
+// Les liens principaux sont également adaptés au format /categories/slug
 const menuItems: MenuItem[] = [
   {
     label: "PC GAMERS",
-    href: "/categories/pc-gamer",
+    href: "/categories/pc-gamer", // Lien principal adapté
     hasMegaMenu: true,
     megaMenuCategories: pcGamersMenu,
     megaMenuImage: {
@@ -241,11 +309,24 @@ const menuItems: MenuItem[] = [
       subtitle: "Haute Performance"
     }
   },
+
   {
-    label: "SETUP GAMERS",
-    href: "/setup-gamers",
+    label: "COMPOSANTS",
+    href: "/categories/composants", // Lien principal adapté
     hasMegaMenu: true,
-    megaMenuCategories: setupGamersMenu,
+    megaMenuCategories: composantsMenu,
+    megaMenuImage: {
+      src: "/images/computer-cover.webp",
+      alt: "Composants PC",
+      title: "Composants",
+      subtitle: "PC Gaming"
+    }
+  },
+  {
+    label: "PACK GAMERS",
+    href: "/categories/kit-evo-gamers", // Lien principal adapté
+    hasMegaMenu: true,
+    megaMenuCategories: kitevoGamersMenu,
     megaMenuImage: {
       src: "/images/setup-gaming-promo.jpg",
       alt: "Setup Gaming",
@@ -255,7 +336,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "LAPTOP GAMERS",
-    href: "/laptop-gamers",
+    href: "/categories/laptop-gamers", // Lien principal adapté
     hasMegaMenu: true,
     megaMenuCategories: laptopGamersMenu,
     megaMenuImage: {
@@ -265,37 +346,23 @@ const menuItems: MenuItem[] = [
       subtitle: "Gaming"
     }
   },
-  {
-    label: "COMPOSANTS",
-    href: "/composants",
-    hasMegaMenu: true,
-    megaMenuCategories: composantsMenu,
-    megaMenuImage: {
-      src: "/images/composants-promo.jpg",
-      alt: "Composants PC",
-      title: "Composants",
-      subtitle: "PC Gaming"
-    }
-  },
+  
   {
     label: "PERIPHERIQUES",
-    href: "/peripheriques",
+    href: "/categories/peripheriques", // Lien principal adapté
     hasMegaMenu: true,
     megaMenuCategories: peripheriquesMenu,
     megaMenuImage: {
-      src: "/images/peripheriques-promo.jpg",
+      src: "/images/test-7.webp",
       alt: "Périphériques Gaming",
       title: "Périphériques",
       subtitle: "Gaming"
     }
   },
-  {
-    label: "KIT EVO GAMING",
-    href: "/kit-evo-gaming",
-  },
+  
   {
     label: "CONSOLES",
-    href: "/consoles",
+    href: "/categories/consoles", // Lien principal adapté
     hasMegaMenu: true,
     megaMenuCategories: consolesMenu,
     megaMenuImage: {
@@ -307,66 +374,67 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "NEW ARRIVALS",
-    href: "/new-releases",
+    href: "/categories/nouveautes", // Lien adapté même pour les spéciaux
     isSpecial: true,
     specialColor: "#ff6b6b",
   },
   {
     label: "PROMOTIONS",
-    href: "/promotions",
+    href: "/categories/promotions", // Lien adapté même pour les spéciaux
     isSpecial: true,
     specialColor: "#e74c3c",
   },
 ];
 
 // Configuration des marques - Images statiques optimisées
+// Liens marques également adaptés au format /categories/marque-nom
 const brands = [
   { 
     name: "Intel", 
     logo: "/brands/intel-logo.png",
-    href: "/marques/intel",
+    href: "/categories/marque-intel", // Lien adapté
     slug: "intel"
   },
   { 
     name: "NVIDIA", 
     logo: "/brands/nvidia-logo.png",
-    href: "/marques/nvidia",
+    href: "/categories/marque-nvidia", // Lien adapté
     slug: "nvidia"
   },
   { 
     name: "AMD", 
     logo: "/brands/amd-logo.png",
-    href: "/marques/amd",
+    href: "/categories/marque-amd", // Lien adapté
     slug: "amd"
   },
   { 
     name: "ASUS", 
     logo: "/brands/asus-logo.png",
-    href: "/marques/asus",
+    href: "/categories/marque-asus", // Lien adapté
     slug: "asus"
   },
   { 
     name: "MSI", 
     logo: "/brands/msi-logo.png",
-    href: "/marques/msi",
+    href: "/categories/marque-msi", // Lien adapté
     slug: "msi"
   },
   { 
     name: "Corsair", 
     logo: "/brands/corsair-logo.png",
-    href: "/marques/corsair",
+    href: "/categories/marque-corsair", // Lien adapté
     slug: "corsair"
   },
   { 
     name: "Razer", 
     logo: "/brands/razer-logo.png",
-    href: "/marques/razer",
+    href: "/categories/marque-razer", // Lien adapté
     slug: "razer"
   },
   { 
     name: "Logitech", 
     logo: "/brands/logitech-logo.png",
-    href: "/marques/logitech",
+    href: "/categories/marque-logitech", // Lien adapté
     slug: "logitech"
   },
 ];
@@ -552,26 +620,36 @@ export function NavigationMenu() {
       </div>
 
       {/* Image promotionnelle à droite - 1 colonne */}
-      <div className="col-span-1">
-        {activeItem.megaMenuImage && (
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg p-4 text-white h-full flex flex-col justify-center items-center min-h-[200px]">
-            <div className="text-center">
-              <h4 className="text-lg font-bold mb-1">
-                {activeItem.megaMenuImage.title}
-              </h4>
-              <p className="text-base mb-3">
-                {activeItem.megaMenuImage.subtitle}
-              </p>
-              <Link
-                href={activeItem.href}
-                className="inline-block bg-yellow-400 text-black px-3 py-1.5 rounded text-sm font-semibold hover:bg-yellow-500 transition-colors"
-              >
-                Voir tout
-              </Link>
+        <div className="col-span-1">
+          {activeItem?.megaMenuImage && (
+            <div className="relative bg-gradient-to-br from-gray-800 to-black  p-4 text-white h-full min-h-[260px] overflow-hidden">
+              {/* Image de fond */}
+              <Image
+                src={activeItem.megaMenuImage.src}     
+                alt={activeItem.megaMenuImage.alt}
+                fill
+                sizes="(min-width: 1024px) 320px, 100vw"
+                className="object-cover opacity-70"
+                priority
+              />
+              {/* Overlay contenu */}
+              <div className="relative z-10 flex flex-col items-center justify-center text-center h-full">
+                <h4 className="text-lg font-bold mb-1">
+                  {activeItem.megaMenuImage.title}
+                </h4>
+                <p className="text-base mb-3">
+                  {activeItem.megaMenuImage.subtitle}
+                </p>
+                <Link
+                  href={activeItem.href}
+                  className="inline-block bg-yellow-400 text-black px-3 py-1.5 rounded text-sm font-semibold hover:bg-yellow-500 transition-colors"
+                >
+                  Voir tout
+                </Link>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
     </div>
 
     {/* Section des marques améliorée */}
