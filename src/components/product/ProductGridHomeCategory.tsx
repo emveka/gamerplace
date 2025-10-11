@@ -143,7 +143,6 @@ export function ProductGridHomeCategory({
               title: data.title || '',
               slug: data.slug || '',
               shortDescription: data.shortDescription,
-              description: data.description,
               brandId: data.brandId || '',
               brandName: data.brandName || '',
               categoryIds: data.categoryIds || [],

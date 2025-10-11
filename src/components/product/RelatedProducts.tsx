@@ -1,5 +1,5 @@
 // components/product/RelatedProducts.tsx - Version corrigée avec sérialisation
-import { collection, query, where, getDocs, limit, DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, DocumentData, QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/types/product';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -67,15 +67,25 @@ interface FirebaseProductData extends DocumentData {
   };
 }
 
+const toTimestamp = (ts: unknown): Timestamp => {
+  if (ts instanceof Timestamp) return ts;
+
+  return ts && typeof ts === 'object' && 'seconds' in ts && 'nanoseconds' in ts
+    // @ts-expect-error constructeur (seconds, nanoseconds)
+    ? new Timestamp(ts.seconds, ts.nanoseconds)
+    : Timestamp.fromMillis(0);
+};
+
+
 // Fonction pour sérialiser un produit Firebase en Product complet
 function serializeFirebaseProduct(doc: QueryDocumentSnapshot<FirebaseProductData>): Product {
   const data = doc.data();
+
   return {
     id: doc.id,
     title: data.title || '',
     slug: data.slug || '',
-    shortDescription: data.shortDescription,
-    description: data.description,
+    shortDescription: data.shortDescription || '',
     brandId: data.brandId || '',
     brandName: data.brandName || '',
     categoryIds: data.categoryIds || [],
@@ -94,23 +104,19 @@ function serializeFirebaseProduct(doc: QueryDocumentSnapshot<FirebaseProductData
     tags: data.tags || [],
     badges: data.badges || [],
     productDescriptions: data.productDescriptions || [],
-    videoUrl: data.videoUrl,
+    // Product déclare: videoUrl: string | undefined
+    videoUrl: data.videoUrl ?? '',
     metaTitle: data.metaTitle || '',
     metaDescription: data.metaDescription || '',
     keywords: data.keywords || [],
     canonicalUrl: data.canonicalUrl,
     isActive: data.isActive !== false,
     isNewArrival: data.isNewArrival || false,
-    // Convertir les Timestamps en format attendu
-    createdAt: data.createdAt ? {
-      seconds: data.createdAt.seconds || 0,
-      nanoseconds: data.createdAt.nanoseconds || 0
-    } : null,
-    updatedAt: data.updatedAt ? {
-      seconds: data.updatedAt.seconds || 0,
-      nanoseconds: data.updatedAt.nanoseconds || 0
-    } : null
-  } as Product;
+
+    // ✅ normalisation en Timestamp (pas d’objet {seconds, nanoseconds})
+    createdAt: toTimestamp(data.createdAt),
+    updatedAt: toTimestamp(data.updatedAt),
+  } satisfies Product; // évite le cast “as Product”
 }
 
 async function getRelatedProducts(

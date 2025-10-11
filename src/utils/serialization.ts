@@ -1,6 +1,5 @@
 // utils/serialization.ts
 import { Product, TechnicalInfo } from '@/types/product';
-
 /**
  * Type pour un produit sérialisé (utilisé côté client)
  */
@@ -55,7 +54,6 @@ export interface SerializedProduct {
   createdAt: string | null;
   updatedAt: string | null;
 }
-
 // Re-export des interfaces nécessaires
 export interface ProductBadge {
   id: string;
@@ -66,7 +64,6 @@ export interface ProductBadge {
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   priority?: number;
 }
-
 export interface ProductDescription {
   id: string;
   title: string;
@@ -75,7 +72,6 @@ export interface ProductDescription {
   imageAlt: string;
   order: number;
 }
-
 /**
  * 🔧 Sérialise un produit Firebase pour l'utilisation côté client
  * 
@@ -125,7 +121,6 @@ export function serializeProduct(product: Product): SerializedProduct {
     updatedAt: product.updatedAt?.toDate().toISOString() || null
   };
 }
-
 /**
  * 🧹 Fonction utilitaire pour nettoyer les informations techniques
  * avant l'affichage (supprime les valeurs vides ou nulles)
@@ -133,56 +128,55 @@ export function serializeProduct(product: Product): SerializedProduct {
  * @param technicalInfo - Les informations techniques à nettoyer
  * @returns Les informations techniques nettoyées
  */
-export function cleanTechnicalInfoForDisplay(technicalInfo: any): any {
+// Utility types to avoid `any`
+type TechnicalInfoMap = Record<string, Record<string, unknown>>;
+/**
+ * 🧹 Fonction utilitaire pour nettoyer les informations techniques
+ * avant l'affichage (supprime les valeurs vides ou nulles)
+ */
+export function cleanTechnicalInfoForDisplay<T extends TechnicalInfoMap>(
+  technicalInfo: T | null | undefined
+): T {
   if (!technicalInfo || typeof technicalInfo !== 'object') {
-    return {};
+    return {} as T;
   }
-
-  const cleaned: any = {};
-
-  Object.entries(technicalInfo).forEach(([sectionKey, sectionData]) => {
+  const cleaned = {} as T;
+  Object.entries(technicalInfo as TechnicalInfoMap).forEach(([sectionKey, sectionData]) => {
     if (sectionData && typeof sectionData === 'object') {
-      const cleanedSection: any = {};
-      
+      const cleanedSection: Record<string, unknown> = {};
       Object.entries(sectionData).forEach(([fieldKey, fieldValue]) => {
         // Garder seulement les valeurs non vides
         if (fieldValue !== null && fieldValue !== undefined && fieldValue !== '') {
           cleanedSection[fieldKey] = fieldValue;
         }
       });
-
       // Ajouter la section seulement si elle contient des données
       if (Object.keys(cleanedSection).length > 0) {
-        cleaned[sectionKey] = cleanedSection;
+        (cleaned as TechnicalInfoMap)[sectionKey] = cleanedSection;
       }
     }
   });
-
   return cleaned;
 }
-
 /**
  * ✅ Fonction pour valider la structure des informations techniques
- * 
- * @param technicalInfo - Les informations techniques à valider
- * @returns true si la structure est valide, false sinon
  */
-export function validateTechnicalInfoStructure(technicalInfo: any): boolean {
+export function validateTechnicalInfoStructure(
+  technicalInfo: TechnicalInfo | null | undefined
+): boolean {
   if (!technicalInfo) return true; // Optionnel
-
   if (typeof technicalInfo !== 'object') return false;
-
   // Vérifier que chaque section est un objet
-  for (const [sectionKey, sectionData] of Object.entries(technicalInfo)) {
+  for (const [sectionKey, sectionData] of Object.entries(technicalInfo as Record<string, unknown>)) {
     if (sectionData !== null && typeof sectionData !== 'object') {
+      // On loggue pour debuggage, mais on reste typé
+      // eslint-disable-next-line no-console
       console.warn(`Section ${sectionKey} n'est pas un objet:`, sectionData);
       return false;
     }
   }
-
   return true;
 }
-
 /**
  * 🔄 Fonction pour convertir un produit sérialisé en objet Product
  * (Utile pour les formulaires d'édition)

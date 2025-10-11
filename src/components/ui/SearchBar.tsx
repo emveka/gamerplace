@@ -23,7 +23,6 @@ interface SearchBarProps {
   onSearch?: (query: string) => void;
 }
 
-// Interface pour les données Firebase
 interface FirebaseProductData {
   id: string;
   title: string;
@@ -45,7 +44,20 @@ export function SearchBar({
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Détection mobile
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   // Fermer les résultats quand on clique ailleurs
   useEffect(() => {
@@ -69,7 +81,7 @@ export function SearchBar({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Recherche en temps réel avec Firebase
+  // Recherche en temps réel avec Firebase - Inchangé
   useEffect(() => {
     if (searchQuery.length < 2) {
       setResults([]);
@@ -85,7 +97,7 @@ export function SearchBar({
         const searchResults: SearchResult[] = [];
         const seenIds = new Set<string>();
 
-        // 1. Recherche par titre (priorité haute)
+        // Recherche par titre
         try {
           const titleQuery = firebaseQuery(
             collection(db, 'products'),
@@ -117,7 +129,7 @@ export function SearchBar({
           console.log('Recherche par titre échouée:', error);
         }
 
-        // 2. Recherche par marque si on a moins de 6 résultats
+        // Recherche par marque
         if (searchResults.length < 6) {
           try {
             const brandQuery = firebaseQuery(
@@ -151,7 +163,7 @@ export function SearchBar({
           }
         }
 
-        // 3. Recherche par tags si on a encore moins de 6 résultats
+        // Recherche par tags
         if (searchResults.length < 6) {
           try {
             const tagsQuery = firebaseQuery(
@@ -183,8 +195,9 @@ export function SearchBar({
           }
         }
 
-        // Limiter à 8 résultats maximum
-        setResults(searchResults.slice(0, 8));
+        // Limiter à 6 résultats pour mobile, 8 pour desktop
+        const maxResults = isMobile ? 6 : 8;
+        setResults(searchResults.slice(0, maxResults));
         setShowResults(true);
 
       } catch (error) {
@@ -196,7 +209,7 @@ export function SearchBar({
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, isMobile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,9 +236,17 @@ export function SearchBar({
     }).format(price);
   };
 
+  // Placeholder adaptatif selon la taille d'écran
+  const getPlaceholder = () => {
+    if (isMobile) {
+      return "Rechercher...";
+    }
+    return placeholder;
+  };
+
   return (
     <div ref={searchRef} className={`relative ${className}`}>
-      {/* Barre de recherche */}
+      {/* Barre de recherche responsive */}
       <form
         onSubmit={handleSubmit}
         className="flex-1 relative flex items-stretch"
@@ -235,22 +256,26 @@ export function SearchBar({
         <input
           name="q"
           type="text"
-          placeholder={placeholder}
+          placeholder={getPlaceholder()}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
-          className="w-full rounded-l bg-white px-4 py-2 text-sm text-black outline-none placeholder:text-gray-400"
+          className={`w-full rounded-l bg-white text-black outline-none placeholder:text-gray-400 ${
+            isMobile ? 'px-3 py-1.5 text-sm' : 'px-3 sm:px-4 py-2 text-sm'
+          }`}
         />
         <button
           type="submit"
-          className="group inline-flex items-center justify-center rounded-r px-4 bg-yellow-400 hover:bg-yellow-500 transition-colors"
+          className={`group inline-flex items-center justify-center rounded-r bg-yellow-400 hover:bg-yellow-500 transition-colors ${
+            isMobile ? 'px-3 py-1.5' : 'px-3 sm:px-4 py-2'
+          }`}
           aria-label="Rechercher"
         >
           <svg
             viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            className="fill-black group-hover:opacity-80"
+            className={`fill-black group-hover:opacity-80 ${
+              isMobile ? 'w-4 h-4' : 'w-4 h-4 sm:w-[18px] sm:h-[18px]'
+            }`}
             aria-hidden="true"
           >
             <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -258,20 +283,26 @@ export function SearchBar({
         </button>
       </form>
 
-      {/* Résultats de recherche */}
+      {/* Résultats de recherche responsives */}
       {showResults && (
         <div 
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] max-h-96 overflow-y-auto"
-          style={{
+          className={`fixed bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-y-auto ${
+            isMobile 
+              ? 'left-2 right-2 max-h-[70vh]' // Pleine largeur sur mobile avec marges
+              : 'max-h-96' // Largeur normale sur desktop
+          }`}
+          style={!isMobile ? {
             top: searchRef.current ? searchRef.current.getBoundingClientRect().bottom + window.scrollY + 4 : 0,
             left: searchRef.current ? searchRef.current.getBoundingClientRect().left + window.scrollX : 0,
             width: searchRef.current ? searchRef.current.getBoundingClientRect().width : 'auto',
+          } : {
+            top: searchRef.current ? searchRef.current.getBoundingClientRect().bottom + window.scrollY + 4 : 0,
           }}
         >
           {isLoading ? (
-            <div className="p-4 text-center text-gray-500">
+            <div className={`p-4 text-center text-gray-500 ${isMobile ? 'py-8' : ''}`}>
               <div className="animate-spin w-6 h-6 border-2 border-yellow-400 border-t-transparent rounded-full mx-auto"></div>
-              <p className="mt-2">Recherche en cours...</p>
+              <p className="mt-2 text-sm">Recherche en cours...</p>
             </div>
           ) : results.length > 0 ? (
             <div>
@@ -280,9 +311,14 @@ export function SearchBar({
                   key={result.id}
                   href={`/products/${result.slug}`}
                   onClick={handleResultClick}
-                  className="flex items-center p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                  className={`flex items-center hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
+                    isMobile ? 'p-3' : 'p-3'
+                  }`}
                 >
-                  <div className="relative w-12 h-12 mr-3 flex-shrink-0">
+                  {/* Image du produit */}
+                  <div className={`relative flex-shrink-0 mr-3 ${
+                    isMobile ? 'w-10 h-10' : 'w-12 h-12'
+                  }`}>
                     <Image
                       src={result.imageUrl || '/placeholder-product.jpg'}
                       alt={result.title}
@@ -290,33 +326,63 @@ export function SearchBar({
                       className="object-cover rounded"
                     />
                   </div>
+                  
+                  {/* Informations du produit */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-gray-900 truncate">
+                    <h4 className={`font-medium text-gray-900 ${
+                      isMobile 
+                        ? 'text-sm truncate' 
+                        : 'text-sm truncate'
+                    }`}>
                       {result.title}
                     </h4>
-                    <p className="text-sm text-gray-500">
-                      {result.brandName} • {result.categoryName}
+                    
+                    {/* Marque et catégorie - Cachés sur très petits écrans */}
+                    <p className={`text-gray-500 ${
+                      isMobile 
+                        ? 'text-xs truncate' 
+                        : 'text-sm'
+                    }`}>
+                      {isMobile ? (
+                        // Sur mobile, afficher seulement la marque
+                        result.brandName
+                      ) : (
+                        // Sur desktop, afficher marque et catégorie
+                        `${result.brandName} • ${result.categoryName}`
+                      )}
                     </p>
                   </div>
-                  <div className="text-sm font-semibold text-yellow-600">
+                  
+                  {/* Prix */}
+                  <div className={`font-semibold text-yellow-600 ${
+                    isMobile ? 'text-sm' : 'text-sm'
+                  }`}>
                     {formatPrice(result.price)}
                   </div>
                 </Link>
               ))}
-              <div className="p-3 border-t border-gray-100 bg-gray-50">
+              
+              {/* Bouton voir tous les résultats */}
+              <div className={`border-t border-gray-100 bg-gray-50 ${
+                isMobile ? 'p-3' : 'p-3'
+              }`}>
                 <button
                   onClick={() => {
                     handleSubmit({ preventDefault: () => {} } as React.FormEvent);
                   }}
-                  className="text-sm text-yellow-600 hover:text-yellow-800 font-medium"
+                  className={`text-yellow-600 hover:text-yellow-800 font-medium ${
+                    isMobile ? 'text-sm w-full text-center' : 'text-sm'
+                  }`}
                 >
                   Voir tous les résultats pour &quot;{searchQuery}&quot;
                 </button>
               </div>
             </div>
           ) : searchQuery.length >= 2 ? (
-            <div className="p-4 text-center text-gray-500">
-              <p>Aucun résultat trouvé pour &quot;{searchQuery}&quot;</p>
+            <div className={`text-center text-gray-500 ${
+              isMobile ? 'p-6' : 'p-4'
+            }`}>
+              <p className="text-sm">Aucun résultat trouvé pour &quot;{searchQuery}&quot;</p>
             </div>
           ) : null}
         </div>

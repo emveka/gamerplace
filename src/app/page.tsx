@@ -1,4 +1,4 @@
-// app/page.tsx - Version corrigée qui utilise votre composant existant
+// app/page.tsx - Utilisation avec ratios exacts Desktop 1500:350 et Mobile 4:5
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Banner } from '@/components/ui/Banner';
@@ -10,6 +10,7 @@ interface FirebaseBanner {
   title: string;
   alt: string;
   imageUrl: string;
+  mobileImageUrl?: string;  // ✅ Important: récupérer ce champ
   linkUrl: string;
   isActive: boolean;
   order: number;
@@ -17,7 +18,7 @@ interface FirebaseBanner {
   updatedAt: { seconds: number; nanoseconds: number } | null;
 }
 
-// Fonction pour récupérer les banners
+// ✅ Fonction corrigée pour récupérer mobileImageUrl
 async function getBanners(): Promise<FirebaseBanner[]> {
   try {
     const bannersRef = collection(db, 'banners');
@@ -32,6 +33,10 @@ async function getBanners(): Promise<FirebaseBanner[]> {
         title: data.title || '',
         alt: data.alt || '',
         imageUrl: data.imageUrl || '',
+        
+        // ✅ CRITIQUE: Récupérer mobileImageUrl depuis Firebase
+        mobileImageUrl: data.mobileImageUrl || undefined,
+        
         linkUrl: data.linkUrl || '',
         isActive: data.isActive !== false,
         order: data.order || 0,
@@ -60,20 +65,20 @@ export default async function HomePage() {
 
   return (
     <div className="w-full bg-white">
-      {/* Banner principal */}
+      {/* Banner principal avec ratios exacts */}
       <div className="max-w-[1500px] mx-auto pt-6">
         <Banner
           banners={banners}
-          height="h-[450px]"
-          mobileHeight="h-80"
           autoplay={true}
           autoplayDelay={5000}
-          showDots={true}
-          showArrows={true}
+          showDots={true}           // Desktop : garde les dots
+          showMobileDots={false}    // Mobile : pas de dots (défaut)
+          showProgressBar={true}    // Mobile : barre de progression visible (défaut)
+          debug={false}             // Retirez le debug maintenant que ça marche
         />
       </div>
 
-      {/* Section PC Gamer */}
+      {/* Vos sections produits */}
       <ProductGridHomeCategory
         title="PC Gamer"
         categoryId="t0SePGqxSmOfmYZ2ea1X"
@@ -82,7 +87,6 @@ export default async function HomePage() {
         priority={true}
       />
 
-      {/* Section Laptops */}
       <ProductGridHomeCategory
         title="Cartes Graphiques"
         categoryId="LazrSiL0nF7yh8eVnvS5"
@@ -90,9 +94,7 @@ export default async function HomePage() {
         maxProducts={6}
         priority={false}
       />
-      
 
-      {/* Section Gaming */}
       <ProductGridHomeCategory
         title="Processeurs"
         categoryId="MRisGslLF4oodGbHZU7A"
@@ -100,9 +102,6 @@ export default async function HomePage() {
         maxProducts={6}
         priority={false}
       />
-
-      
-  
     </div>
   );
 }

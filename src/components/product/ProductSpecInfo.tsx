@@ -27,9 +27,17 @@ interface ProductSpecinfoProps {
 }
 
 /**
- * Type de template supporté
+ * Type de template supporté - TOUS LES TEMPLATES
  */
-type TemplateType = 'pc_gamer' | 'processeur' | 'carte_graphique' | 'default';
+type TemplateType = 
+  | 'pc_gamer' 
+  | 'processeur' 
+  | 'carte_graphique' 
+  | 'carte_mere'
+  | 'moniteur'
+  | 'ram'
+  | 'alimentation'
+  | 'default';
 
 /**
  * Composant ProductSpecinfo avec détection automatique de template
@@ -64,12 +72,37 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
     if (carteGraphiqueCategories.some(cat => categoryLower.includes(cat.toLowerCase()))) {
       return 'carte_graphique';
     }
+
+    // Templates Carte Mère
+    const carteMereCategories = ['carte mère', 'cartes mères', 'motherboard'];
+    if (carteMereCategories.some(cat => categoryLower.includes(cat.toLowerCase()))) {
+      return 'carte_mere';
+    }
+
+    // Templates Moniteur
+    const moniteurCategories = ['moniteur', 'moniteurs', 'écran', 'écrans', 'display'];
+    if (moniteurCategories.some(cat => categoryLower.includes(cat.toLowerCase()))) {
+      return 'moniteur';
+    }
+
+    // Templates RAM
+    const ramCategories = ['ram', 'mémoire', 'mémoire ram', 'barrette mémoire'];
+    if (ramCategories.some(cat => categoryLower.includes(cat.toLowerCase()))) {
+      return 'ram';
+    }
+
+    // Templates Alimentation
+    const alimentationCategories = ['alimentation', 'alimentations', 'psu', 'power supply'];
+    if (alimentationCategories.some(cat => categoryLower.includes(cat.toLowerCase()))) {
+      return 'alimentation';
+    }
     
     return 'default';
   };
 
   /**
    * 🏷️ Mappings des champs par template
+   * Chaque template a son propre mapping de champs avec labels en français
    */
   const templateFieldLabels: { [key in TemplateType]: { [field: string]: string } } = {
     
@@ -85,18 +118,18 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
       'usage_recommande': 'Usage recommandé',
       
       // Processeur
-      'marque_processeur': 'Marque',
+      'marque_processeur': 'Marque Processeur',
       'type_processeur': 'Type de processeur', 
       'processeur': 'Processeur',
       'frequence_cpu': 'Fréquence CPU',
       'coeurs_threads': 'Cœurs / Threads',
       
       // Mémoire
-      'modele_memoire': 'Modèle',
+      'modele_memoire': 'Modèle Mémoire',
       'rgb': 'RGB',
       'capacite_ram': 'Capacité RAM totale',
-      'nombre_barrettes': 'Nombre barrettes',
-      'frequence_ram': 'Fréquence',
+      'nombre_barrettes': 'Configuration barrettes',
+      'frequence_ram': 'Fréquence RAM',
       
       // Stockage
       'modele_ssd': 'Modèle SSD',
@@ -111,28 +144,29 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
       'nombre_ecrans': 'Nombre d\'écran(s)',
       
       // Alimentation
-      'marque_alimentation': 'Marque',
-      'modele_alimentation': 'Modèle',
+      'marque_alimentation': 'Marque Alimentation',
+      'modele_alimentation': 'Modèle Alimentation',
       'puissance': 'Puissance',
       'certification': 'Certification',
       'modulaire': 'Modulaire',
       
       // Refroidissement
-      'marque_refroidissement': 'Marque',
-      'modele_refroidissement': 'Modèle',
-      'type_refroidissement': 'Type',
+      'type_refroidissement': 'Type de refroidissement',
+      'marque_refroidissement': 'Marque Refroidissement',
+      'modele_refroidissement': 'Modèle Refroidissement',
       
       // Équipement
       'clavier_fournis': 'Clavier fournis',
       'souris_fournis': 'Souris fournis',
       'tapis_souris_fournis': 'Tapis de souris fournis',
       'casque_fournis': 'Casque fournis',
+      'webcam_fournis': 'Webcam fournis',
       
       // Garanties
       'garantie': 'Garantie',
     },
 
-    // 🔧 TEMPLATE PROCESSEUR (mis à jour selon tes données Firebase)
+    // 🔧 TEMPLATE PROCESSEUR
     processeur: {
       // Informations générales
       'designation': 'Désignation',
@@ -143,71 +177,209 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
       'usage_recommande': 'Usage recommandé',
       
       // Performance
-      'cache_l3': 'Cache L3',
-      'freq_base': 'Fréquence de base',
-      'freq_boost': 'Fréquence boost',
       'nb_coeurs': 'Nombre de cœurs',
       'nb_threads': 'Nombre de threads',
+      'freq_base': 'Fréquence de base',
+      'freq_boost': 'Fréquence boost/turbo',
+      'cache_l3': 'Cache L3',
       
       // Spécifications techniques
       'architecture': 'Architecture',
-      'lithographie': 'Lithographie',
+      'lithographie': 'Finesse de gravure',
       'tdp': 'TDP',
       
       // Compatibilité
-      'freq_memoire_max': 'Fréquence mémoire max',
       'type_memoire': 'Type mémoire supportée',
+      'freq_memoire_max': 'Fréquence mémoire maximale',
       
       // Fonctionnalités
+      'overclocking': 'Overclocking supporté',
       'gpu_integre': 'GPU intégré',
       'modele_gpu_integre': 'Modèle GPU intégré',
-      'overclocking': 'Overclocking',
       'refroidisseur_inclus': 'Refroidisseur inclus',
-      
-      // Garantie
-      'garantie': 'Garantie',
     },
 
     // 🎨 TEMPLATE CARTE GRAPHIQUE
     carte_graphique: {
-      // Informations générales
-      'marque': 'Marque',
-      'modele': 'Modèle',
-      'chipset': 'Chipset',
-      'architecture': 'Architecture',
-      
-      // Mémoire
-      'taille_memoire': 'Taille mémoire',
-      'type_memoire': 'Type mémoire',
-      'bus_memoire': 'Bus mémoire',
-      'bande_passante': 'Bande passante',
+      // Informations produit
+      'nom_commercial': 'Nom commercial',
+      'marque_constructeur': 'Marque constructeur',
+      'marque_partenaire': 'Marque partenaire',
+      'modele_gpu': 'Modèle GPU',
+      'modele_specifique': 'Modèle spécifique',
       
       // Performance
-      'frequence_base': 'Fréquence de base',
-      'frequence_boost': 'Fréquence boost',
-      'unites_calcul': 'Unités de calcul',
-      'rt_cores': 'RT Cores',
-      'tensor_cores': 'Tensor Cores',
+      'nb_coeurs_cuda': 'Cœurs de calcul',
+      'freq_base': 'Fréquence de base',
+      'freq_boost': 'Fréquence boost/turbo',
+      'performance_ia': 'Performance IA',
       
-      // Connectivité
-      'sorties_video': 'Sorties vidéo',
-      'hdmi': 'HDMI',
-      'displayport': 'DisplayPort',
-      'usb_c': 'USB-C',
+      // Mémoire
+      'capacite_vram': 'Taille mémoire',
+      'type_memoire': 'Type de mémoire',
+      'vitesse_memoire': 'Vitesse mémoire',
+      'interface_memoire': 'Interface mémoire',
       
-      // Alimentation
-      'consommation': 'Consommation',
-      'connecteurs_alimentation': 'Connecteurs alimentation',
+      // Affichage
+      'resolution_max': 'Résolution maximale',
+      'nb_ecrans_supportes': 'Nombre d\'écrans supportés',
+      'sorties_video': 'Connecteurs vidéo',
+      
+      // Alimentation et Taille
+      'consommation_tdp': 'Consommation (TDP)',
       'alimentation_recommandee': 'Alimentation recommandée',
-      
-      // Physique
+      'connecteur_alimentation': 'Connecteur d\'alimentation',
       'longueur': 'Longueur',
-      'hauteur': 'Hauteur',
-      'slots': 'Slots occupés',
-      'refroidissement': 'Refroidissement',
+      'largeur': 'Largeur',
+      'epaisseur': 'Épaisseur',
       
-      // Garantie
+      // Fonctionnalités
+      'ray_tracing': 'Ray Tracing',
+      'dlss_fsr': 'Technologie d\'upscaling',
+      'bus_pci': 'Interface',
+      'opengl': 'OpenGL',
+      'support_vr': 'Support VR',
+      
+      // Informations complémentaires
       'garantie': 'Garantie',
+      'rgb_eclairage': 'Éclairage RGB',
+      'overclocking_usine': 'Pré-overclockée',
+      'refroidissement_info': 'Système de refroidissement',
+    },
+
+    // 🔌 TEMPLATE CARTE MÈRE
+    carte_mere: {
+      // Informations générales
+      'designation': 'Désignation',
+      'marque': 'Marque',
+      'modele': 'Modèle',
+      'format': 'Format',
+      'usage_recommande': 'Usage recommandé',
+      
+      // Compatibilité processeur
+      'socket': 'Socket',
+      'chipset': 'Chipset',
+      
+      // Mémoire
+      'type_memoire': 'Type de mémoire',
+      'nb_slots_memoire': 'Nombre de slots mémoire',
+      'capacite_max': 'Capacité maximale',
+      'freq_memoire_max': 'Fréquence maximale',
+      'dual_channel': 'Support Dual Channel',
+      
+      // Connectique Stockage
+      'nb_sata3': 'Ports SATA 3.0',
+      'nb_m2_slots': 'Slots M.2',
+      'type_m2': 'Types M.2 supportés',
+      'pcie_m2': 'Interface M.2',
+      'raid_support': 'Support RAID',
+      
+      // Slots d'extension
+      'nb_pcie_x16': 'Slots PCIe x16',
+      'nb_pcie_x8': 'Slots PCIe x8',
+      'nb_pcie_x4': 'Slots PCIe x4',
+      'nb_pcie_x1': 'Slots PCIe x1',
+      'version_pcie': 'Version PCIe',
+      
+      // Connectique I/O
+      'nb_usb_2': 'Ports USB 2.0',
+      'nb_usb_3': 'Ports USB 3.0/3.1',
+      'nb_usb_3_2': 'Ports USB 3.2',
+      'usb_type_c': 'Port USB Type-C',
+      'nb_ethernet': 'Ports Ethernet',
+      'audio_codec': 'Codec Audio',
+      'sorties_video': 'Sorties vidéo intégrées',
+      
+      // Fonctionnalités
+      'wifi': 'WiFi intégré',
+      'version_wifi': 'Version WiFi',
+      'bluetooth': 'Bluetooth',
+      'version_bluetooth': 'Version Bluetooth',
+      'rgb_lighting': 'Éclairage RGB',
+      'logiciel_rgb': 'Logiciel RGB',
+      'overclocking': 'Support overclocking',
+    },
+
+    // 🖥️ TEMPLATE MONITEUR
+    moniteur: {
+      // Informations générales
+      'designation': 'Désignation',
+      'marque': 'Marque',
+      'modele': 'Modèle',
+      'taille_ecran': 'Taille d\'écran',
+      'usage_recommande': 'Usage recommandé',
+      
+      // Affichage
+      'resolution': 'Résolution',
+      'format_ecran': 'Format d\'écran',
+      'type_dalle': 'Type de dalle',
+      'taux_rafraichissement': 'Taux de rafraîchissement',
+      'temps_reponse': 'Temps de réponse',
+      
+      // Connectique
+      'nb_hdmi': 'Ports HDMI',
+      'version_hdmi': 'Version HDMI',
+      'nb_displayport': 'Ports DisplayPort',
+      'version_displayport': 'Version DisplayPort',
+      'usb_c': 'Port USB-C',
+      'nb_usb': 'Ports USB (hub)',
+      'dvi': 'Port DVI',
+      'vga': 'Port VGA',
+      
+      // Garanties
+      'garantie': 'Garantie',
+    },
+
+    // 🧠 TEMPLATE RAM
+    ram: {
+      // Informations générales
+      'designation': 'Désignation',
+      'marque': 'Marque',
+      'modele': 'Modèle/Série',
+      
+      // Capacité et Type
+      'capacite_totale': 'Capacité totale',
+      'configuration': 'Configuration',
+      'type_memoire': 'Type de mémoire',
+      'format': 'Format',
+      
+      // Performances
+      'frequence': 'Fréquence',
+      'latence_cas': 'Latence CAS (CL)',
+      'voltage': 'Voltage',
+      
+      // Design et Fonctionnalités
+      'eclairage_rgb': 'Éclairage RGB',
+      'radiateur': 'Radiateur/Dissipateur',
+      'couleur': 'Couleur principale',
+      
+      // Garantie et Infos
+      'garantie': 'Durée de garantie',
+    },
+
+    // ⚡ TEMPLATE ALIMENTATION
+    alimentation: {
+      // Informations générales
+      'designation': 'Désignation',
+      'marque': 'Marque',
+      'modele': 'Modèle/Série',
+      
+      // Puissance et Certification
+      'puissance': 'Puissance',
+      'certification_80plus': 'Certification 80 PLUS',
+      'efficacite': 'Efficacité',
+      
+      // Format et Modularité
+      'format': 'Format',
+      'modularite': 'Modularité',
+      'longueur_cables': 'Longueur des câbles',
+      
+      // Fonctionnalités
+      'eclairage_rgb': 'Éclairage RGB',
+      'protections': 'Protections intégrées',
+      
+      // Garantie et Usage
+      'garantie': 'Durée de garantie',
     },
 
     // 📦 TEMPLATE DEFAULT (pour produits non spécialisés)
@@ -225,6 +397,7 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
 
   /**
    * 📋 Configuration des sections par template
+   * Définit le titre et l'ordre d'affichage de chaque section pour chaque template
    */
   const templateSectionConfig: { [key in TemplateType]: { [section: string]: { title: string; order: number } } } = {
     
@@ -241,25 +414,61 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
       'garanties': { title: 'GARANTIES', order: 9 },
     },
 
-    // 🔧 SECTIONS PROCESSEUR (mises à jour selon tes données Firebase)
+    // 🔧 SECTIONS PROCESSEUR
     processeur: {
       'informations_generales': { title: 'INFORMATIONS GÉNÉRALES', order: 1 },
       'performance': { title: 'PERFORMANCE', order: 2 },
       'specifications_techniques': { title: 'SPÉCIFICATIONS TECHNIQUES', order: 3 },
       'compatibilite': { title: 'COMPATIBILITÉ', order: 4 },
       'fonctionnalites': { title: 'FONCTIONNALITÉS', order: 5 },
-      'garanties': { title: 'GARANTIES', order: 6 },
     },
 
     // 🎨 SECTIONS CARTE GRAPHIQUE
     carte_graphique: {
+      'informations_produit': { title: 'INFORMATIONS PRODUIT', order: 1 },
+      'performance': { title: 'PERFORMANCE', order: 2 },
+      'memoire': { title: 'MÉMOIRE', order: 3 },
+      'affichage': { title: 'AFFICHAGE', order: 4 },
+      'alimentation_taille': { title: 'ALIMENTATION ET TAILLE', order: 5 },
+      'fonctionnalites': { title: 'FONCTIONNALITÉS', order: 6 },
+      'informations_complementaires': { title: 'INFORMATIONS COMPLÉMENTAIRES', order: 7 },
+    },
+
+    // 🔌 SECTIONS CARTE MÈRE
+    carte_mere: {
       'informations_generales': { title: 'INFORMATIONS GÉNÉRALES', order: 1 },
-      'memoire': { title: 'MÉMOIRE', order: 2 },
-      'performance': { title: 'PERFORMANCE', order: 3 },
-      'connectivite': { title: 'CONNECTIVITÉ', order: 4 },
-      'alimentation': { title: 'ALIMENTATION', order: 5 },
-      'physique': { title: 'CARACTÉRISTIQUES PHYSIQUES', order: 6 },
-      'garanties': { title: 'GARANTIES', order: 7 },
+      'compatibilite_processeur': { title: 'COMPATIBILITÉ PROCESSEUR', order: 2 },
+      'memoire': { title: 'MÉMOIRE', order: 3 },
+      'connectique_stockage': { title: 'CONNECTIQUE STOCKAGE', order: 4 },
+      'slots_extension': { title: 'SLOTS D\'EXTENSION', order: 5 },
+      'connectique_io': { title: 'CONNECTIQUE I/O', order: 6 },
+      'fonctionnalites': { title: 'FONCTIONNALITÉS', order: 7 },
+    },
+
+    // 🖥️ SECTIONS MONITEUR
+    moniteur: {
+      'informations_generales': { title: 'INFORMATIONS GÉNÉRALES', order: 1 },
+      'affichage': { title: 'AFFICHAGE', order: 2 },
+      'connectique': { title: 'CONNECTIQUE', order: 3 },
+      'garanties': { title: 'GARANTIES', order: 4 },
+    },
+
+    // 🧠 SECTIONS RAM
+    ram: {
+      'informations_generales': { title: 'INFORMATIONS GÉNÉRALES', order: 1 },
+      'capacite_type': { title: 'CAPACITÉ ET TYPE', order: 2 },
+      'performances': { title: 'PERFORMANCES', order: 3 },
+      'design_fonctionnalites': { title: 'DESIGN ET FONCTIONNALITÉS', order: 4 },
+      'garantie_infos': { title: 'GARANTIE ET INFORMATIONS', order: 5 },
+    },
+
+    // ⚡ SECTIONS ALIMENTATION
+    alimentation: {
+      'informations_generales': { title: 'INFORMATIONS GÉNÉRALES', order: 1 },
+      'puissance_certification': { title: 'PUISSANCE ET CERTIFICATION', order: 2 },
+      'format_modularite': { title: 'FORMAT ET MODULARITÉ', order: 3 },
+      'fonctionnalites': { title: 'FONCTIONNALITÉS', order: 4 },
+      'garantie_usage': { title: 'GARANTIE ET USAGE', order: 5 },
     },
 
     // 📦 SECTIONS DEFAULT
@@ -272,30 +481,41 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
 
   /**
    * Fonction pour formater une valeur selon son type et son contexte
+   * Gère les booléens, nombres et strings avec formatage spécifique
    */
   const formatValue = (value: string | number | boolean, fieldKey?: string): string => {
+    // Gestion des booléens
     if (typeof value === 'boolean') {
       return value ? 'Oui' : 'Non';
     }
+    
+    // Gestion des nombres
     if (typeof value === 'number') {
-      // Formatage spécial pour les fréquences
+      // Formatage spécial pour les fréquences (GHz)
       if (fieldKey?.includes('freq') || fieldKey?.includes('frequence')) {
         return `${value} GHz`;
       }
-      // Formatage spécial pour le TDP
-      if (fieldKey === 'tdp') {
+      // Formatage spécial pour le TDP (Watts)
+      if (fieldKey === 'tdp' || fieldKey === 'consommation_tdp') {
         return `${value} W`;
       }
-      // Formatage spécial pour les cœurs et threads
-      if (fieldKey?.includes('nb_') || fieldKey?.includes('nombre_')) {
-        return value.toString();
+      // Formatage spécial pour les dimensions (mm)
+      if (fieldKey === 'longueur' || fieldKey === 'largeur' || fieldKey === 'epaisseur') {
+        return `${value} mm`;
       }
+      // Formatage spécial pour la vitesse mémoire (Gb/s)
+      if (fieldKey === 'vitesse_memoire') {
+        return `${value} Gb/s`;
+      }
+      // Nombres simples (cœurs, threads, ports, etc.)
       return value.toString();
     }
+    
+    // Gestion des strings (valeur par défaut)
     return value || 'Non spécifié';
   };
 
-  // 🎯 Détection automatique du template
+  // 🎯 Détection automatique du template basé sur la catégorie du produit
   const templateType = detectTemplateType(product.primaryCategoryName);
   const fieldLabels = templateFieldLabels[templateType];
   const sectionConfig = templateSectionConfig[templateType];
@@ -304,31 +524,32 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
 
   /**
    * Fonction pour construire les sections de spécifications
+   * Parcourt les données techniques du produit et les organise en sections
    */
   const buildSpecSections = (): SpecSection[] => {
     const sections: SpecSection[] = [];
     
     // Vérifier si le produit a des informations techniques
     if (!product.technicalInfo || typeof product.technicalInfo !== 'object') {
-      console.log('Aucune information technique trouvée pour ce produit');
+      console.log('❌ Aucune information technique trouvée pour ce produit');
       return [];
     }
 
-    console.log('Informations techniques du produit:', product.technicalInfo);
+    console.log('📊 Informations techniques du produit:', product.technicalInfo);
     console.log(`🔧 Utilisation du template: ${templateType}`);
 
     // Parcourir chaque section technique du produit
     Object.entries(product.technicalInfo).forEach(([sectionKey, sectionData]) => {
       // Vérifier que sectionData est un objet valide
       if (!sectionData || typeof sectionData !== 'object') {
-        console.log(`Section ${sectionKey} ignorée: données invalides`);
+        console.log(`⚠️ Section ${sectionKey} ignorée: données invalides`);
         return;
       }
 
       // Obtenir la configuration de la section pour ce template
       const config = sectionConfig[sectionKey];
       if (!config) {
-        console.log(`Section ${sectionKey} ignorée: non configurée pour le template ${templateType}`);
+        console.log(`⚠️ Section ${sectionKey} ignorée: non configurée pour le template ${templateType}`);
         return;
       }
 
@@ -339,7 +560,7 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
         // Obtenir le libellé français pour ce champ dans ce template
         const label = fieldLabels[fieldKey];
         if (!label) {
-          console.log(`Champ ${fieldKey} ignoré: libellé non trouvé pour le template ${templateType}`);
+          console.log(`⚠️ Champ ${fieldKey} ignoré: libellé non trouvé pour le template ${templateType}`);
           return;
         }
 
@@ -371,6 +592,25 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
   // Construire les sections à partir des données du produit
   const specSections = buildSpecSections();
 
+  /**
+   * Fonction pour obtenir la couleur du template (pour l'affichage)
+   */
+  const getTemplateColor = (template: TemplateType): string => {
+    const colors: { [key in TemplateType]: string } = {
+      'pc_gamer': 'green',
+      'processeur': 'orange',
+      'carte_graphique': 'purple',
+      'carte_mere': 'blue',
+      'moniteur': 'purple',
+      'ram': 'indigo',
+      'alimentation': 'yellow',
+      'default': 'gray'
+    };
+    return colors[template];
+  };
+
+  const templateColor = getTemplateColor(templateType);
+
   // Si aucune spécification technique n'est disponible
   if (specSections.length === 0) {
     return (
@@ -385,7 +625,7 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
             Aucune spécification technique disponible pour ce produit.
           </p>
           <p className="text-xs sm:text-sm mt-2">
-            Template détecté: <span className="font-medium">{templateType}</span>
+            Template détecté: <span className="font-medium">{templateType.replace('_', ' ').toUpperCase()}</span>
           </p>
         </div>
       </div>
@@ -408,7 +648,7 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
           <p className="text-sm sm:text-base text-gray-600">
             {product.title}
           </p>
-          <span className="text-xs text-yellow-600 font-medium">
+          <span className={`text-xs text-${templateColor}-600 font-medium`}>
             Template: {templateType.replace('_', ' ').toUpperCase()}
           </span>
         </div>
@@ -482,7 +722,7 @@ export function ProductSpecinfo({ product }: ProductSpecinfoProps) {
           <p className="text-[10px] sm:text-xs text-gray-400">
             Les spécifications peuvent varier selon les configurations disponibles.
           </p>
-          <p className="text-[10px] sm:text-xs text-yellow-600">
+          <p className={`text-[10px] sm:text-xs text-${templateColor}-600 font-medium`}>
             Affichage optimisé pour {templateType.replace('_', ' ')}
           </p>
         </div>

@@ -10,10 +10,9 @@ type SubMenuItem = {
   href: string;
 };
 
-// Type mis à jour pour inclure titleHref
 type MenuCategory = {
   title: string;
-  titleHref?: string; // Nouveau champ optionnel
+  titleHref?: string;
   items: SubMenuItem[];
 };
 
@@ -32,12 +31,11 @@ type MenuItem = {
   };
 };
 
-// Configuration des mega menus pour vos catégories gaming
-// SECTION PC GAMERS - Liens adaptés au format /categories/slug
+// Configuration des mega menus (même configuration que l'original)
 const pcGamersMenu: MenuCategory[] = [
   {
     title: "PC Gamer AMD",
-    titleHref: "/categories/pc-gamer-amd", // Lien principal pour la catégorie AMD
+    titleHref: "/categories/pc-gamer-amd",
     items: [
       { label: "PC Gamer AMD Ryzen 3", href: "/categories/pc-gamer-amd-ryzen-3" },
       { label: "PC Gamer AMD Ryzen 5", href: "/categories/pc-gamer-amd-ryzen-5" },
@@ -47,7 +45,7 @@ const pcGamersMenu: MenuCategory[] = [
   },
   {
     title: "PC Gamer INTEL",
-    titleHref: "/categories/pc-gamer-intel", // Lien principal pour la catégorie Intel
+    titleHref: "/categories/pc-gamer-intel",
     items: [
       { label: "PC GAMER INTEL Core i3", href: "/categories/pc-gamer-intel-core-i3" },
       { label: "PC GAMER INTEL Core i5", href: "/categories/pc-gamer-intel-core-i5" },
@@ -57,9 +55,9 @@ const pcGamersMenu: MenuCategory[] = [
   },
   {
     title: "PC Gamer PRO",
-    titleHref: "/categories/pc-gamer-professionnel", // Lien principal pour la catégorie Pro
+    titleHref: "/categories/pc-gamer-professionnel",
     items: [
-      { label: "PC GAMER IA", href: "/categories/pc-gamer-ia" }, // Corrigé "Ia" en "IA"
+      { label: "PC GAMER IA", href: "/categories/pc-gamer-ia" },
       { label: "PC GAMER Architects", href: "/categories/pc-gamer-architectes" },
       { label: "PC GAMER Streamers", href: "/categories/pc-gamer-streamers" },
       { label: "PC GAMER Designers", href: "/categories/pc-gamer-designers" },
@@ -69,11 +67,10 @@ const pcGamersMenu: MenuCategory[] = [
   }
 ];
 
-// SECTION KIT EVO GAMERS - Tous les liens adaptés au format /categories/slug
 const kitevoGamersMenu: MenuCategory[] = [
   {
     title: "Packs Composants",
-    titleHref: "/categories/packs-composants", // Nouveau lien principal
+    titleHref: "/categories/packs-composants",
     items: [
       { label: "CPU/CM", href: "/categories/pack-cpu-carte-mere" },
       { label: "CPU/CM/RAM", href: "/categories/pack-cpu-carte-mere-ram" },
@@ -84,7 +81,7 @@ const kitevoGamersMenu: MenuCategory[] = [
   },
   {
     title: "Packs Périphériques",
-    titleHref: "/categories/packs-peripheriques", // Nouveau lien principal
+    titleHref: "/categories/packs-peripheriques",
     items: [
       { label: "Souris/Tapis", href: "/categories/pack-souris-tapis" },
       { label: "Souris/Clavier", href: "/categories/pack-souris-clavier" },
@@ -94,7 +91,7 @@ const kitevoGamersMenu: MenuCategory[] = [
   },
   {
     title: "Nos Packs Gamers",
-    titleHref: "/categories/packs-gamers-specialises", // Nouveau lien principal
+    titleHref: "/categories/packs-gamers-specialises",
     items: [
       { label: "Pack for Streaming", href: "/categories/pack-streaming" },
       { label: "Pack for Mobilier", href: "/categories/pack-mobilier-gaming" },
@@ -104,11 +101,10 @@ const kitevoGamersMenu: MenuCategory[] = [
   },
 ];
 
-// SECTION LAPTOP GAMERS - Tous les liens adaptés au format /categories/slug
 const laptopGamersMenu: MenuCategory[] = [
   {
     title: "Laptops",
-    titleHref: "/categories/laptops-gaming", // Nouveau lien principal
+    titleHref: "/categories/laptops-gaming",
     items: [
       { label: "Laptops AMD", href: "/categories/laptops-amd" },
       { label: "Laptops INTEL", href: "/categories/laptops-intel" },
@@ -116,7 +112,7 @@ const laptopGamersMenu: MenuCategory[] = [
   },
   {
     title: "Accessoires",
-    titleHref: "/categories/accessoires-laptop", // Nouveau lien principal
+    titleHref: "/categories/accessoires-laptop",
     items: [
       { label: "Refroidisseurs", href: "/categories/refroidisseurs-laptop" },
       { label: "Sacs Gaming", href: "/categories/sacs-gaming-laptop" },
@@ -125,7 +121,7 @@ const laptopGamersMenu: MenuCategory[] = [
   },
   {
     title: "Marques",
-    titleHref: "/categories/marques-laptop", // Nouveau lien principal
+    titleHref: "/categories/marques-laptop",
     items: [
       { label: "ASUS ROG", href: "/categories/laptop-asus-rog" },
       { label: "MSI Gaming", href: "/categories/laptop-msi-gaming" },
@@ -136,19 +132,18 @@ const laptopGamersMenu: MenuCategory[] = [
   }
 ];
 
-// SECTION COMPOSANTS - Liens adaptés et organisés
 const composantsMenu: MenuCategory[] = [
   {
     title: "Cartes Graphiques",
-    titleHref: "/categories/cartes-graphiques", // Nouveau lien principal
+    titleHref: "/categories/cartes-graphiques",
     items: [
-      { label: "NVIDIA GeForce", href: "/categories/nvidia-geforce" }, // Déjà correct
-      { label: "AMD Radeon", href: "/categories/amd-radeon" }, // Déjà correct
+      { label: "NVIDIA GeForce", href: "/categories/nvidia-geforce" },
+      { label: "AMD Radeon", href: "/categories/amd-radeon" },
     ]
   },
   {
     title: "Processeurs",
-    titleHref: "/categories/processeurs", // Nouveau lien principal
+    titleHref: "/categories/processeurs",
     items: [
       { label: "Processeurs INTEL Core", href: "/categories/processeurs-intel-core" },
       { label: "Processeurs AMD Ryzen", href: "/categories/processeurs-amd-ryzen" },
@@ -156,7 +151,7 @@ const composantsMenu: MenuCategory[] = [
   },
   {
     title: "Cartes Mères",
-    titleHref: "/categories/cartes-meres", // Nouveau lien principal
+    titleHref: "/categories/cartes-meres",
     items: [
       { label: "Cartes mère INTEL", href: "/categories/cartes-meres-intel" },
       { label: "Cartes mère AMD", href: "/categories/cartes-meres-amd" },
@@ -164,7 +159,7 @@ const composantsMenu: MenuCategory[] = [
   },
   {
     title: "Stockage Disques",
-    titleHref: "/categories/stockage", // Nouveau lien principal
+    titleHref: "/categories/stockage",
     items: [
       { label: "SSD NVMe", href: "/categories/ssd-nvme" },
       { label: "SSD SATA", href: "/categories/ssd-sata" },
@@ -173,7 +168,7 @@ const composantsMenu: MenuCategory[] = [
   },
   {
     title: "Boitiers",
-    titleHref: "/categories/boitiers", // Nouveau lien principal
+    titleHref: "/categories/boitiers",
     items: [
       { label: "Boitiers avec RGB", href: "/categories/boitiers-rgb" },
       { label: "Boitiers sans RGB", href: "/categories/boitiers-classiques" },
@@ -181,15 +176,15 @@ const composantsMenu: MenuCategory[] = [
   },
   {
     title: "Mémoire RAM",
-    titleHref: "/categories/memoire-ram", // Nouveau lien principal
+    titleHref: "/categories/memoire-ram",
     items: [
-      { label: "RAM DDR5", href: "/categories/ram-ddr5" }, // Déjà correct
-      { label: "RAM DDR4", href: "/categories/ram-ddr4" }, // Déjà correct
+      { label: "RAM DDR5", href: "/categories/ram-ddr5" },
+      { label: "RAM DDR4", href: "/categories/ram-ddr4" },
     ]
   },
   {
     title: "Alimentation",
-    titleHref: "/categories/alimentations", // Nouveau lien principal
+    titleHref: "/categories/alimentations",
     items: [
       { label: "Alimentations Modulaires", href: "/categories/alimentations-modulaires" },
       { label: "Alimentations Standards", href: "/categories/alimentations-standards" },
@@ -197,7 +192,7 @@ const composantsMenu: MenuCategory[] = [
   },
   {
     title: "Refroidissement",
-    titleHref: "/categories/refroidissement", // Nouveau lien principal
+    titleHref: "/categories/refroidissement",
     items: [
       { label: "AirCooling", href: "/categories/refroidissement-air" },
       { label: "WaterCooling", href: "/categories/refroidissement-liquide" },
@@ -205,11 +200,10 @@ const composantsMenu: MenuCategory[] = [
   },
 ];
 
-// SECTION PERIPHERIQUES - Tous les liens adaptés au format /categories/slug
 const peripheriquesMenu: MenuCategory[] = [
   {
     title: "Mobilier Gaming",
-    titleHref: "/categories/mobilier-gaming", // Nouveau lien principal
+    titleHref: "/categories/mobilier-gaming",
     items: [
       { label: "Chaises Gamer", href: "/categories/chaises-gamer" },
       { label: "Bureaux Gamer", href: "/categories/bureaux-gamer" },
@@ -218,7 +212,7 @@ const peripheriquesMenu: MenuCategory[] = [
   },
   {
     title: "Souris",
-    titleHref: "/categories/souris", // Nouveau lien principal
+    titleHref: "/categories/souris",
     items: [
       { label: "Souris Professionnelles", href: "/categories/souris-professionnelles" },
       { label: "Souris Gamer", href: "/categories/souris-gamer" },
@@ -227,7 +221,7 @@ const peripheriquesMenu: MenuCategory[] = [
   },
   {
     title: "Claviers",
-    titleHref: "/categories/claviers", // Nouveau lien principal
+    titleHref: "/categories/claviers",
     items: [
       { label: "Claviers Professionnels", href: "/categories/claviers-professionnels" },
       { label: "Claviers Gamers", href: "/categories/claviers-gamer" },
@@ -235,7 +229,7 @@ const peripheriquesMenu: MenuCategory[] = [
   },
   {
     title: "Audio",
-    titleHref: "/categories/audio", // Nouveau lien principal
+    titleHref: "/categories/audio",
     items: [
       { label: "Casques Gamer", href: "/categories/casques-gamer" },
       { label: "Haut-Parleurs", href: "/categories/haut-parleurs" },
@@ -244,7 +238,7 @@ const peripheriquesMenu: MenuCategory[] = [
   },
   {
     title: "Streaming",
-    titleHref: "/categories/streaming", // Nouveau lien principal
+    titleHref: "/categories/streaming",
     items: [
       { label: "Cartes Vidéos Streaming", href: "/categories/cartes-videos-streaming" },
       { label: "Cartes Son", href: "/categories/cartes-son" },
@@ -254,7 +248,7 @@ const peripheriquesMenu: MenuCategory[] = [
   },
   {
     title: "Ecrans Moniteurs",
-    titleHref: "/categories/moniteurs", // Nouveau lien principal
+    titleHref: "/categories/moniteurs",
     items: [
       { label: "Moniteurs Gaming", href: "/categories/moniteurs-gaming" },
       { label: "Accessoires Ecrans", href: "/categories/accessoires-moniteurs" },
@@ -262,11 +256,10 @@ const peripheriquesMenu: MenuCategory[] = [
   },
 ];
 
-// SECTION CONSOLES - Tous les liens adaptés au format /categories/slug
 const consolesMenu: MenuCategory[] = [
   {
     title: "Consoles",
-    titleHref: "/categories/consoles", // Nouveau lien principal
+    titleHref: "/categories/consoles",
     items: [
       { label: "PlayStation 5", href: "/categories/playstation-5" },
       { label: "Xbox", href: "/categories/xbox" },
@@ -277,7 +270,7 @@ const consolesMenu: MenuCategory[] = [
   },
   {
     title: "Rétro Gaming",
-    titleHref: "/categories/retro-gaming", // Nouveau lien principal
+    titleHref: "/categories/retro-gaming",
     items: [
       { label: "Consoles Rétro Gaming", href: "/categories/consoles-retro" },
       { label: "Jeux Rétro", href: "/categories/jeux-retro" },
@@ -286,7 +279,7 @@ const consolesMenu: MenuCategory[] = [
   },
   {
     title: "Arcades",
-    titleHref: "/categories/arcades", // Nouveau lien principal
+    titleHref: "/categories/arcades",
     items: [
       { label: "Bornes Arcade", href: "/categories/bornes-arcade" },
       { label: "Bartop", href: "/categories/bartop" },
@@ -294,12 +287,10 @@ const consolesMenu: MenuCategory[] = [
   }
 ];
 
-// Configuration du menu principal avec vos vraies catégories
-// Les liens principaux sont également adaptés au format /categories/slug
 const menuItems: MenuItem[] = [
   {
     label: "PC GAMERS",
-    href: "/categories/pc-gamer", // Lien principal adapté
+    href: "/categories/pc-gamer",
     hasMegaMenu: true,
     megaMenuCategories: pcGamersMenu,
     megaMenuImage: {
@@ -309,10 +300,9 @@ const menuItems: MenuItem[] = [
       subtitle: "Haute Performance"
     }
   },
-
   {
     label: "COMPOSANTS",
-    href: "/categories/composants", // Lien principal adapté
+    href: "/categories/composants",
     hasMegaMenu: true,
     megaMenuCategories: composantsMenu,
     megaMenuImage: {
@@ -324,7 +314,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "PACK GAMERS",
-    href: "/categories/kit-evo-gamers", // Lien principal adapté
+    href: "/categories/kit-evo-gamers",
     hasMegaMenu: true,
     megaMenuCategories: kitevoGamersMenu,
     megaMenuImage: {
@@ -336,7 +326,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "LAPTOP GAMERS",
-    href: "/categories/laptop-gamers", // Lien principal adapté
+    href: "/categories/laptop-gamers",
     hasMegaMenu: true,
     megaMenuCategories: laptopGamersMenu,
     megaMenuImage: {
@@ -346,10 +336,9 @@ const menuItems: MenuItem[] = [
       subtitle: "Gaming"
     }
   },
-  
   {
     label: "PERIPHERIQUES",
-    href: "/categories/peripheriques", // Lien principal adapté
+    href: "/categories/peripheriques",
     hasMegaMenu: true,
     megaMenuCategories: peripheriquesMenu,
     megaMenuImage: {
@@ -359,10 +348,9 @@ const menuItems: MenuItem[] = [
       subtitle: "Gaming"
     }
   },
-  
   {
     label: "CONSOLES",
-    href: "/categories/consoles", // Lien principal adapté
+    href: "/categories/consoles",
     hasMegaMenu: true,
     megaMenuCategories: consolesMenu,
     megaMenuImage: {
@@ -374,82 +362,52 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "NEW ARRIVALS",
-    href: "/categories/nouveautes", // Lien adapté même pour les spéciaux
+    href: "/categories/nouveautes",
     isSpecial: true,
     specialColor: "#ff6b6b",
   },
   {
     label: "PROMOTIONS",
-    href: "/categories/promotions", // Lien adapté même pour les spéciaux
+    href: "/categories/promotions",
     isSpecial: true,
     specialColor: "#e74c3c",
   },
 ];
 
-// Configuration des marques - Images statiques optimisées
-// Liens marques également adaptés au format /categories/marque-nom
 const brands = [
-  { 
-    name: "Intel", 
-    logo: "/brands/intel-logo.png",
-    href: "/categories/marque-intel", // Lien adapté
-    slug: "intel"
-  },
-  { 
-    name: "NVIDIA", 
-    logo: "/brands/nvidia-logo.png",
-    href: "/categories/marque-nvidia", // Lien adapté
-    slug: "nvidia"
-  },
-  { 
-    name: "AMD", 
-    logo: "/brands/amd-logo.png",
-    href: "/categories/marque-amd", // Lien adapté
-    slug: "amd"
-  },
-  { 
-    name: "ASUS", 
-    logo: "/brands/asus-logo.png",
-    href: "/categories/marque-asus", // Lien adapté
-    slug: "asus"
-  },
-  { 
-    name: "MSI", 
-    logo: "/brands/msi-logo.png",
-    href: "/categories/marque-msi", // Lien adapté
-    slug: "msi"
-  },
-  { 
-    name: "Corsair", 
-    logo: "/brands/corsair-logo.png",
-    href: "/categories/marque-corsair", // Lien adapté
-    slug: "corsair"
-  },
-  { 
-    name: "Razer", 
-    logo: "/brands/razer-logo.png",
-    href: "/categories/marque-razer", // Lien adapté
-    slug: "razer"
-  },
-  { 
-    name: "Logitech", 
-    logo: "/brands/logitech-logo.png",
-    href: "/categories/marque-logitech", // Lien adapté
-    slug: "logitech"
-  },
+  { name: "Intel", logo: "/brands/intel-logo.png", href: "/categories/marque-intel", slug: "intel" },
+  { name: "NVIDIA", logo: "/brands/nvidia-logo.png", href: "/categories/marque-nvidia", slug: "nvidia" },
+  { name: "AMD", logo: "/brands/amd-logo.png", href: "/categories/marque-amd", slug: "amd" },
+  { name: "ASUS", logo: "/brands/asus-logo.png", href: "/categories/marque-asus", slug: "asus" },
+  { name: "MSI", logo: "/brands/msi-logo.png", href: "/categories/marque-msi", slug: "msi" },
+  { name: "Corsair", logo: "/brands/corsair-logo.png", href: "/categories/marque-corsair", slug: "corsair" },
+  { name: "Razer", logo: "/brands/razer-logo.png", href: "/categories/marque-razer", slug: "razer" },
+  { name: "Logitech", logo: "/brands/logitech-logo.png", href: "/categories/marque-logitech", slug: "logitech" },
 ];
 
-export function NavigationMenu() {
+type NavigationMenuProps = {
+  isMobileMenuOpen?: boolean;
+  onMobileMenuClose?: () => void;
+};
+
+export function NavigationMenu({ isMobileMenuOpen = false, onMobileMenuClose }: NavigationMenuProps) {
+  // États pour desktop (existants)
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   
-  // Refs pour gérer les timeouts et éviter les fuites mémoire
+  // États pour mobile
+  const [expandedMobileMenu, setExpandedMobileMenu] = useState<string | null>(null);
+  
+  // Refs pour gestion des timeouts
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Gestion du scroll - Ferme le mega menu lors du scroll
+  // Fermer le menu mobile au scroll
   useEffect(() => {
     const handleScroll = () => {
+      if (isMobileMenuOpen) {
+        onMobileMenuClose?.();
+      }
       if (isMenuVisible) {
         setIsMenuVisible(false);
         setActiveMenu(null);
@@ -457,24 +415,31 @@ export function NavigationMenu() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [isMenuVisible]);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMobileMenuOpen, isMenuVisible, onMobileMenuClose]);
 
-  // Nettoyage des timeouts - Évite les fuites mémoire
+  // Empêcher le scroll du body quand le menu mobile est ouvert
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
+  // Nettoyage des timeouts
   useEffect(() => {
     return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-      if (leaveTimeoutRef.current) {
-        clearTimeout(leaveTimeoutRef.current);
-      }
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+      if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
     };
   }, []);
 
-  // Gestion améliorée du hover - Entrée dans le menu
+  // Gestion hover desktop (existant)
   const handleMouseEnter = (itemLabel: string) => {
     if (leaveTimeoutRef.current) {
       clearTimeout(leaveTimeoutRef.current);
@@ -487,7 +452,6 @@ export function NavigationMenu() {
     }, 150);
   };
 
-  // Gestion améliorée de la sortie - Sortie du menu principal
   const handleMouseLeave = () => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
@@ -500,7 +464,6 @@ export function NavigationMenu() {
     }, 200);
   };
 
-  // Gestion de la sortie du mega menu - Fermeture immédiate
   const handleMegaMenuLeave = () => {
     setIsMenuVisible(false);
     setActiveMenu(null);
@@ -511,7 +474,6 @@ export function NavigationMenu() {
     }
   };
 
-  // Maintenir le mega menu ouvert - Quand on entre dans le mega menu
   const handleMegaMenuEnter = () => {
     if (leaveTimeoutRef.current) {
       clearTimeout(leaveTimeoutRef.current);
@@ -520,16 +482,25 @@ export function NavigationMenu() {
     setIsMenuVisible(true);
   };
 
-  // Trouver l'item actif pour afficher son contenu
+  // Gestion mobile - Toggle sous-menu
+  const handleMobileMenuToggle = (itemLabel: string) => {
+    setExpandedMobileMenu(expandedMobileMenu === itemLabel ? null : itemLabel);
+  };
+
+  // Fermer le menu mobile après clic sur un lien
+  const handleMobileLinkClick = () => {
+    onMobileMenuClose?.();
+    setExpandedMobileMenu(null);
+  };
+
   const activeItem = menuItems.find(item => item.label === activeMenu);
 
   return (
     <>
-      {/* Navigation principale */}
-      <nav className="bg-yellow-400 border-b border-yellow-500 sticky top-[84px] z-40">
+      {/* Navigation Desktop - Cachée sur mobile et tablette */}
+      <nav className="bg-yellow-400 border-b border-yellow-500 sticky top-[84px] z-40 hidden lg:block">
         <div className="mx-auto max-w-[1500px]">
           <div className="flex items-center">
-            {/* Menu items principaux */}
             <div 
               className="flex items-center"
               onMouseLeave={handleMouseLeave}
@@ -559,7 +530,6 @@ export function NavigationMenu() {
               ))}
             </div>
 
-            {/* Items spéciaux (NEW ARRIVALS, PROMOTIONS) */}
             <div className="ml-auto flex items-center">
               {menuItems.filter(item => item.isSpecial).map((item) => (
                 <Link
@@ -576,120 +546,235 @@ export function NavigationMenu() {
         </div>
       </nav>
 
-      {/* Mega menu amélioré */}
-{isMenuVisible && activeItem && activeItem.hasMegaMenu && (
-  <div 
-    className="fixed left-1/2 transform -translate-x-1/2 w-[1500px] bg-white shadow-2xl border-t-4 border-yellow-400 z-30"
-    onMouseEnter={handleMegaMenuEnter}
-    onMouseLeave={handleMegaMenuLeave}
-  >
-    <div className="grid grid-cols-6 gap-6 p-6">
-      {/* Colonnes des catégories - 5 colonnes */}
-      <div className="col-span-5">
-        <div className="grid grid-cols-5 gap-4">
-          {activeItem.megaMenuCategories?.map((category, index) => (
-            <div key={index}>
-              {/* Titre cliquable ou non selon titleHref */}
-              {category.titleHref ? (
-                <Link
-                  href={category.titleHref}
-                  className="font-bold text-gray-900 text-sm mb-3 border-b border-gray-200 pb-2 block hover:text-yellow-600 transition-colors"
-                >
-                  {category.title}
-                </Link>
-              ) : (
-                <h3 className="font-bold text-gray-900 text-sm mb-3 border-b border-gray-200 pb-2">
-                  {category.title}
-                </h3>
-              )}
-              <ul className="space-y-1.5">
-                {category.items.map((subItem, subIndex) => (
-                  <li key={subIndex}>
-                    <Link
-                      href={subItem.href}
-                      className="text-sm text-gray-600 hover:text-yellow-600 hover:underline transition-colors block"
-                    >
-                      {subItem.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+      {/* Menu Mobile/Tablette - Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={onMobileMenuClose}>
+          <div 
+            className="bg-white w-80 h-full overflow-y-auto shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header du menu mobile */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-yellow-400">
+              <h2 className="font-bold text-black text-lg">Menu Navigation</h2>
+              <button 
+                onClick={onMobileMenuClose}
+                className="w-8 h-8 flex items-center justify-center rounded hover:bg-yellow-500 transition-colors"
+                aria-label="Fermer le menu"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Image promotionnelle à droite - 1 colonne */}
-        <div className="col-span-1">
-          {activeItem?.megaMenuImage && (
-            <div className="relative bg-gradient-to-br from-gray-800 to-black  p-4 text-white h-full min-h-[260px] overflow-hidden">
-              {/* Image de fond */}
-              <Image
-                src={activeItem.megaMenuImage.src}     
-                alt={activeItem.megaMenuImage.alt}
-                fill
-                sizes="(min-width: 1024px) 320px, 100vw"
-                className="object-cover opacity-70"
-                priority
-              />
-              {/* Overlay contenu */}
-              <div className="relative z-10 flex flex-col items-center justify-center text-center h-full">
-                <h4 className="text-lg font-bold mb-1">
-                  {activeItem.megaMenuImage.title}
-                </h4>
-                <p className="text-base mb-3">
-                  {activeItem.megaMenuImage.subtitle}
-                </p>
-                <Link
-                  href={activeItem.href}
-                  className="inline-block bg-yellow-400 text-black px-3 py-1.5 rounded text-sm font-semibold hover:bg-yellow-500 transition-colors"
-                >
-                  Voir tout
-                </Link>
+            {/* Navigation mobile */}
+            <div className="py-2">
+              {menuItems.filter(item => !item.isSpecial).map((item) => (
+                <div key={item.label} className="border-b border-gray-100 last:border-b-0">
+                  <div className="flex items-center">
+                    <Link
+                      href={item.href}
+                      onClick={handleMobileLinkClick}
+                      className="flex-1 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                    
+                    {/* Bouton d'expansion pour les mega menus */}
+                    {item.hasMegaMenu && (
+                      <button
+                        onClick={() => handleMobileMenuToggle(item.label)}
+                        className="px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors"
+                        aria-label={`Afficher les sous-catégories de ${item.label}`}
+                      >
+                        <svg 
+                          className={`w-5 h-5 transform transition-transform ${
+                            expandedMobileMenu === item.label ? 'rotate-180' : ''
+                          }`} 
+                          fill="currentColor" 
+                          viewBox="0 0 20 20"
+                        >
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Sous-menu mobile */}
+                  {item.hasMegaMenu && expandedMobileMenu === item.label && (
+                    <div className="bg-gray-50 border-t border-gray-200">
+                      {item.megaMenuCategories?.map((category, index) => (
+                        <div key={index} className="p-4 border-b border-gray-200 last:border-b-0">
+                          {category.titleHref ? (
+                            <Link
+                              href={category.titleHref}
+                              onClick={handleMobileLinkClick}
+                              className="font-semibold text-gray-900 text-sm mb-2 block hover:text-yellow-600 transition-colors"
+                            >
+                              {category.title}
+                            </Link>
+                          ) : (
+                            <h3 className="font-semibold text-gray-900 text-sm mb-2">
+                              {category.title}
+                            </h3>
+                          )}
+                          <ul className="space-y-1">
+                            {category.items.map((subItem, subIndex) => (
+                              <li key={subIndex}>
+                                <Link
+                                  href={subItem.href}
+                                  onClick={handleMobileLinkClick}
+                                  className="text-sm text-gray-600 hover:text-yellow-600 hover:underline transition-colors block py-1"
+                                >
+                                  {subItem.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Items spéciaux en mobile */}
+              <div className="mt-4 px-4 space-y-2">
+                {menuItems.filter(item => item.isSpecial).map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={handleMobileLinkClick}
+                    className="block text-center py-3 px-4 text-white font-bold rounded-lg transition-colors"
+                    style={{ backgroundColor: item.specialColor }}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Marques en mobile */}
+              <div className="mt-6 p-4 border-t border-gray-200">
+                <h3 className="font-bold text-gray-900 text-sm mb-3">Marques Populaires</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {brands.slice(0, 6).map((brand, index) => (
+                    <Link 
+                      key={index}
+                      href={brand.href}
+                      onClick={handleMobileLinkClick}
+                      className="block p-2 border border-gray-200 rounded-lg hover:border-yellow-400 transition-colors"
+                    >
+                      <Image
+                        src={brand.logo}
+                        alt={`Logo ${brand.name}`}
+                        width={60}
+                        height={30}
+                        className="h-6 w-auto object-contain mx-auto"
+                      />
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
-    </div>
+      )}
 
-    {/* Section des marques améliorée */}
-    <div className="px-6 pb-6">
-      <div className="pt-4">
-        <div className="flex items-center justify-between gap-4">
-          {brands.slice(0, 8).map((brand, index) => (
-            <div 
-              key={index} 
-              className="flex-1 flex items-center justify-center"
-            >
-              {brand.href ? (
-                <Link 
-                  href={brand.href}
-                  className="block hover:opacity-80 transition-opacity duration-200"
-                >
+      {/* Mega menu Desktop - Inchangé */}
+      {isMenuVisible && activeItem && activeItem.hasMegaMenu && (
+        <div 
+          className="hidden lg:block fixed left-1/2 transform -translate-x-1/2 w-[1500px] bg-white shadow-2xl border-t-4 border-yellow-400 z-30"
+          onMouseEnter={handleMegaMenuEnter}
+          onMouseLeave={handleMegaMenuLeave}
+        >
+          <div className="grid grid-cols-6 gap-6 p-6">
+            <div className="col-span-5">
+              <div className="grid grid-cols-5 gap-4">
+                {activeItem.megaMenuCategories?.map((category, index) => (
+                  <div key={index}>
+                    {category.titleHref ? (
+                      <Link
+                        href={category.titleHref}
+                        className="font-bold text-gray-900 text-sm mb-3 border-b border-gray-200 pb-2 block hover:text-yellow-600 transition-colors"
+                      >
+                        {category.title}
+                      </Link>
+                    ) : (
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 border-b border-gray-200 pb-2">
+                        {category.title}
+                      </h3>
+                    )}
+                    <ul className="space-y-1.5">
+                      {category.items.map((subItem, subIndex) => (
+                        <li key={subIndex}>
+                          <Link
+                            href={subItem.href}
+                            className="text-sm text-gray-600 hover:text-yellow-600 hover:underline transition-colors block"
+                          >
+                            {subItem.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="col-span-1">
+              {activeItem?.megaMenuImage && (
+                <div className="relative bg-gradient-to-br from-gray-800 to-black p-4 text-white h-full min-h-[260px] overflow-hidden">
                   <Image
-                    src={brand.logo}
-                    alt={`Logo ${brand.name}`}
-                    width={80}
-                    height={40}
-                    className="h-8 w-auto object-contain transition-all duration-300"
+                    src={activeItem.megaMenuImage.src}     
+                    alt={activeItem.megaMenuImage.alt}
+                    fill
+                    sizes="(min-width: 1024px) 320px, 100vw"
+                    className="object-cover opacity-70"
+                    priority
                   />
-                </Link>
-              ) : (
-                <Image
-                  src={brand.logo}
-                  alt={`Logo ${brand.name}`}
-                  width={80}
-                  height={40}
-                  className="h-8 w-auto object-contain transition-all duration-300 cursor-pointer"
-                />
+                  <div className="relative z-10 flex flex-col items-center justify-center text-center h-full">
+                    <h4 className="text-lg font-bold mb-1">
+                      {activeItem.megaMenuImage.title}
+                    </h4>
+                    <p className="text-base mb-3">
+                      {activeItem.megaMenuImage.subtitle}
+                    </p>
+                    <Link
+                      href={activeItem.href}
+                      className="inline-block bg-yellow-400 text-black px-3 py-1.5 rounded text-sm font-semibold hover:bg-yellow-500 transition-colors"
+                    >
+                      Voir tout
+                    </Link>
+                  </div>
+                </div>
               )}
             </div>
-          ))}
+          </div>
+
+          <div className="px-6 pb-6">
+            <div className="pt-4">
+              <div className="flex items-center justify-between gap-4">
+                {brands.slice(0, 8).map((brand, index) => (
+                  <div key={index} className="flex-1 flex items-center justify-center">
+                    <Link 
+                      href={brand.href}
+                      className="block hover:opacity-80 transition-opacity duration-200"
+                    >
+                      <Image
+                        src={brand.logo}
+                        alt={`Logo ${brand.name}`}
+                        width={80}
+                        height={40}
+                        className="h-8 w-auto object-contain transition-all duration-300"
+                      />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </>
   );
 }

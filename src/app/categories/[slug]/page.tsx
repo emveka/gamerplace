@@ -14,6 +14,16 @@ import { CategoryDescription } from '@/components/category/CategoryDescription';
 import { ProductSortingBar } from '@/components/product/ProductSortingBar';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Suspense } from 'react';
+import { Timestamp } from 'firebase/firestore';
+
+const toTimestamp = (ts: unknown): Timestamp => {
+  if (ts instanceof Timestamp) return ts;
+
+  return ts && typeof ts === 'object' && 'seconds' in ts && 'nanoseconds' in ts
+    // @ts-expect-error constructeur (seconds, nanoseconds) accepté
+    ? new Timestamp(ts.seconds, ts.nanoseconds)
+    : Timestamp.fromMillis(0);
+};
 
 // Interface compatible avec PaginationSearchParams
 interface SearchParams {
@@ -234,49 +244,43 @@ async function getProducts(
       console.log(`Firebase Doc ID: ${doc.id}, Title: ${data.title}, Badges:`, data.badges);
       
       return {
-        id: doc.id,
-        title: data.title || '',
-        slug: data.slug || '',
-        shortDescription: data.shortDescription,
-        description: data.description,
-        brandId: data.brandId || '',
-        brandName: data.brandName || '',
-        categoryIds: data.categoryIds || [],
-        categoryPath: data.categoryPath || [],
-        primaryCategoryId: data.primaryCategoryId || '',
-        primaryCategoryName: data.primaryCategoryName || '',
-        price: data.price || 0,
-        oldPrice: data.oldPrice,
-        costPrice: data.costPrice,
-        images: data.images || [],
-        imageAlts: data.imageAlts || [],
-        stock: data.stock || 0,
-        sku: data.sku,
-        barcode: data.barcode,
-        specifications: data.specifications || {},
-        tags: data.tags || [],
-        
-        // CORRECTION CRITIQUE: Mapping explicite des badges (pluriel)
-        badges: data.badges || [],
-        
-        productDescriptions: data.productDescriptions || [],
-        metaTitle: data.metaTitle || '',
-        metaDescription: data.metaDescription || '',
-        keywords: data.keywords || [],
-        canonicalUrl: data.canonicalUrl,
-        isActive: data.isActive !== false,
-        isNewArrival: data.isNewArrival || false,
-        
-        createdAt: data.createdAt ? {
-          seconds: data.createdAt.seconds,
-          nanoseconds: data.createdAt.nanoseconds
-        } : null,
-        updatedAt: data.updatedAt ? {
-          seconds: data.updatedAt.seconds,
-          nanoseconds: data.updatedAt.nanoseconds
-        } : null
-      };
-    }) as Product[];
+    id: doc.id,
+    title: data.title ?? '',
+    slug: data.slug ?? '',
+    shortDescription: data.shortDescription,
+    brandId: data.brandId ?? '',
+    brandName: data.brandName ?? '',
+    categoryIds: data.categoryIds ?? [],
+    categoryPath: data.categoryPath ?? [],
+    primaryCategoryId: data.primaryCategoryId ?? '',
+    primaryCategoryName: data.primaryCategoryName ?? '',
+    price: data.price ?? 0,
+    oldPrice: data.oldPrice,
+    costPrice: data.costPrice,
+    images: data.images ?? [],
+    imageAlts: data.imageAlts ?? [],
+    stock: data.stock ?? 0,
+    sku: data.sku,
+    barcode: data.barcode,
+    specifications: data.specifications ?? {},
+    tags: data.tags ?? [],
+    badges: data.badges ?? [],
+    productDescriptions: data.productDescriptions ?? [],
+    metaTitle: data.metaTitle ?? '',
+    metaDescription: data.metaDescription ?? '',
+    keywords: data.keywords ?? [],
+    canonicalUrl: data.canonicalUrl,
+    isActive: data.isActive !== false,
+    isNewArrival: data.isNewArrival ?? false,
+
+    // ✅ requis par Product (déclaré comme string | undefined mais propriété obligatoire)
+    videoUrl: data.videoUrl ?? '',
+
+    // ✅ normalisation en Timestamp (pas d’objet {seconds, nanoseconds})
+    createdAt: toTimestamp(data.createdAt),
+    updatedAt: toTimestamp(data.updatedAt),
+  } satisfies Product; // plus sûr que `as Product`
+});
 
     // Filtrage prix côté client
     if (filters.priceRange && allProducts.length > 0) {
