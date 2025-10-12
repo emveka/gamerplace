@@ -1,5 +1,8 @@
 // src/components/ui/Pagination.tsx
+"use client";
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 // Interface pour les paramètres de recherche de la pagination
 interface PaginationSearchParams {
@@ -25,6 +28,27 @@ export function Pagination({
   searchParams,
   baseUrl = ''
 }: PaginationProps) {
+  // État pour gérer la détection mobile côté client
+  const [isMobile, setIsMobile] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Effet pour détecter la taille d'écran côté client
+  useEffect(() => {
+    setIsClient(true);
+    
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // Vérification initiale
+    checkMobile();
+    
+    // Écouter les changements de taille
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   if (totalPages <= 1) {
     return null;
   }
@@ -54,10 +78,10 @@ export function Pagination({
     return `${baseUrl}${query ? `?${query}` : ''}`;
   };
 
-  // Version mobile : moins de pages visibles
+  // Version desktop : avec détection mobile sécurisée
   const getVisiblePages = () => {
-    // Sur mobile : delta réduit pour moins de pages
-    const delta = window?.innerWidth < 640 ? 1 : 2;
+    // Utiliser l'état mobile au lieu d'accéder directement à window
+    const delta = isMobile ? 1 : 2;
     const range: number[] = [];
     const rangeWithDots: (number | string)[] = [];
 
@@ -106,6 +130,63 @@ export function Pagination({
     
     return visiblePages;
   };
+
+  // Affichage conditionnel basé sur l'état client et mobile
+  if (!isClient) {
+    // Rendu côté serveur : version simple sans détection mobile
+    return (
+      <nav 
+        className="bg-white shadow-sm p-4 mb-6"
+        aria-label="Pagination"
+        role="navigation"
+      >
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Page {currentPage} sur {totalPages}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {/* Previous button */}
+            {currentPage > 1 ? (
+              <Link
+                href={createUrl(currentPage - 1)}
+                className="px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors rounded"
+                aria-label="Page précédente"
+                rel="prev"
+              >
+                Précédent
+              </Link>
+            ) : (
+              <span className="px-4 py-2 border border-gray-300 text-gray-400 cursor-not-allowed rounded">
+                Précédent
+              </span>
+            )}
+            
+            {/* Current page indicator */}
+            <span className="px-3 py-2 bg-yellow-500 text-white font-medium rounded">
+              {currentPage}
+            </span>
+            
+            {/* Next button */}
+            {currentPage < totalPages ? (
+              <Link
+                href={createUrl(currentPage + 1)}
+                className="px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors rounded"
+                aria-label="Page suivante"
+                rel="next"
+              >
+                Suivant
+              </Link>
+            ) : (
+              <span className="px-4 py-2 border border-gray-300 text-gray-400 cursor-not-allowed rounded">
+                Suivant
+              </span>
+            )}
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav 

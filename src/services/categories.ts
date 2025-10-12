@@ -72,9 +72,14 @@ export async function getCategory(slug: string): Promise<Category | null> {
 
 // Récupérer toutes les catégories enfants récursivement
 export async function getAllChildCategories(parentCategoryId: string): Promise<string[]> {
+  console.log('🔍 getAllChildCategories START for parentId:', parentCategoryId);
+  
   try {
     const categoriesRef = collection(db, 'categories');
+    console.log('🔍 Fetching categories from Firebase...');
+    
     const allCategoriesSnapshot = await getDocs(query(categoriesRef, where('isActive', '==', true)));
+    console.log('🔍 Categories fetched:', allCategoriesSnapshot.docs.length, 'active categories');
     
     const allCategories = allCategoriesSnapshot.docs.map(doc => {
       const data = doc.data();
@@ -90,29 +95,52 @@ export async function getAllChildCategories(parentCategoryId: string): Promise<s
       };
     });
     
-    // Fonction récursive pour trouver tous les enfants
-    const findAllChildren = (parentId: string): string[] => {
+    console.log('🔍 All categories mapped. Sample:', allCategories.slice(0, 3).map(c => ({ id: c.id, name: c.name, parentId: c.parentId })));
+    
+    // Fonction récursive pour trouver tous les enfants avec protection contre boucles infinies
+    const findAllChildren = (parentId: string, depth = 0): string[] => {
+      console.log(`🔍 findAllChildren called for parentId: ${parentId}, depth: ${depth}`);
+      
+      // Protection contre boucles infinies
+      if (depth > 10) {
+        console.error('❌ MAX DEPTH REACHED - potential infinite loop detected for parentId:', parentId);
+        return [];
+      }
+      
       const directChildren = allCategories
         .filter(cat => cat.parentId === parentId)
         .map(cat => cat.id);
       
+      console.log(`🔍 Direct children of ${parentId}:`, directChildren);
+      
       const allChildren = [...directChildren];
       
       directChildren.forEach(childId => {
-        const grandChildren = findAllChildren(childId);
-        allChildren.push(...grandChildren);
+        console.log(`🔍 Processing child: ${childId}`);
+        try {
+          const grandChildren = findAllChildren(childId, depth + 1);
+          allChildren.push(...grandChildren);
+        } catch (error) {
+          console.error(`❌ Error processing child ${childId}:`, error);
+        }
       });
       
+      console.log(`🔍 All children for ${parentId}:`, allChildren);
       return allChildren;
     };
     
+    console.log('🔍 Starting recursive search...');
     const allCategoryIds = [parentCategoryId];
     const childrenIds = findAllChildren(parentCategoryId);
     allCategoryIds.push(...childrenIds);
     
-    return [...new Set(allCategoryIds)];
+    const result = [...new Set(allCategoryIds)];
+    console.log('🔍 getAllChildCategories RESULT:', result);
+    
+    return result;
   } catch (error) {
-    console.error('Error in getAllChildCategories:', error);
+    console.error('❌ ERROR in getAllChildCategories for parentId:', parentCategoryId, error);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
     return [parentCategoryId];
   }
 }
