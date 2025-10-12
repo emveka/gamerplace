@@ -1,7 +1,7 @@
 // app/layout.tsx - Métadonnées SEO optimisées
 "use client";
 
-import type { Metadata, Viewport } from "next";
+
 import "./globals.css";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -118,10 +118,10 @@ export default function RootLayout({
         <title>PC Gamer Maroc - Cartes Graphiques RTX, Processeurs Gaming | Gamerplace.ma</title>
         
         {/* ✅ Meta description optimisée avec mots-clés principaux */}
-        <meta name="description" content="🎮 PC Gamer Maroc chez Gamerplace.ma ✅ Cartes graphiques RTX 4060, RTX 4070, processeurs AMD Ryzen & Intel ✅ Livraison rapide Casablanca, Rabat, Marrakech ✅ Prix imbattables composants gaming" />
+        <meta name="description" content="PC Gamer Maroc chez Gamerplace.ma, Cartes graphiques GTRX, RTX, RX, CPU AMD Ryzen & Intel, Moniteurs, Livraison rapide au Maroc à Casablanca, Rabat, Marrakech" />
         
         {/* ✅ Mots-clés SEO stratégiques */}
-        <meta name="keywords" content="PC Gamer Maroc, carte graphique RTX Maroc, processeur gaming Maroc, PC gaming Casablanca, composants gaming Maroc, RTX 4060 Maroc, AMD Ryzen Maroc, Intel Core gaming, boutique gaming Casablanca, PC Gamer pas cher Maroc" />
+        <meta name="keywords" content="PC Gamer Maroc, carte graphique RTX Maroc, processeur gaming Maroc, PC gaming Casablanca, composants gaming Maroc, RTX 5060 Maroc, AMD Ryzen Maroc, Intel Core gaming, boutique gaming Casablanca, PC Gamer pas cher Maroc" />
         
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Gamerplace.ma" />
@@ -135,7 +135,7 @@ export default function RootLayout({
         {/* ✅ Open Graph optimisé */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="PC Gamer Maroc - Cartes Graphiques RTX, Processeurs Gaming | Gamerplace.ma" />
-        <meta property="og:description" content="🎮 La référence PC Gamer au Maroc. Cartes graphiques RTX, processeurs AMD & Intel. Livraison partout au Maroc. Prix imbattables !" />
+        <meta property="og:description" content="La référence PC Gamer au Maroc. Cartes graphiques RTX, processeurs AMD & Intel. Livraison partout au Maroc. Prix imbattables !" />
         <meta property="og:url" content="https://gamerplace.ma" />
         <meta property="og:site_name" content="Gamerplace.ma" />
         <meta property="og:locale" content="fr_MA" />
