@@ -1,4 +1,4 @@
-// src/components/product/ProductGridHomeCategory.tsx - VERSION AVEC SÉRIALISATION
+// src/components/product/ProductGridHomeCategory.tsx - H2 SEO optimisés
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -278,6 +278,7 @@ export function ProductGridHomeCategory({
   return (
     <section className={`w-full max-w-[1500px] mx-auto px-1 py-4 ${className}`}>
       <div className="flex items-center justify-between mb-6">
+        {/* ✅ H2 SEO optimisé - Titre passé depuis la page parent */}
         <h2 className="text-2xl md:text-2xl font-bold text-gray-900">
           {title}
         </h2>
@@ -314,5 +315,3 @@ export function ProductGridHomeCategory({
     </section>
   );
 }
-
-

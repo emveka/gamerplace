@@ -1,4 +1,4 @@
-// app/layout.tsx
+// app/layout.tsx - Métadonnées SEO optimisées
 "use client";
 
 import type { Metadata, Viewport } from "next";
@@ -11,7 +11,6 @@ import { SearchBarSticky } from "@/components/ui/SearchBarSticky";
 import { SEODebug } from "@/components/debug/SEODebug";
 import { Roboto, Inter } from 'next/font/google';
 
-// Métadonnées exportées séparément car le composant est client
 const inter = Inter({
   subsets: ['latin'],
 });
@@ -114,18 +113,111 @@ export default function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>PC Gamers, Cartes Graphiques, Matériels Gamings - Gamerplace.ma</title>
-        <meta name="description" content="Découvrez la plus grande sélection de produits gaming au Maroc sur Gamerplace.ma" />
-        <meta name="keywords" content="gaming, jeux vidéo, consoles, PC gaming, Maroc, Casablanca" />
-        <meta name="robots" content="index, follow" />
         
-        {/* Open Graph */}
+        {/* ✅ Titre SEO optimisé pour PC Gamer Maroc */}
+        <title>PC Gamer Maroc - Cartes Graphiques RTX, Processeurs Gaming | Gamerplace.ma</title>
+        
+        {/* ✅ Meta description optimisée avec mots-clés principaux */}
+        <meta name="description" content="🎮 PC Gamer Maroc chez Gamerplace.ma ✅ Cartes graphiques RTX 4060, RTX 4070, processeurs AMD Ryzen & Intel ✅ Livraison rapide Casablanca, Rabat, Marrakech ✅ Prix imbattables composants gaming" />
+        
+        {/* ✅ Mots-clés SEO stratégiques */}
+        <meta name="keywords" content="PC Gamer Maroc, carte graphique RTX Maroc, processeur gaming Maroc, PC gaming Casablanca, composants gaming Maroc, RTX 4060 Maroc, AMD Ryzen Maroc, Intel Core gaming, boutique gaming Casablanca, PC Gamer pas cher Maroc" />
+        
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Gamerplace.ma" />
+        
+        {/* ✅ Balises géo-localisées pour le SEO local */}
+        <meta name="geo.region" content="MA" />
+        <meta name="geo.placename" content="Casablanca" />
+        <meta name="geo.position" content="33.5731;-7.5898" />
+        <meta name="ICBM" content="33.5731, -7.5898" />
+        
+        {/* ✅ Open Graph optimisé */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Gamerplace.ma - Votre boutique gaming au Maroc" />
-        <meta property="og:description" content="Découvrez la plus grande sélection de produits gaming au Maroc" />
+        <meta property="og:title" content="PC Gamer Maroc - Cartes Graphiques RTX, Processeurs Gaming | Gamerplace.ma" />
+        <meta property="og:description" content="🎮 La référence PC Gamer au Maroc. Cartes graphiques RTX, processeurs AMD & Intel. Livraison partout au Maroc. Prix imbattables !" />
         <meta property="og:url" content="https://gamerplace.ma" />
         <meta property="og:site_name" content="Gamerplace.ma" />
         <meta property="og:locale" content="fr_MA" />
+        <meta property="og:image" content="https://gamerplace.ma/images/og-pc-gamer-maroc.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="PC Gamer Maroc - Gamerplace.ma" />
+        
+        {/* ✅ Twitter Cards */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="PC Gamer Maroc - Gamerplace.ma" />
+        <meta name="twitter:description" content="🎮 PC Gamer & composants gaming au Maroc. RTX, AMD, Intel. Livraison rapide." />
+        <meta name="twitter:image" content="https://gamerplace.ma/images/twitter-pc-gamer-maroc.jpg" />
+        
+        {/* ✅ Données structurées pour le SEO local */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Store",
+              "name": "Gamerplace.ma",
+              "description": "Boutique spécialisée PC Gamer et composants gaming au Maroc",
+              "url": "https://gamerplace.ma",
+              "logo": "https://gamerplace.ma/logo.png",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Casablanca",
+                "addressCountry": "MA"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "33.5731",
+                "longitude": "-7.5898"
+              },
+              "areaServed": ["Casablanca", "Rabat", "Marrakech", "Tanger", "Fès", "Agadir"],
+              "priceRange": "$$",
+              "category": "Boutique Gaming",
+              "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "PC Gamer et Composants Gaming",
+                "itemListElement": [
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Product",
+                      "name": "PC Gamer complets",
+                      "category": "Ordinateurs Gaming"
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Product",
+                      "name": "Cartes Graphiques RTX",
+                      "category": "Composants Gaming"
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Product",
+                      "name": "Processeurs AMD & Intel",
+                      "category": "Processeurs Gaming"
+                    }
+                  }
+                ]
+              }
+            })
+          }}
+        />
+        
+        {/* ✅ Preconnect pour les performances */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* ✅ Canonical URL */}
+        <link rel="canonical" href="https://gamerplace.ma" />
+        
+        {/* ✅ Hreflang pour le SEO international (optionnel) */}
+        <link rel="alternate" hrefLang="fr-ma" href="https://gamerplace.ma" />
+        <link rel="alternate" hrefLang="ar-ma" href="https://gamerplace.ma/ar" />
       </head>
       
       <body 

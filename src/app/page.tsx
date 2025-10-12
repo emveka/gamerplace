@@ -1,4 +1,4 @@
-// app/page.tsx - Avec récupération du champ mobileAlt
+// app/page.tsx - Optimisé SEO pour "PC Gamer au Maroc"
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Banner } from '@/components/ui/Banner';
@@ -10,7 +10,7 @@ interface FirebaseBanner {
   id: string;
   title: string;
   alt: string;
-  mobileAlt?: string;        // ✅ Ajouté : Alt text pour mobile
+  mobileAlt?: string;
   imageUrl: string;
   mobileImageUrl?: string;
   linkUrl: string;
@@ -20,7 +20,6 @@ interface FirebaseBanner {
   updatedAt: { seconds: number; nanoseconds: number } | null;
 }
 
-// ✅ Fonction mise à jour pour récupérer mobileAlt
 async function getBanners(): Promise<FirebaseBanner[]> {
   try {
     const bannersRef = collection(db, 'banners');
@@ -34,10 +33,7 @@ async function getBanners(): Promise<FirebaseBanner[]> {
         id: doc.id,
         title: data.title || '',
         alt: data.alt || '',
-        
-        // ✅ NOUVEAU: Récupérer mobileAlt depuis Firebase
         mobileAlt: data.mobileAlt || undefined,
-        
         imageUrl: data.imageUrl || '',
         mobileImageUrl: data.mobileImageUrl || undefined,
         linkUrl: data.linkUrl || '',
@@ -68,8 +64,19 @@ export default async function HomePage() {
 
   return (
     <div className="w-full bg-white">
-      {/* Banner principal avec ratios exacts */}
-      <div className="max-w-[1500px] mx-auto pt-6">
+      {/* H1 Principal - Critique pour le SEO */}
+      <div className="max-w-[1500px] mx-auto px-4 pt-4 pb-2">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-2">
+          PC Gamer Maroc - Ordinateurs Gaming Haute Performance
+        </h1>
+        <p className="text-gray-600 text-center text-sm md:text-base max-w-3xl mx-auto">
+          Découvrez la plus grande sélection de PC Gamer au Maroc chez Gamerplace.ma. 
+          Composants gaming, cartes graphiques RTX, processeurs AMD & Intel. Livraison partout au Maroc.
+        </p>
+      </div>
+
+      {/* Banner principal */}
+      <div className="max-w-[1500px] mx-auto pt-4">
         <Banner
           banners={banners}
           autoplay={true}
@@ -81,9 +88,9 @@ export default async function HomePage() {
         />
       </div>
 
-      {/* Vos sections produits */}
+      {/* Sections produits avec H2 optimisés */}
       <ProductGridHomeCategory
-        title="PC Gamer"
+        title="PC Gamer Complets au Maroc"
         categoryId="t0SePGqxSmOfmYZ2ea1X"
         categorySlug="pc-gamer"
         maxProducts={6}
@@ -91,7 +98,7 @@ export default async function HomePage() {
       />
 
       <ProductGridHomeCategory
-        title="Cartes Graphiques"
+        title="Cartes Graphiques Gaming RTX & Radeon"
         categoryId="LazrSiL0nF7yh8eVnvS5"
         categorySlug="cartes-graphiques"
         maxProducts={6}
@@ -99,14 +106,14 @@ export default async function HomePage() {
       />
 
       <ProductGridHomeCategory
-        title="Processeurs"
+        title="Processeurs Gaming AMD & Intel"
         categoryId="MRisGslLF4oodGbHZU7A"
         categorySlug="processeurs"
         maxProducts={6}
         priority={false}
       />
 
-      {/* Section SEO avant le footer */}
+      {/* Section SEO structurée */}
       <SEOPageHome />
     </div>
   );
