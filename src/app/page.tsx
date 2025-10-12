@@ -1,4 +1,4 @@
-// app/page.tsx - Utilisation avec ratios exacts Desktop 1500:350 et Mobile 4:5
+// app/page.tsx - Avec récupération du champ mobileAlt
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Banner } from '@/components/ui/Banner';
@@ -9,8 +9,9 @@ interface FirebaseBanner {
   id: string;
   title: string;
   alt: string;
+  mobileAlt?: string;        // ✅ Ajouté : Alt text pour mobile
   imageUrl: string;
-  mobileImageUrl?: string;  // ✅ Important: récupérer ce champ
+  mobileImageUrl?: string;
   linkUrl: string;
   isActive: boolean;
   order: number;
@@ -18,7 +19,7 @@ interface FirebaseBanner {
   updatedAt: { seconds: number; nanoseconds: number } | null;
 }
 
-// ✅ Fonction corrigée pour récupérer mobileImageUrl
+// ✅ Fonction mise à jour pour récupérer mobileAlt
 async function getBanners(): Promise<FirebaseBanner[]> {
   try {
     const bannersRef = collection(db, 'banners');
@@ -32,11 +33,12 @@ async function getBanners(): Promise<FirebaseBanner[]> {
         id: doc.id,
         title: data.title || '',
         alt: data.alt || '',
+        
+        // ✅ NOUVEAU: Récupérer mobileAlt depuis Firebase
+        mobileAlt: data.mobileAlt || undefined,
+        
         imageUrl: data.imageUrl || '',
-        
-        // ✅ CRITIQUE: Récupérer mobileImageUrl depuis Firebase
         mobileImageUrl: data.mobileImageUrl || undefined,
-        
         linkUrl: data.linkUrl || '',
         isActive: data.isActive !== false,
         order: data.order || 0,
@@ -71,10 +73,10 @@ export default async function HomePage() {
           banners={banners}
           autoplay={true}
           autoplayDelay={5000}
-          showDots={true}           // Desktop : garde les dots
-          showMobileDots={false}    // Mobile : pas de dots (défaut)
-          showProgressBar={true}    // Mobile : barre de progression visible (défaut)
-          debug={false}             // Retirez le debug maintenant que ça marche
+          showDots={true}
+          showMobileDots={false}
+          showProgressBar={true}
+          debug={false}
         />
       </div>
 

@@ -548,7 +548,7 @@ export function NavigationMenu({ isMobileMenuOpen = false, onMobileMenuClose }: 
 
       {/* Menu Mobile/Tablette - Overlay RÉDUIT */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={onMobileMenuClose}>
+        <div className="lg:hidden fixed inset-0 z-50 bg-opacity-50" onClick={onMobileMenuClose}>
           <div 
             className="bg-white w-64 h-full overflow-y-auto shadow-xl"
             onClick={(e) => e.stopPropagation()}

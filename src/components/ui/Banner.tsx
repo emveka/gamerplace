@@ -1,14 +1,16 @@
-// components/ui/Banner.tsx - Avec options pour les dots mobile
+// components/ui/Banner.tsx - Avec support pour mobileAlt
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { getBannerAltText, getBannerImageUrl } from "@/types/banners";
 
 interface FirebaseBanner {
   id: string;
   title: string;
   alt: string;
+  mobileAlt?: string;          // ✅ Ajouté : Alt text pour mobile
   imageUrl: string;           // Desktop : 1500x350 (ratio 4.29:1)
   mobileImageUrl?: string;    // Mobile : 1080x1350 (ratio 4:5)
   linkUrl: string;
@@ -25,9 +27,9 @@ interface BannerProps {
   mobileAutoplayDelay?: number;
   showDots?: boolean;
   showArrows?: boolean;
-  showMobileDots?: boolean;      // ✅ Nouveau: contrôler les dots sur mobile
-  mobileDotsSize?: 'small' | 'medium' | 'large'; // ✅ Nouveau: taille des dots mobile
-  showProgressBar?: boolean;     // ✅ Nouveau: barre de progression
+  showMobileDots?: boolean;
+  mobileDotsSize?: 'small' | 'medium' | 'large';
+  showProgressBar?: boolean;
   className?: string;
   debug?: boolean;
   maxHeightDesktop?: string;
@@ -40,9 +42,9 @@ export function Banner({
   mobileAutoplayDelay = 3500,
   showDots = true,
   showArrows = true,
-  showMobileDots = false,        // ✅ Par défaut: pas de dots sur mobile
-  mobileDotsSize = 'small',      // ✅ Par défaut: petits dots si activés
-  showProgressBar = true,        // ✅ Par défaut: barre de progression activée
+  showMobileDots = false,
+  mobileDotsSize = 'small',
+  showProgressBar = true,
   className = "",
   debug = false,
   maxHeightDesktop = "max-h-96",
@@ -175,27 +177,27 @@ export function Banner({
   // ===== CALCUL DES CLASSES CSS POUR LES RATIOS EXACTS =====
   const containerClasses = isHydrated 
     ? (isMobile 
-        ? "aspect-[4/5] w-full"                           // Mobile : ratio exact 4:5 (1080:1350)
-        : `aspect-[1500/350] w-full ${maxHeightDesktop}`) // Desktop : ratio exact 1500:350 avec hauteur max
-    : `aspect-[4/5] md:aspect-[1500/350] w-full md:${maxHeightDesktop}`; // SSR fallback
+        ? "aspect-[4/5] w-full"
+        : `aspect-[1500/350] w-full ${maxHeightDesktop}`)
+    : `aspect-[4/5] md:aspect-[1500/350] w-full md:${maxHeightDesktop}`;
 
   // ===== CLASSES POUR LES DOTS MOBILE =====
   const getMobileDotsClasses = () => {
     switch (mobileDotsSize) {
       case 'small':
         return {
-          container: 'w-8 h-8 flex items-center justify-center', // Zone tactile 32x32px
-          dot: 'w-2 h-2'  // Dot visuel 8x8px
+          container: 'w-8 h-8 flex items-center justify-center',
+          dot: 'w-2 h-2'
         };
       case 'medium':
         return {
-          container: 'w-10 h-10 flex items-center justify-center', // Zone tactile 40x40px
-          dot: 'w-2.5 h-2.5'  // Dot visuel 10x10px
+          container: 'w-10 h-10 flex items-center justify-center',
+          dot: 'w-2.5 h-2.5'
         };
       case 'large':
         return {
-          container: 'w-11 h-11 flex items-center justify-center', // Zone tactile 44x44px (ancien)
-          dot: 'w-3 h-3'  // Dot visuel 12x12px
+          container: 'w-11 h-11 flex items-center justify-center',
+          dot: 'w-3 h-3'
         };
     }
   };
@@ -225,7 +227,7 @@ export function Banner({
       {/* Debug Panel */}
       {debug && (
         <div className="absolute top-2 left-2 bg-black/90 text-white p-3 rounded text-xs z-50 max-w-xs">
-          <div className="font-semibold text-yellow-400 mb-1">🐛 Debug Info</div>
+          <div className="font-semibold text-yellow-400 mb-1">🛠 Debug Info</div>
           <div>Mode: {isMobile ? 'Mobile' : 'Desktop'}</div>
           <div>Largeur: {typeof window !== 'undefined' ? window.innerWidth : 'SSR'}px</div>
           <div className="text-blue-300">
@@ -247,10 +249,9 @@ export function Banner({
             index === (currentSlide + 1) % activeBanners.length ||
             index === (currentSlide - 1 + activeBanners.length) % activeBanners.length;
           
-          // Sélection de l'image selon le device et disponibilité
-          const imageUrl = (isHydrated && isMobile && banner.mobileImageUrl)
-            ? banner.mobileImageUrl    // Mobile : 1080x1350
-            : banner.imageUrl;         // Desktop : 1500x350
+          // ✅ Utilisation des fonctions helpers pour image et alt
+          const imageUrl = getBannerImageUrl(banner, isHydrated && isMobile);
+          const altText = getBannerAltText(banner, isHydrated && isMobile);
           
           const imageQuality = isMobile ? 75 : 90;
 
@@ -267,7 +268,7 @@ export function Banner({
                     {shouldLoad && (
                       <Image
                         src={imageUrl}
-                        alt={banner.alt || banner.title}
+                        alt={altText}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                         priority={index === 0}
@@ -283,7 +284,7 @@ export function Banner({
                   {shouldLoad && (
                     <Image
                       src={imageUrl}
-                      alt={banner.alt || banner.title}
+                      alt={altText}
                       fill
                       className="object-cover"
                       priority={index === 0}
