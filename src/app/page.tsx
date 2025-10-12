@@ -3,6 +3,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Banner } from '@/components/ui/Banner';
 import { ProductGridHomeCategory } from '@/components/product/ProductGridHomeCategory';
+import { SEOPageHome } from '@/components/seo/SEOPageHome';
 
 // Types pour les banners Firebase
 interface FirebaseBanner {
@@ -104,6 +105,9 @@ export default async function HomePage() {
         maxProducts={6}
         priority={false}
       />
+
+      {/* Section SEO avant le footer */}
+      <SEOPageHome />
     </div>
   );
 }
