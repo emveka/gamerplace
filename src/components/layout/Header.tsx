@@ -15,14 +15,15 @@ export function Header({ onMenuToggle, isMenuOpen = false, onSearch }: HeaderPro
   return (
     <header className="bg-black text-white sticky top-0 z-50 shadow-lg">
       <div className="mx-auto max-w-[1500px] py-3 sm:py-4">
-        <div className="flex items-center gap-2 sm:gap-4 lg:gap-20 px-2 sm:px-4 lg:px-0">
+        {/* Mobile : 3 zones distinctes | Desktop : layout original */}
+        <div className="flex items-center justify-between lg:gap-20 px-2 sm:px-4 lg:px-0">
           
-          {/* Section gauche : Bouton hamburger + Logo */}
+          {/* Zone 1 : Hamburger (Mobile) | Hamburger + Logo (Desktop) */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Bouton Menu Hamburger - Visible uniquement sur mobile et tablette */}
             <button
               onClick={onMenuToggle}
-              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
+              className="lg:hidden flex items-center justify-center w-6 h-6 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
               aria-label="Menu Navigation"
               aria-expanded={isMenuOpen}
               title="Menu"
@@ -41,27 +42,39 @@ export function Header({ onMenuToggle, isMenuOpen = false, onSearch }: HeaderPro
               </div>
             </button>
 
-            {/* Logo Gamerplace */}
-            <Link href="/" className="shrink-0 flex items-center gap-2">
+            {/* Logo Desktop - Visible uniquement sur desktop */}
+            <Link href="/" className="hidden lg:flex shrink-0 items-center gap-2">
               <Image
                 src="/logogamerplace.png"
                 alt="Gamerplace.ma"
-                width={200}
-                height={50}
-                className="h-5 sm:h-6 lg:h-7 w-auto" // Taille responsive du logo
+                width={160}
+                height={40}
+                className="h-6 w-auto"
                 priority
               />
             </Link>
           </div>
 
-          {/* SearchBar Desktop - Visible uniquement sur desktop */}
+          {/* Zone 2 : Logo centré (Mobile uniquement) */}
+          <Link href="/" className="lg:hidden shrink-0 flex items-center gap-2">
+            <Image
+              src="/logogamerplace.png"
+              alt="Gamerplace.ma"
+              width={160}
+              height={40}
+              className="h-5 sm:h-5 w-auto"
+              priority
+            />
+          </Link>
+
+          {/* Zone milieu : SearchBar (Desktop uniquement) */}
           <SearchBar 
             className="hidden lg:block flex-1"
             onSearch={onSearch}
             placeholder="Rechercher des produits gaming..."
           />
 
-          {/* Section droite : Navigation utilisateur */}
+          {/* Zone 3 : Navigation utilisateur */}
           <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
             {/* Mon Compte */}
             <Link

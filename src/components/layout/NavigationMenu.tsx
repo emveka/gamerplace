@@ -555,7 +555,7 @@ export function NavigationMenu({ isMobileMenuOpen = false, onMobileMenuClose }: 
           >
             {/* Header du menu mobile RÉDUIT */}
             <div className="flex items-center justify-between p-2.5 border-b border-gray-200 bg-yellow-400">
-              <h2 className="font-bold text-black text-sm">Menu Navigation</h2>
+              <h2 className="font-bold text-black text-sm">Menu Gamerplace.ma</h2>
               <button 
                 onClick={onMobileMenuClose}
                 className="w-6 h-6 flex items-center justify-center rounded hover:bg-yellow-500 transition-colors"
