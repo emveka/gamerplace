@@ -66,6 +66,8 @@ export function Banner({
     setIsHydrated(true);
     
     const checkMobile = () => {
+      if (typeof window === 'undefined') return;
+      
       const newIsMobile = window.innerWidth < 768;
       
       if (debug && newIsMobile !== isMobile) {
@@ -78,9 +80,11 @@ export function Banner({
     };
     
     checkMobile();
-    window.addEventListener("resize", checkMobile);
     
-    return () => window.removeEventListener("resize", checkMobile);
+    if (typeof window !== 'undefined') {
+      window.addEventListener("resize", checkMobile);
+      return () => window.removeEventListener("resize", checkMobile);
+    }
   }, [debug, isMobile, showMobileDots, showProgressBar]);
 
   // ===== FILTRAGE ET TRI DES BANNERS =====
@@ -229,7 +233,7 @@ export function Banner({
         <div className="absolute top-2 left-2 bg-black/90 text-white p-3 rounded text-xs z-50 max-w-xs">
           <div className="font-semibold text-yellow-400 mb-1">🛠 Debug Info</div>
           <div>Mode: {isMobile ? 'Mobile' : 'Desktop'}</div>
-          <div>Largeur: {typeof window !== 'undefined' ? window.innerWidth : 'SSR'}px</div>
+          <div>Largeur: {isHydrated && typeof window !== 'undefined' ? window.innerWidth : 'SSR'}px</div>
           <div className="text-blue-300">
             Ratio: {isMobile ? '4:5 (1080:1350)' : '1500:350 (4.29:1)'}
           </div>
