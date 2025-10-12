@@ -36,15 +36,22 @@ interface SerializedCategoryWithChildren {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  parentId?: string | undefined; // Changé de optionnel à string | undefined
+  description: string;
+  descriptionLongue?: string;
   imageUrl?: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  keywords?: string[];
+  
+  parentId?: string; // Converti de string | null vers optionnel
+  level: number;
+  path: string[];
+  
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string[];
+  
   isActive: boolean;
-  order?: number;
-  createdAt: string | null;
+  order: number;
+  
+  createdAt: string | null; // Timestamps convertis en strings
   updatedAt: string | null;
   children: SerializedCategoryWithChildren[];
 }
@@ -65,6 +72,7 @@ interface CategoryWithHierarchy {
 interface CategoryWithChildren extends Category {
   children: CategoryWithChildren[];
 }
+
 
 const toTimestamp = (ts: unknown): Timestamp => {
   if (ts instanceof Timestamp) return ts;
@@ -99,13 +107,16 @@ function serializeCategoryWithChildren(category: CategoryWithChildren): Serializ
     name: category.name,
     slug: category.slug,
     description: category.description,
-    parentId: category.parentId || undefined, // Convertir null en undefined
+    descriptionLongue: category.descriptionLongue, // 🔥 NOUVEAU
+    parentId: category.parentId || undefined, 
     imageUrl: category.imageUrl,
     metaTitle: category.metaTitle,
     metaDescription: category.metaDescription,
     keywords: category.keywords,
     isActive: category.isActive,
     order: category.order,
+    level: category.level,
+    path: category.path,
     createdAt: category.createdAt ? category.createdAt.toDate().toISOString() : null,
     updatedAt: category.updatedAt ? category.updatedAt.toDate().toISOString() : null,
     children: category.children.map(serializeCategoryWithChildren),
@@ -250,7 +261,7 @@ async function getAllChildCategories(parentCategoryId: string): Promise<string[]
   }
 }
 
-// Récupérer une catégorie par son slug
+// 2. MISE À JOUR DE LA FONCTION getCategory() - REMPLACER ENTIÈREMENT
 async function getCategory(slug: string): Promise<Category | null> {
   try {
     const categoriesRef = collection(db, 'categories');
@@ -263,30 +274,53 @@ async function getCategory(slug: string): Promise<Category | null> {
     const categorySnapshot = await getDocs(categoryQuery);
     
     if (categorySnapshot.empty) {
+      console.warn('🔍 Aucune catégorie trouvée pour le slug:', slug);
       return null;
     }
     
     const categoryDoc = categorySnapshot.docs[0];
     const categoryData = categoryDoc.data();
-    const category = {
-      id: categoryDoc.id,
-      name: categoryData.name,
-      slug: categoryData.slug,
+    
+    // 🔥 DEBUG : Afficher toutes les données Firebase
+    console.log('🔍 Données brutes Firebase pour', slug, ':', {
       description: categoryData.description,
-      parentId: categoryData.parentId,
-      imageUrl: categoryData.imageUrl,
-      metaTitle: categoryData.metaTitle,
-      metaDescription: categoryData.metaDescription,
+      descriptionLongue: categoryData.descriptionLongue,
       keywords: categoryData.keywords,
-      isActive: categoryData.isActive,
-      order: categoryData.order,
+      metaTitle: categoryData.metaTitle,
+      metaDescription: categoryData.metaDescription
+    });
+    
+    const category: Category = {
+      id: categoryDoc.id,
+      name: categoryData.name || '',
+      slug: categoryData.slug || slug,
+      description: categoryData.description || '', // Obligatoire selon votre type
+      descriptionLongue: categoryData.descriptionLongue, // 🔥 RÉCUPÉRATION de la description longue
+      imageUrl: categoryData.imageUrl,
+      parentId: categoryData.parentId || null, // string | null selon votre type
+      level: categoryData.level || 0, // Obligatoire selon votre type
+      path: categoryData.path || [], // Obligatoire selon votre type
+      metaTitle: categoryData.metaTitle || `${categoryData.name} | Gamerplace.ma`, // Obligatoire
+      metaDescription: categoryData.metaDescription || `Découvrez ${categoryData.name} sur Gamerplace.ma`, // Obligatoire
+      keywords: categoryData.keywords || [], // Obligatoire selon votre type
+      isActive: categoryData.isActive !== false,
+      order: categoryData.order || 0, // Obligatoire selon votre type
       createdAt: categoryData.createdAt ? toTimestamp(categoryData.createdAt) : Timestamp.fromMillis(0),
       updatedAt: categoryData.updatedAt ? toTimestamp(categoryData.updatedAt) : Timestamp.fromMillis(0),
-    } as Category;
+    };
+    
+    // 🔥 DEBUG : Vérifier les champs critiques
+    console.log('🔍 Vérification des champs pour', category.name, ':', {
+      hasDescription: !!category.description,
+      hasDescriptionLongue: !!category.descriptionLongue,
+      hasKeywords: category.keywords.length > 0,
+      descriptionLongueLength: category.descriptionLongue?.length || 0,
+      keywordsCount: category.keywords.length
+    });
     
     return category;
   } catch (error) {
-    console.error('Error fetching category:', error);
+    console.error('❌ Erreur lors de la récupération de la catégorie:', error);
     return null;
   }
 }
@@ -490,7 +524,7 @@ async function getBrands(categoryIds: string[]): Promise<SerializedBrand[]> {
   }
 }
 
-// Récupérer TOUTES les catégories avec leur hiérarchie complète - RETOURNE SerializedCategoryWithChildren[]
+// 4. MISE À JOUR DE LA FONCTION getCategoriesHierarchy
 async function getCategoriesHierarchy(): Promise<SerializedCategoryWithChildren[]> {
   try {
     const categoriesRef = collection(db, 'categories');
@@ -503,16 +537,19 @@ async function getCategoriesHierarchy(): Promise<SerializedCategoryWithChildren[
       const data = doc.data();
       return {
         id: doc.id,
-        name: data.name,
-        slug: data.slug,
-        description: data.description,
-        parentId: data.parentId,
+        name: data.name || '',
+        slug: data.slug || '',
+        description: data.description || '',
+        descriptionLongue: data.descriptionLongue,
         imageUrl: data.imageUrl,
-        metaTitle: data.metaTitle,
-        metaDescription: data.metaDescription,
-        keywords: data.keywords,
-        isActive: data.isActive,
-        order: data.order,
+        parentId: data.parentId || null, // Garder null ici car c'est le type Category
+        metaTitle: data.metaTitle || `${data.name} | Gamerplace.ma`,
+        metaDescription: data.metaDescription || `Découvrez ${data.name}`,
+        keywords: data.keywords || [],
+        isActive: data.isActive !== false,
+        order: data.order || 0,
+        level: data.level || 0,
+        path: data.path || [],
         children: [] as CategoryWithChildren[],
         createdAt: data.createdAt ? toTimestamp(data.createdAt) : Timestamp.fromMillis(0),
         updatedAt: data.updatedAt ? toTimestamp(data.updatedAt) : Timestamp.fromMillis(0),
@@ -522,8 +559,8 @@ async function getCategoriesHierarchy(): Promise<SerializedCategoryWithChildren[
     // Fonction pour construire l'arbre des enfants d'une catégorie
     const buildCategoryTree = (parentId: string): CategoryWithChildren[] => {
       const directChildren = allCategories
-        .filter(cat => cat.parentId === parentId)
-        .sort((a, b) => (a.order || 0) - (b.order || 0));
+        .filter(cat => cat.parentId === parentId) // 🔧 Comparaison avec null fonctionne
+        .sort((a, b) => a.order - b.order);
 
       return directChildren.map(child => ({
         ...child,
@@ -533,14 +570,14 @@ async function getCategoriesHierarchy(): Promise<SerializedCategoryWithChildren[
 
     // Récupérer TOUTES les catégories racines (sans parent)
     const rootCategories = allCategories
-      .filter(cat => !cat.parentId && cat.isActive === true)
-      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .filter(cat => !cat.parentId && cat.isActive === true) // 🔧 !cat.parentId fonctionne avec null
+      .sort((a, b) => a.order - b.order)
       .map(root => ({
         ...root,
         children: buildCategoryTree(root.id)
       }));
 
-    // Sérialiser toutes les catégories
+    // Sérialiser toutes les catégories (la conversion null->undefined se fait ici)
     return rootCategories.map(serializeCategoryWithChildren);
   } catch (error) {
     console.error('Error fetching categories hierarchy:', error);
@@ -548,43 +585,86 @@ async function getCategoriesHierarchy(): Promise<SerializedCategoryWithChildren[
   }
 }
 
-// Génération des métadonnées
+// 5. MISE À JOUR DE generateMetadata (améliorer la version existante)
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const category = await getCategory(slug);
   
-  if (!category) {
+  try {
+    const category = await getCategory(slug);
+    
+    if (!category) {
+      return {
+        title: 'Catégorie non trouvée | Gamerplace.ma',
+        description: 'Cette catégorie n\'existe pas sur Gamerplace.ma.',
+        robots: 'noindex, nofollow',
+      };
+    }
+
+    // 🔥 METADATA AMÉLIORÉES
     return {
-      title: 'Catégorie non trouvée | Gamerplace.ma',
-      description: 'Cette catégorie n\'existe pas sur Gamerplace.ma.',
-      robots: 'noindex, nofollow',
+      title: category.metaTitle || `${category.name} - Achat en ligne | Gamerplace.ma`,
+      description: category.metaDescription || `Découvrez notre collection ${category.name} chez Gamerplace.ma. Livraison rapide au Maroc.`,
+      keywords: category.keywords.join(', '),
+      
+      authors: [{ name: 'Gamerplace.ma' }],
+      creator: 'Gamerplace.ma',
+      publisher: 'Gamerplace.ma',
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+      
+      alternates: {
+        canonical: `https://gamerplace.ma/categories/${category.slug}`,
+      },
+      
+      openGraph: {
+        type: 'website',
+        title: category.metaTitle,
+        description: category.metaDescription,
+        url: `https://gamerplace.ma/categories/${category.slug}`,
+        siteName: 'Gamerplace.ma',
+        locale: 'fr_MA',
+        images: category.imageUrl ? [{
+          url: category.imageUrl.startsWith('http') ? category.imageUrl : `https://gamerplace.ma${category.imageUrl}`,
+          width: 1200,
+          height: 630,
+          alt: `${category.name} - Gamerplace.ma`,
+          type: 'image/jpeg',
+        }] : [],
+      },
+      
+      twitter: {
+        card: 'summary_large_image',
+        title: category.metaTitle,
+        description: category.metaDescription,
+        site: '@gamerplacema',
+        images: category.imageUrl ? [category.imageUrl] : [],
+      },
+      
+      viewport: 'width=device-width, initial-scale=1',
+      themeColor: '#000000',
+      category: 'E-commerce',
+    };
+  } catch (error) {
+    console.error('Erreur generateMetadata:', error);
+    
+    return {
+      title: `Catégorie ${slug} | Gamerplace.ma`,
+      description: 'Découvrez nos produits gaming sur Gamerplace.ma',
+      robots: 'index, follow',
+      alternates: {
+        canonical: `https://gamerplace.ma/categories/${slug}`,
+      },
     };
   }
-
-  return {
-    title: category.metaTitle || `${category.name} | Gamerplace.ma`,
-    description: category.metaDescription || `Découvrez notre sélection de ${category.name} sur Gamerplace.ma`,
-    keywords: category.keywords?.join(', '),
-    authors: [{ name: 'Gamerplace.ma' }],
-    robots: 'index, follow',
-    alternates: {
-      canonical: `https://gamerplace.ma/categories/${category.slug}`,
-    },
-    openGraph: {
-      type: 'website',
-      title: category.metaTitle || category.name,
-      description: category.metaDescription || `Découvrez notre sélection de ${category.name}`,
-      url: `https://gamerplace.ma/categories/${category.slug}`,
-      siteName: 'Gamerplace.ma',
-      images: category.imageUrl ? [{
-        url: category.imageUrl,
-        width: 1200,
-        height: 630,
-        alt: category.name,
-      }] : [],
-      locale: 'fr_MA',
-    },
-  };
 }
 
 // Composant principal de la page
@@ -729,6 +809,6 @@ async function ProductsSection({
 }
 
 // Optimisations Next.js
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'auto'; // ✅ Changé de 'force-dynamic'
+export const revalidate = 3600; // ✅ Changé de 0  
 export const runtime = 'nodejs';
