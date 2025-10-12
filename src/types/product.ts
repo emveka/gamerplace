@@ -40,7 +40,6 @@ export interface TechnicalSection {
 }
 
 export interface Product {
-  videoUrl: string | undefined;
   id: string;
   title: string;
   slug: string;
@@ -77,6 +76,8 @@ export interface Product {
   badges?: ProductBadge[];
   productDescriptions?: ProductDescription[];
   
+  // ✅ videoUrl maintenant optionnel
+  videoUrl?: string;
   
   metaTitle: string;
   metaDescription: string;

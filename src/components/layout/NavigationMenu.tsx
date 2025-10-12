@@ -546,49 +546,49 @@ export function NavigationMenu({ isMobileMenuOpen = false, onMobileMenuClose }: 
         </div>
       </nav>
 
-      {/* Menu Mobile/Tablette - Overlay */}
+      {/* Menu Mobile/Tablette - Overlay RÉDUIT */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={onMobileMenuClose}>
           <div 
-            className="bg-white w-80 h-full overflow-y-auto shadow-xl"
+            className="bg-white w-64 h-full overflow-y-auto shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header du menu mobile */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-yellow-400">
-              <h2 className="font-bold text-black text-lg">Menu Navigation</h2>
+            {/* Header du menu mobile RÉDUIT */}
+            <div className="flex items-center justify-between p-2.5 border-b border-gray-200 bg-yellow-400">
+              <h2 className="font-bold text-black text-sm">Menu Navigation</h2>
               <button 
                 onClick={onMobileMenuClose}
-                className="w-8 h-8 flex items-center justify-center rounded hover:bg-yellow-500 transition-colors"
+                className="w-6 h-6 flex items-center justify-center rounded hover:bg-yellow-500 transition-colors"
                 aria-label="Fermer le menu"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </button>
             </div>
 
-            {/* Navigation mobile */}
-            <div className="py-2">
+            {/* Navigation mobile RÉDUITE */}
+            <div className="py-1">
               {menuItems.filter(item => !item.isSpecial).map((item) => (
                 <div key={item.label} className="border-b border-gray-100 last:border-b-0">
                   <div className="flex items-center">
                     <Link
                       href={item.href}
                       onClick={handleMobileLinkClick}
-                      className="flex-1 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors font-medium"
+                      className="flex-1 px-2.5 py-2 text-gray-800 hover:bg-gray-50 transition-colors font-medium text-xs"
                     >
                       {item.label}
                     </Link>
                     
-                    {/* Bouton d'expansion pour les mega menus */}
+                    {/* Bouton d'expansion RÉDUIT */}
                     {item.hasMegaMenu && (
                       <button
                         onClick={() => handleMobileMenuToggle(item.label)}
-                        className="px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="px-2.5 py-2 text-gray-600 hover:bg-gray-50 transition-colors"
                         aria-label={`Afficher les sous-catégories de ${item.label}`}
                       >
                         <svg 
-                          className={`w-5 h-5 transform transition-transform ${
+                          className={`w-3.5 h-3.5 transform transition-transform ${
                             expandedMobileMenu === item.label ? 'rotate-180' : ''
                           }`} 
                           fill="currentColor" 
@@ -600,31 +600,31 @@ export function NavigationMenu({ isMobileMenuOpen = false, onMobileMenuClose }: 
                     )}
                   </div>
 
-                  {/* Sous-menu mobile */}
+                  {/* Sous-menu mobile RÉDUIT */}
                   {item.hasMegaMenu && expandedMobileMenu === item.label && (
                     <div className="bg-gray-50 border-t border-gray-200">
                       {item.megaMenuCategories?.map((category, index) => (
-                        <div key={index} className="p-4 border-b border-gray-200 last:border-b-0">
+                        <div key={index} className="p-2.5 border-b border-gray-200 last:border-b-0">
                           {category.titleHref ? (
                             <Link
                               href={category.titleHref}
                               onClick={handleMobileLinkClick}
-                              className="font-semibold text-gray-900 text-sm mb-2 block hover:text-yellow-600 transition-colors"
+                              className="font-semibold text-gray-900 text-xs mb-1.5 block hover:text-yellow-600 transition-colors"
                             >
                               {category.title}
                             </Link>
                           ) : (
-                            <h3 className="font-semibold text-gray-900 text-sm mb-2">
+                            <h3 className="font-semibold text-gray-900 text-xs mb-1.5">
                               {category.title}
                             </h3>
                           )}
-                          <ul className="space-y-1">
+                          <ul className="space-y-0.5">
                             {category.items.map((subItem, subIndex) => (
                               <li key={subIndex}>
                                 <Link
                                   href={subItem.href}
                                   onClick={handleMobileLinkClick}
-                                  className="text-sm text-gray-600 hover:text-yellow-600 hover:underline transition-colors block py-1"
+                                  className="text-xs text-gray-600 hover:text-yellow-600 hover:underline transition-colors block py-0.5"
                                 >
                                   {subItem.label}
                                 </Link>
@@ -638,14 +638,14 @@ export function NavigationMenu({ isMobileMenuOpen = false, onMobileMenuClose }: 
                 </div>
               ))}
 
-              {/* Items spéciaux en mobile */}
-              <div className="mt-4 px-4 space-y-2">
+              {/* Items spéciaux en mobile RÉDUITS */}
+              <div className="mt-3 px-2.5 space-y-1.5">
                 {menuItems.filter(item => item.isSpecial).map((item) => (
                   <Link
                     key={item.label}
                     href={item.href}
                     onClick={handleMobileLinkClick}
-                    className="block text-center py-3 px-4 text-white font-bold rounded-lg transition-colors"
+                    className="block text-center py-2 px-3 text-white font-bold rounded-lg transition-colors text-xs"
                     style={{ backgroundColor: item.specialColor }}
                   >
                     {item.label}
@@ -653,23 +653,23 @@ export function NavigationMenu({ isMobileMenuOpen = false, onMobileMenuClose }: 
                 ))}
               </div>
 
-              {/* Marques en mobile */}
-              <div className="mt-6 p-4 border-t border-gray-200">
-                <h3 className="font-bold text-gray-900 text-sm mb-3">Marques Populaires</h3>
-                <div className="grid grid-cols-2 gap-3">
+              {/* Marques en mobile RÉDUITES */}
+              <div className="mt-4 p-2.5 border-t border-gray-200">
+                <h3 className="font-bold text-gray-900 text-xs mb-2">Marques Populaires</h3>
+                <div className="grid grid-cols-2 gap-2">
                   {brands.slice(0, 6).map((brand, index) => (
                     <Link 
                       key={index}
                       href={brand.href}
                       onClick={handleMobileLinkClick}
-                      className="block p-2 border border-gray-200 rounded-lg hover:border-yellow-400 transition-colors"
+                      className="block p-1.5 border border-gray-200 rounded-lg hover:border-yellow-400 transition-colors"
                     >
                       <Image
                         src={brand.logo}
                         alt={`Logo ${brand.name}`}
-                        width={60}
-                        height={30}
-                        className="h-6 w-auto object-contain mx-auto"
+                        width={40}
+                        height={20}
+                        className="h-4 w-auto object-contain mx-auto"
                       />
                     </Link>
                   ))}

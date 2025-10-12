@@ -1,21 +1,46 @@
-// src/components/category/CategoryFilters.tsx - Version optimisée avec sidebar réduit et trait jaune décoratif
+// src/components/category/CategoryFilters.tsx - VERSION AVEC SÉRIALISATION
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useCallback, useEffect } from 'react';
-import { Brand } from '@/types/brand';
-import { Category } from '@/types/category';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Interface pour une catégorie avec ses enfants
-interface CategoryWithChildren extends Category {
-  children: CategoryWithChildren[];
+// Types sérialisés (importés du page.tsx ou définis ici)
+interface SerializedBrand {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  logoUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  isActive: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+interface SerializedCategoryWithChildren {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parentId?: string;
+  imageUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  isActive: boolean;
+  order?: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+  children: SerializedCategoryWithChildren[];
 }
 
 interface CategoryFiltersProps {
-  brands: Brand[];
-  categoriesHierarchy: CategoryWithChildren[];
+  brands: SerializedBrand[];
+  categoriesHierarchy: SerializedCategoryWithChildren[];
   currentCategoryId: string;
 }
 
@@ -26,7 +51,7 @@ const CategoryTreeNode = ({
   level = 0,
   onCategoryClick 
 }: { 
-  category: CategoryWithChildren; 
+  category: SerializedCategoryWithChildren; 
   currentCategoryId: string;
   level?: number;
   onCategoryClick?: () => void;
@@ -37,7 +62,7 @@ const CategoryTreeNode = ({
   
   // Auto-expand si la catégorie actuelle ou un de ses enfants est sélectionnée
   useEffect(() => {
-    const isCurrentOrParentOfCurrent = (cat: CategoryWithChildren): boolean => {
+    const isCurrentOrParentOfCurrent = (cat: SerializedCategoryWithChildren): boolean => {
       if (cat.id === currentCategoryId) return true;
       return cat.children.some(child => isCurrentOrParentOfCurrent(child));
     };
@@ -269,7 +294,7 @@ export function CategoryFilters({
                           selectedStock.length > 0;
 
   const totalCategories = categoriesHierarchy.reduce((total, cat) => {
-    const countChildren = (category: CategoryWithChildren): number => {
+    const countChildren = (category: SerializedCategoryWithChildren): number => {
       return 1 + category.children.reduce((sum, child) => sum + countChildren(child), 0);
     };
     return total + countChildren(cat);

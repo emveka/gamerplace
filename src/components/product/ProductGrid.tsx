@@ -1,11 +1,11 @@
-// src/components/product/ProductGrid.tsx
-'use client'; // 🔥 AJOUTÉ: Forcer Client Component pour le bouton onClick
+// src/components/product/ProductGrid.tsx - VERSION AVEC SÉRIALISATION
+'use client';
 
-import { Product } from '@/types/product';
+import { SerializedProduct } from '@/utils/serialization';
 import { ProductCard } from './ProductCard';
 
 interface ProductGridProps {
-  products: Product[];
+  products: SerializedProduct[];
 }
 
 // Back Button Component - maintenant Client Component

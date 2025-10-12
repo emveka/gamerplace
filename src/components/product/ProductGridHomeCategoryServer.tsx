@@ -1,8 +1,10 @@
-// src/components/product/ProductGridHomeCategoryServer.tsx
+// src/components/product/ProductGridHomeCategoryServer.tsx - VERSION AVEC SÉRIALISATION
 import { collection, getDocs, query, where, limit, orderBy, QueryDocumentSnapshot, DocumentData, QuerySnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Product } from '@/types/product';
+import { serializeProduct, SerializedProduct } from '@/utils/serialization';
+import { Timestamp } from 'firebase/firestore';
 import Link from 'next/link';
 
 interface ProductGridHomeCategoryServerProps {
@@ -14,8 +16,17 @@ interface ProductGridHomeCategoryServerProps {
   className?: string;
 }
 
-// Fonction pour récupérer les produits côté serveur
-async function getCategoryProducts(categoryId: string, maxProducts: number = 6): Promise<Product[]> {
+const toTimestamp = (ts: unknown): Timestamp => {
+  if (ts instanceof Timestamp) return ts;
+
+  return ts && typeof ts === 'object' && 'seconds' in ts && 'nanoseconds' in ts
+    // @ts-expect-error constructeur (seconds, nanoseconds) accepté
+    ? new Timestamp(ts.seconds, ts.nanoseconds)
+    : Timestamp.fromMillis(0);
+};
+
+// Fonction pour récupérer les produits côté serveur - RETOURNE SerializedProduct[]
+async function getCategoryProducts(categoryId: string, maxProducts: number = 6): Promise<SerializedProduct[]> {
   try {
     console.time(`🚀 Récupération produits ${categoryId}`);
     
@@ -38,14 +49,49 @@ async function getCategoryProducts(categoryId: string, maxProducts: number = 6):
     ]);
     
     // Collecter tous les produits
-    const allProducts: Product[] = [];
+    const allProducts: SerializedProduct[] = [];
     
     // Ajouter les produits de la catégorie principale
     mainCategoryProductsSnapshot.docs.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-      allProducts.push({
+      const data = doc.data();
+      
+      // Créer d'abord l'objet Product avec Timestamps
+      const product: Product = {
         id: doc.id,
-        ...doc.data()
-      } as Product);
+        title: data.title ?? '',
+        slug: data.slug ?? '',
+        shortDescription: data.shortDescription,
+        brandId: data.brandId ?? '',
+        brandName: data.brandName ?? '',
+        categoryIds: data.categoryIds ?? [],
+        categoryPath: data.categoryPath ?? [],
+        primaryCategoryId: data.primaryCategoryId ?? '',
+        primaryCategoryName: data.primaryCategoryName ?? '',
+        price: data.price ?? 0,
+        oldPrice: data.oldPrice,
+        costPrice: data.costPrice,
+        images: data.images ?? [],
+        imageAlts: data.imageAlts ?? [],
+        stock: data.stock ?? 0,
+        sku: data.sku,
+        barcode: data.barcode,
+        specifications: data.specifications ?? {},
+        tags: data.tags ?? [],
+        badges: data.badges ?? [],
+        productDescriptions: data.productDescriptions ?? [],
+        videoUrl: data.videoUrl,
+        metaTitle: data.metaTitle ?? '',
+        metaDescription: data.metaDescription ?? '',
+        keywords: data.keywords ?? [],
+        canonicalUrl: data.canonicalUrl,
+        isActive: data.isActive !== false,
+        isNewArrival: data.isNewArrival ?? false,
+        createdAt: toTimestamp(data.createdAt),
+        updatedAt: toTimestamp(data.updatedAt),
+      };
+      
+      // Puis sérialiser pour le client
+      allProducts.push(serializeProduct(product));
     });
     
     // Si on n'a pas assez de produits, chercher dans les sous-catégories
@@ -75,14 +121,49 @@ async function getCategoryProducts(categoryId: string, maxProducts: number = 6):
       // Ajouter les produits des sous-catégories
       subCategorySnapshots.forEach(snapshot => {
         snapshot.docs.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const productData = {
+          const data = doc.data();
+          
+          // Créer d'abord l'objet Product avec Timestamps
+          const product: Product = {
             id: doc.id,
-            ...doc.data()
-          } as Product;
+            title: data.title ?? '',
+            slug: data.slug ?? '',
+            shortDescription: data.shortDescription,
+            brandId: data.brandId ?? '',
+            brandName: data.brandName ?? '',
+            categoryIds: data.categoryIds ?? [],
+            categoryPath: data.categoryPath ?? [],
+            primaryCategoryId: data.primaryCategoryId ?? '',
+            primaryCategoryName: data.primaryCategoryName ?? '',
+            price: data.price ?? 0,
+            oldPrice: data.oldPrice,
+            costPrice: data.costPrice,
+            images: data.images ?? [],
+            imageAlts: data.imageAlts ?? [],
+            stock: data.stock ?? 0,
+            sku: data.sku,
+            barcode: data.barcode,
+            specifications: data.specifications ?? {},
+            tags: data.tags ?? [],
+            badges: data.badges ?? [],
+            productDescriptions: data.productDescriptions ?? [],
+            videoUrl: data.videoUrl,
+            metaTitle: data.metaTitle ?? '',
+            metaDescription: data.metaDescription ?? '',
+            keywords: data.keywords ?? [],
+            canonicalUrl: data.canonicalUrl,
+            isActive: data.isActive !== false,
+            isNewArrival: data.isNewArrival ?? false,
+            createdAt: toTimestamp(data.createdAt),
+            updatedAt: toTimestamp(data.updatedAt),
+          };
+          
+          // Puis sérialiser pour le client
+          const serializedProduct = serializeProduct(product);
           
           // Éviter les doublons
-          if (!allProducts.find(p => p.id === productData.id)) {
-            allProducts.push(productData);
+          if (!allProducts.find(p => p.id === serializedProduct.id)) {
+            allProducts.push(serializedProduct);
           }
         });
       });
@@ -95,8 +176,8 @@ async function getCategoryProducts(categoryId: string, maxProducts: number = 6):
         if (a.isNewArrival && !b.isNewArrival) return -1;
         if (!a.isNewArrival && b.isNewArrival) return 1;
         
-        const aCreated = a.createdAt?.seconds || 0;
-        const bCreated = b.createdAt?.seconds || 0;
+        const aCreated = new Date(a.createdAt || 0).getTime();
+        const bCreated = new Date(b.createdAt || 0).getTime();
         if (aCreated !== bCreated) return bCreated - aCreated;
         
         return (b.price || 0) - (a.price || 0);

@@ -1,4 +1,4 @@
-// src/components/product/ProductGridHomeCategory.tsx
+// src/components/product/ProductGridHomeCategory.tsx - VERSION AVEC SÉRIALISATION
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -6,6 +6,7 @@ import { collection, getDocs, query, where, limit, orderBy, DocumentData, QueryD
 import { db } from '@/lib/firebase';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Product } from '@/types/product';
+import { serializeProduct, SerializedProduct } from '@/utils/serialization';
 import { Timestamp } from 'firebase/firestore';
 import Link from 'next/link';
 
@@ -18,6 +19,15 @@ interface ProductGridHomeCategoryProps {
   className?: string;
 }
 
+const toTimestamp = (ts: unknown): Timestamp => {
+  if (ts instanceof Timestamp) return ts;
+
+  return ts && typeof ts === 'object' && 'seconds' in ts && 'nanoseconds' in ts
+    // @ts-expect-error constructeur (seconds, nanoseconds) accepté
+    ? new Timestamp(ts.seconds, ts.nanoseconds)
+    : Timestamp.fromMillis(0);
+};
+
 export function ProductGridHomeCategory({ 
   title, 
   categoryId,
@@ -26,7 +36,7 @@ export function ProductGridHomeCategory({
   priority = false,
   className = ""
 }: ProductGridHomeCategoryProps) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<SerializedProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fonction récursive pour récupérer TOUS les IDs des catégories enfants
@@ -82,8 +92,8 @@ export function ProductGridHomeCategory({
     }
   }, []);
 
-  // Fonction optimisée pour récupérer les produits de toutes les catégories
-  const getProductsFromAllCategories = useCallback(async (parentCategoryId: string): Promise<Product[]> => {
+  // Fonction optimisée pour récupérer les produits de toutes les catégories - RETOURNE SerializedProduct[]
+  const getProductsFromAllCategories = useCallback(async (parentCategoryId: string): Promise<SerializedProduct[]> => {
     try {
       console.log(`🚀 Recherche produits pour catégorie parent: ${parentCategoryId}`);
       
@@ -129,7 +139,7 @@ export function ProductGridHomeCategory({
       const snapshots = await Promise.all(productPromises);
       
       // 4. Fusionner et dédupliquer les résultats
-      const allProducts: Product[] = [];
+      const allProducts: SerializedProduct[] = [];
       const seenProductIds = new Set<string>();
       
       snapshots.forEach((snapshot: QuerySnapshot<DocumentData>) => {
@@ -138,6 +148,8 @@ export function ProductGridHomeCategory({
             seenProductIds.add(doc.id);
             
             const data = doc.data();
+            
+            // Créer d'abord l'objet Product avec Timestamps
             const product: Product = {
               id: doc.id,
               title: data.title || '',
@@ -168,11 +180,12 @@ export function ProductGridHomeCategory({
               canonicalUrl: data.canonicalUrl,
               isActive: data.isActive !== false,
               isNewArrival: data.isNewArrival || false,
-              createdAt: data.createdAt || null,
-              updatedAt: data.updatedAt || null
+              createdAt: toTimestamp(data.createdAt),
+              updatedAt: toTimestamp(data.updatedAt)
             };
             
-            allProducts.push(product);
+            // Puis sérialiser pour le client
+            allProducts.push(serializeProduct(product));
           }
         });
       });
@@ -187,8 +200,8 @@ export function ProductGridHomeCategory({
           if (!a.isNewArrival && b.isNewArrival) return 1;
           
           // Puis par date de création (plus récent d'abord)
-          const aCreated = (a.createdAt as Timestamp)?.seconds || 0;
-          const bCreated = (b.createdAt as Timestamp)?.seconds || 0;
+          const aCreated = new Date(a.createdAt || 0).getTime();
+          const bCreated = new Date(b.createdAt || 0).getTime();
           if (aCreated !== bCreated) return bCreated - aCreated;
           
           // Enfin par prix (plus cher d'abord pour mettre en avant)
@@ -301,3 +314,5 @@ export function ProductGridHomeCategory({
     </section>
   );
 }
+
+

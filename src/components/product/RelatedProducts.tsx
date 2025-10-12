@@ -1,7 +1,8 @@
-// components/product/RelatedProducts.tsx - Version corrigée avec sérialisation
+// components/product/RelatedProducts.tsx - VERSION AVEC SÉRIALISATION
 import { collection, query, where, getDocs, limit, DocumentData, QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/types/product';
+import { serializeProduct, SerializedProduct } from '@/utils/serialization';
 import { ProductCard } from '@/components/product/ProductCard';
 
 interface RelatedProductsProps {
@@ -76,12 +77,12 @@ const toTimestamp = (ts: unknown): Timestamp => {
     : Timestamp.fromMillis(0);
 };
 
-
-// Fonction pour sérialiser un produit Firebase en Product complet
-function serializeFirebaseProduct(doc: QueryDocumentSnapshot<FirebaseProductData>): Product {
+// Fonction pour convertir un produit Firebase en Product puis le sérialiser
+function serializeFirebaseProduct(doc: QueryDocumentSnapshot<FirebaseProductData>): SerializedProduct {
   const data = doc.data();
 
-  return {
+  // D'abord créer l'objet Product avec Timestamps
+  const product: Product = {
     id: doc.id,
     title: data.title || '',
     slug: data.slug || '',
@@ -104,26 +105,27 @@ function serializeFirebaseProduct(doc: QueryDocumentSnapshot<FirebaseProductData
     tags: data.tags || [],
     badges: data.badges || [],
     productDescriptions: data.productDescriptions || [],
-    // Product déclare: videoUrl: string | undefined
-    videoUrl: data.videoUrl ?? '',
+    videoUrl: data.videoUrl,
     metaTitle: data.metaTitle || '',
     metaDescription: data.metaDescription || '',
     keywords: data.keywords || [],
     canonicalUrl: data.canonicalUrl,
     isActive: data.isActive !== false,
     isNewArrival: data.isNewArrival || false,
-
-    // ✅ normalisation en Timestamp (pas d’objet {seconds, nanoseconds})
+    // Normalisation en Timestamp
     createdAt: toTimestamp(data.createdAt),
     updatedAt: toTimestamp(data.updatedAt),
-  } satisfies Product; // évite le cast “as Product”
+  };
+
+  // Puis sérialiser avec la fonction centralisée
+  return serializeProduct(product);
 }
 
 async function getRelatedProducts(
   categoryIds: string[],
   currentProductId: string,
   brandId?: string
-): Promise<Product[]> {
+): Promise<SerializedProduct[]> {
   try {
     const productsRef = collection(db, 'products');
     
@@ -155,7 +157,7 @@ async function getRelatedProducts(
         .map(doc => serializeFirebaseProduct(doc as QueryDocumentSnapshot<FirebaseProductData>));
       
       // Fusionner et dédupliquer
-      const productMap = new Map<string, Product>();
+      const productMap = new Map<string, SerializedProduct>();
       [...relatedProducts, ...brandProducts].forEach(p => {
         if (!productMap.has(p.id)) {
           productMap.set(p.id, p);

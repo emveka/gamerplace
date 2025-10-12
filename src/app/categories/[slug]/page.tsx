@@ -1,4 +1,4 @@
-// app/categories/[slug]/page.tsx - VERSION AVEC TOUTES LES CATÉGORIES
+// app/categories/[slug]/page.tsx - VERSION AVEC SÉRIALISATION COMPLÈTE
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
@@ -15,6 +15,56 @@ import { ProductSortingBar } from '@/components/product/ProductSortingBar';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Suspense } from 'react';
 import { Timestamp } from 'firebase/firestore';
+import { serializeProduct, SerializedProduct } from '@/utils/serialization';
+
+// Types sérialisés pour les catégories
+interface SerializedBrand {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  logoUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  isActive: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+interface SerializedCategoryWithChildren {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parentId?: string | undefined; // Changé de optionnel à string | undefined
+  imageUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  isActive: boolean;
+  order?: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+  children: SerializedCategoryWithChildren[];
+}
+
+// Interface pour les catégories avec hiérarchie (interne)
+interface CategoryWithHierarchy {
+  id: string;
+  name: string;
+  slug: string;
+  parentId?: string;
+  isActive: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+  [key: string]: unknown;
+}
+
+// Interface pour une catégorie avec ses enfants (interne)
+interface CategoryWithChildren extends Category {
+  children: CategoryWithChildren[];
+}
 
 const toTimestamp = (ts: unknown): Timestamp => {
   if (ts instanceof Timestamp) return ts;
@@ -25,6 +75,43 @@ const toTimestamp = (ts: unknown): Timestamp => {
     : Timestamp.fromMillis(0);
 };
 
+// Fonction pour sérialiser une marque
+function serializeBrand(brand: Brand): SerializedBrand {
+  return {
+    id: brand.id,
+    name: brand.name,
+    slug: brand.slug,
+    description: brand.description,
+    logoUrl: brand.logoUrl,
+    metaTitle: brand.metaTitle,
+    metaDescription: brand.metaDescription,
+    keywords: brand.keywords,
+    isActive: brand.isActive,
+    createdAt: brand.createdAt ? brand.createdAt.toDate().toISOString() : null,
+    updatedAt: brand.updatedAt ? brand.updatedAt.toDate().toISOString() : null,
+  };
+}
+
+// Fonction pour sérialiser une catégorie avec enfants
+function serializeCategoryWithChildren(category: CategoryWithChildren): SerializedCategoryWithChildren {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description,
+    parentId: category.parentId || undefined, // Convertir null en undefined
+    imageUrl: category.imageUrl,
+    metaTitle: category.metaTitle,
+    metaDescription: category.metaDescription,
+    keywords: category.keywords,
+    isActive: category.isActive,
+    order: category.order,
+    createdAt: category.createdAt ? category.createdAt.toDate().toISOString() : null,
+    updatedAt: category.updatedAt ? category.updatedAt.toDate().toISOString() : null,
+    children: category.children.map(serializeCategoryWithChildren),
+  };
+}
+
 // Interface compatible avec PaginationSearchParams
 interface SearchParams {
   page?: string;
@@ -33,7 +120,7 @@ interface SearchParams {
   brand?: string;
   condition?: string;
   stock?: string;
-  [key: string]: string | string[] | undefined; // Signature d'index ajoutée
+  [key: string]: string | string[] | undefined;
 }
 
 interface ProductFilters {
@@ -48,22 +135,6 @@ interface BreadcrumbItem {
   href: string;
   label: string;
   current?: boolean;
-}
-
-interface CategoryWithHierarchy {
-  id: string;
-  name: string;
-  slug: string;
-  parentId?: string;
-  isActive: boolean;
-  createdAt?: { seconds: number; nanoseconds: number } | null;
-  updatedAt?: { seconds: number; nanoseconds: number } | null;
-  [key: string]: unknown;
-}
-
-// Interface pour une catégorie avec ses enfants
-interface CategoryWithChildren extends Category {
-  children: CategoryWithChildren[];
 }
 
 // Construire le breadcrumb avec toute la hiérarchie des catégories
@@ -94,25 +165,28 @@ async function buildCategoryBreadcrumb(category: Category): Promise<BreadcrumbIt
           const parentData = parentDoc.data();
           currentCategory = {
             id: parentDoc.id,
-            ...parentData,
-            createdAt: parentData.createdAt ? {
-              seconds: parentData.createdAt.seconds,
-              nanoseconds: parentData.createdAt.nanoseconds
-            } : null,
-            updatedAt: parentData.updatedAt ? {
-              seconds: parentData.updatedAt.seconds,
-              nanoseconds: parentData.updatedAt.nanoseconds
-            } : null
+            name: parentData.name,
+            slug: parentData.slug,
+            description: parentData.description,
+            parentId: parentData.parentId,
+            imageUrl: parentData.imageUrl,
+            metaTitle: parentData.metaTitle,
+            metaDescription: parentData.metaDescription,
+            keywords: parentData.keywords,
+            isActive: parentData.isActive,
+            order: parentData.order,
+            createdAt: parentData.createdAt ? toTimestamp(parentData.createdAt) : Timestamp.fromMillis(0),
+            updatedAt: parentData.updatedAt ? toTimestamp(parentData.updatedAt) : Timestamp.fromMillis(0),
           } as Category;
         } else {
-          break; // Parent non trouvé, arrêter la remontée
+          break;
         }
       } catch (error) {
         console.error('Erreur lors de la récupération du parent:', error);
         break;
       }
     } else {
-      break; // Plus de parent, on a atteint la racine
+      break;
     }
   }
 
@@ -143,14 +217,8 @@ async function getAllChildCategories(parentCategoryId: string): Promise<string[]
         slug: data.slug,
         parentId: data.parentId,
         isActive: data.isActive,
-        createdAt: data.createdAt ? {
-          seconds: data.createdAt.seconds,
-          nanoseconds: data.createdAt.nanoseconds
-        } : null,
-        updatedAt: data.updatedAt ? {
-          seconds: data.updatedAt.seconds,
-          nanoseconds: data.updatedAt.nanoseconds
-        } : null,
+        createdAt: data.createdAt ? toTimestamp(data.createdAt) : Timestamp.fromMillis(0),
+        updatedAt: data.updatedAt ? toTimestamp(data.updatedAt) : Timestamp.fromMillis(0),
         ...data
       };
     });
@@ -202,15 +270,18 @@ async function getCategory(slug: string): Promise<Category | null> {
     const categoryData = categoryDoc.data();
     const category = {
       id: categoryDoc.id,
-      ...categoryData,
-      createdAt: categoryData.createdAt ? {
-        seconds: categoryData.createdAt.seconds,
-        nanoseconds: categoryData.createdAt.nanoseconds
-      } : null,
-      updatedAt: categoryData.updatedAt ? {
-        seconds: categoryData.updatedAt.seconds,
-        nanoseconds: categoryData.updatedAt.nanoseconds
-      } : null
+      name: categoryData.name,
+      slug: categoryData.slug,
+      description: categoryData.description,
+      parentId: categoryData.parentId,
+      imageUrl: categoryData.imageUrl,
+      metaTitle: categoryData.metaTitle,
+      metaDescription: categoryData.metaDescription,
+      keywords: categoryData.keywords,
+      isActive: categoryData.isActive,
+      order: categoryData.order,
+      createdAt: categoryData.createdAt ? toTimestamp(categoryData.createdAt) : Timestamp.fromMillis(0),
+      updatedAt: categoryData.updatedAt ? toTimestamp(categoryData.updatedAt) : Timestamp.fromMillis(0),
     } as Category;
     
     return category;
@@ -220,13 +291,13 @@ async function getCategory(slug: string): Promise<Category | null> {
   }
 }
 
-// Récupérer les produits avec filtrage
+// Récupérer les produits avec filtrage - RETOURNE SerializedProduct[]
 async function getProducts(
   categoryIds: string[], 
   page: number = 1, 
   itemsPerPage: number = 12,
   filters: ProductFilters = {}
-): Promise<{ products: Product[], totalCount: number }> {
+): Promise<{ products: SerializedProduct[], totalCount: number }> {
   try {
     const productsRef = collection(db, 'products');
     
@@ -243,44 +314,45 @@ async function getProducts(
       // DEBUG: Vérifier la présence des badges dans Firebase
       console.log(`Firebase Doc ID: ${doc.id}, Title: ${data.title}, Badges:`, data.badges);
       
-      return {
-    id: doc.id,
-    title: data.title ?? '',
-    slug: data.slug ?? '',
-    shortDescription: data.shortDescription,
-    brandId: data.brandId ?? '',
-    brandName: data.brandName ?? '',
-    categoryIds: data.categoryIds ?? [],
-    categoryPath: data.categoryPath ?? [],
-    primaryCategoryId: data.primaryCategoryId ?? '',
-    primaryCategoryName: data.primaryCategoryName ?? '',
-    price: data.price ?? 0,
-    oldPrice: data.oldPrice,
-    costPrice: data.costPrice,
-    images: data.images ?? [],
-    imageAlts: data.imageAlts ?? [],
-    stock: data.stock ?? 0,
-    sku: data.sku,
-    barcode: data.barcode,
-    specifications: data.specifications ?? {},
-    tags: data.tags ?? [],
-    badges: data.badges ?? [],
-    productDescriptions: data.productDescriptions ?? [],
-    metaTitle: data.metaTitle ?? '',
-    metaDescription: data.metaDescription ?? '',
-    keywords: data.keywords ?? [],
-    canonicalUrl: data.canonicalUrl,
-    isActive: data.isActive !== false,
-    isNewArrival: data.isNewArrival ?? false,
+      // Créer d'abord l'objet Product avec Timestamps
+      const product: Product = {
+        id: doc.id,
+        title: data.title ?? '',
+        slug: data.slug ?? '',
+        shortDescription: data.shortDescription,
+        brandId: data.brandId ?? '',
+        brandName: data.brandName ?? '',
+        categoryIds: data.categoryIds ?? [],
+        categoryPath: data.categoryPath ?? [],
+        primaryCategoryId: data.primaryCategoryId ?? '',
+        primaryCategoryName: data.primaryCategoryName ?? '',
+        price: data.price ?? 0,
+        oldPrice: data.oldPrice,
+        costPrice: data.costPrice,
+        images: data.images ?? [],
+        imageAlts: data.imageAlts ?? [],
+        stock: data.stock ?? 0,
+        sku: data.sku,
+        barcode: data.barcode,
+        specifications: data.specifications ?? {},
+        tags: data.tags ?? [],
+        badges: data.badges ?? [],
+        productDescriptions: data.productDescriptions ?? [],
+        metaTitle: data.metaTitle ?? '',
+        metaDescription: data.metaDescription ?? '',
+        keywords: data.keywords ?? [],
+        canonicalUrl: data.canonicalUrl,
+        isActive: data.isActive !== false,
+        isNewArrival: data.isNewArrival ?? false,
+        videoUrl: data.videoUrl ?? '',
+        // Garder les Timestamps Firebase
+        createdAt: toTimestamp(data.createdAt),
+        updatedAt: toTimestamp(data.updatedAt),
+      };
 
-    // ✅ requis par Product (déclaré comme string | undefined mais propriété obligatoire)
-    videoUrl: data.videoUrl ?? '',
-
-    // ✅ normalisation en Timestamp (pas d’objet {seconds, nanoseconds})
-    createdAt: toTimestamp(data.createdAt),
-    updatedAt: toTimestamp(data.updatedAt),
-  } satisfies Product; // plus sûr que `as Product`
-});
+      // Puis sérialiser pour le client
+      return serializeProduct(product);
+    });
 
     // Filtrage prix côté client
     if (filters.priceRange && allProducts.length > 0) {
@@ -318,7 +390,7 @@ async function getProducts(
       }
     }
 
-    // Tri
+    // Tri - Utilise les strings ISO pour les dates
     switch (filters.sort) {
       case 'price-asc':
         allProducts.sort((a, b) => a.price - b.price);
@@ -327,9 +399,11 @@ async function getProducts(
         allProducts.sort((a, b) => b.price - a.price);
         break;
       case 'newest':
-        if (allProducts[0]?.createdAt) {
-          allProducts.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-        }
+        allProducts.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
         break;
       case 'name-asc':
         allProducts.sort((a, b) => a.title.localeCompare(b.title));
@@ -353,8 +427,8 @@ async function getProducts(
   }
 }
 
-// Récupérer les marques
-async function getBrands(categoryIds: string[]): Promise<Brand[]> {
+// Récupérer les marques - RETOURNE SerializedBrand[]
+async function getBrands(categoryIds: string[]): Promise<SerializedBrand[]> {
   try {
     if (categoryIds.length === 0) {
       return [];
@@ -389,19 +463,22 @@ async function getBrands(categoryIds: string[]): Promise<Brand[]> {
       .filter(doc => brandIds.has(doc.id))
       .map(doc => {
         const data = doc.data();
-        return {
+        const brand: Brand = {
           id: doc.id,
-          ...data,
-          createdAt: data.createdAt ? {
-            seconds: data.createdAt.seconds,
-            nanoseconds: data.createdAt.nanoseconds
-          } : null,
-          updatedAt: data.updatedAt ? {
-            seconds: data.updatedAt.seconds,
-            nanoseconds: data.updatedAt.nanoseconds
-          } : null
+          name: data.name,
+          slug: data.slug,
+          description: data.description,
+          logoUrl: data.logoUrl,
+          metaTitle: data.metaTitle,
+          metaDescription: data.metaDescription,
+          keywords: data.keywords,
+          isActive: data.isActive,
+          createdAt: data.createdAt ? toTimestamp(data.createdAt) : Timestamp.fromMillis(0),
+          updatedAt: data.updatedAt ? toTimestamp(data.updatedAt) : Timestamp.fromMillis(0),
         };
-      }) as Brand[];
+        // Sérialiser la marque
+        return serializeBrand(brand);
+      });
     
     // Trier par nom
     filteredBrands.sort((a, b) => a.name.localeCompare(b.name));
@@ -413,8 +490,8 @@ async function getBrands(categoryIds: string[]): Promise<Brand[]> {
   }
 }
 
-// Récupérer TOUTES les catégories avec leur hiérarchie complète
-async function getCategoriesHierarchy(): Promise<CategoryWithChildren[]> {
+// Récupérer TOUTES les catégories avec leur hiérarchie complète - RETOURNE SerializedCategoryWithChildren[]
+async function getCategoriesHierarchy(): Promise<SerializedCategoryWithChildren[]> {
   try {
     const categoriesRef = collection(db, 'categories');
     const allCategoriesSnapshot = await getDocs(
@@ -426,16 +503,19 @@ async function getCategoriesHierarchy(): Promise<CategoryWithChildren[]> {
       const data = doc.data();
       return {
         id: doc.id,
-        ...data,
+        name: data.name,
+        slug: data.slug,
+        description: data.description,
+        parentId: data.parentId,
+        imageUrl: data.imageUrl,
+        metaTitle: data.metaTitle,
+        metaDescription: data.metaDescription,
+        keywords: data.keywords,
+        isActive: data.isActive,
+        order: data.order,
         children: [] as CategoryWithChildren[],
-        createdAt: data.createdAt ? {
-          seconds: data.createdAt.seconds,
-          nanoseconds: data.createdAt.nanoseconds
-        } : null,
-        updatedAt: data.updatedAt ? {
-          seconds: data.updatedAt.seconds,
-          nanoseconds: data.updatedAt.nanoseconds
-        } : null
+        createdAt: data.createdAt ? toTimestamp(data.createdAt) : Timestamp.fromMillis(0),
+        updatedAt: data.updatedAt ? toTimestamp(data.updatedAt) : Timestamp.fromMillis(0),
       } as CategoryWithChildren;
     });
 
@@ -460,7 +540,8 @@ async function getCategoriesHierarchy(): Promise<CategoryWithChildren[]> {
         children: buildCategoryTree(root.id)
       }));
 
-    return rootCategories;
+    // Sérialiser toutes les catégories
+    return rootCategories.map(serializeCategoryWithChildren);
   } catch (error) {
     console.error('Error fetching categories hierarchy:', error);
     return [];
@@ -597,7 +678,7 @@ export default async function CategoryPage({
 async function CategoryFiltersContainer({ categoryId }: { categoryId: string }) {
   const allCategoryIds = await getAllChildCategories(categoryId);
   const brands = await getBrands(allCategoryIds);
-  const categoriesHierarchy = await getCategoriesHierarchy(); // Plus besoin du categoryId
+  const categoriesHierarchy = await getCategoriesHierarchy();
  
   return (
     <CategoryFilters

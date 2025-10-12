@@ -1,12 +1,12 @@
-// src/components/product/ProductCard.tsx
+// src/components/product/ProductCard.tsx - VERSION AVEC SÉRIALISATION
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product, ProductBadge } from '@/types/product';
+import { SerializedProduct, ProductBadge } from '@/utils/serialization';
 
 interface ProductCardProps {
-  product: Product;
+  product: SerializedProduct;
   priority?: boolean;
   sizes?: string;
 }
