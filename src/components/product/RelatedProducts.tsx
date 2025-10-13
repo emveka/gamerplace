@@ -1,4 +1,4 @@
-// components/product/RelatedProducts.tsx - VERSION AVEC SÉRIALISATION
+// components/product/RelatedProducts.tsx - VERSION AVEC SÉRIALISATION ET NOM DE CATÉGORIE
 import { collection, query, where, getDocs, limit, DocumentData, QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/types/product';
@@ -9,6 +9,7 @@ interface RelatedProductsProps {
   categoryIds: string[];
   currentProductId: string;
   brandId?: string;
+  primaryCategoryName?: string; // Nouveau prop pour le nom de la catégorie
 }
 
 // Interface pour les données produit Firebase
@@ -177,7 +178,8 @@ async function getRelatedProducts(
 export async function RelatedProducts({ 
   categoryIds, 
   currentProductId, 
-  brandId 
+  brandId,
+  primaryCategoryName
 }: RelatedProductsProps) {
   const relatedProducts = await getRelatedProducts(
     categoryIds,
@@ -191,10 +193,10 @@ export async function RelatedProducts({
 
   return (
     <div className="mb-12">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900 border-l-4 border-yellow-500 pl-4">
-        Produits similaires
+      <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-3 md:mb-4 lg:mb-6 text-gray-900 border-l-4 border-yellow-500 pl-2 md:pl-3 lg:pl-4">
+        Produits similaires {primaryCategoryName ? `des ${primaryCategoryName}` : ''}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
         {relatedProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

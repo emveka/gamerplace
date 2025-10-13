@@ -1,12 +1,21 @@
-// components/cart/CartIcon.tsx
+// components/cart/CartIcon.tsx - VERSION CORRIGÉE
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useCartStore } from '@/stores/cartStore';
 
 export function CartIcon() {
-  const totalItems = useCartStore(state => state.totalItems());
+  const [isClient, setIsClient] = useState(false);
   const toggleCart = useCartStore(state => state.toggleCart);
+  
+  // Éviter l'hydration mismatch en s'assurant que le rendu est identique
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Calculer le total seulement côté client
+  const totalItems = isClient ? useCartStore.getState().totalItems() : 0;
 
   return (
     <button
@@ -15,7 +24,7 @@ export function CartIcon() {
       aria-label="Mon Panier"
       title="Mon Panier"
     >
-      <div className="relative">
+      <div className="relative" suppressHydrationWarning>
         <Image
           src="/icons/cart.svg"
           alt="Mon Panier"
@@ -23,18 +32,19 @@ export function CartIcon() {
           height={24}
           className="h-4 sm:h-5 lg:h-6 w-4 sm:w-5 lg:w-6"
         />
-        {/* Badge quantité avec animation */}
-        {totalItems > 0 && (
-          <span className="absolute -right-1 sm:-right-1.5 lg:-right-2 -top-1 sm:-top-1.5 lg:-top-2 rounded-full bg-yellow-400 px-0.5 sm:px-1 lg:px-1.5 py-0.5 text-[7px] sm:text-[8px] lg:text-[10px] font-semibold text-black min-w-[12px] sm:min-w-[14px] lg:min-w-[18px] text-center animate-pulse">
+        {/* Badge quantité - seulement côté client pour éviter hydration mismatch */}
+        {isClient && totalItems > 0 && (
+          <span className="absolute -right-2 -top-2 rounded-full bg-yellow-400 px-1 py-0.5 text-xs font-semibold text-black min-w-[18px] text-center flex items-center justify-center">
             {totalItems > 99 ? '99+' : totalItems}
           </span>
         )}
       </div>
-      <span className="text-[10px] sm:text-xs font-medium text-white whitespace-nowrap hidden sm:block">
+      
+      {/* Texte responsive */}
+      <span className="text-xs font-medium text-white whitespace-nowrap hidden sm:block">
         Mon Panier
       </span>
-      {/* Version ultra-compacte pour très petit écrans */}
-      <span className="text-[8px] sm:text-[9px] font-medium text-white sm:hidden">
+      <span className="text-[8px] font-medium text-white sm:hidden">
         Panier
       </span>
     </button>

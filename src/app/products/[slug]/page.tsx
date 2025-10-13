@@ -246,7 +246,7 @@ export default async function ProductPage({
         {/* Produits similaires */}
         <Suspense fallback={
           <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-l-4 border-yellow-500 pl-4">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-gray-900 border-l-4 border-yellow-500 pl-3 md:pl-4">
               Produits similaires
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -260,6 +260,7 @@ export default async function ProductPage({
             categoryIds={product.categoryIds}
             currentProductId={product.id}
             brandId={product.brandId}
+            primaryCategoryName={product.primaryCategoryName}
           />
         </Suspense>
       </div>

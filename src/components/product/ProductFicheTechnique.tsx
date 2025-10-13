@@ -262,7 +262,7 @@ export const ProductFicheTechnique: React.FC<ProductFicheTechniqueProps> = ({ pr
     <div>
       {/* Titre séparé comme les autres sections */}
       <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-gray-900 border-l-4 border-yellow-500 pl-3 md:pl-4">
-        Fiche technique du {product.title}
+        Fiche technique {product.title}
       </h2>
       
       {/* Tableau des spécifications */}
