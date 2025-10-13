@@ -1,9 +1,10 @@
-// src/components/product/ProductCard.tsx - VERSION AVEC SÉRIALISATION
+// src/components/product/ProductCard.tsx - MISE À JOUR avec AddToCartButton
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import { SerializedProduct, ProductBadge } from '@/utils/serialization';
+import { AddToCartButton } from '@/components/cart/AddToCartButton';
 
 interface ProductCardProps {
   product: SerializedProduct;
@@ -20,18 +21,17 @@ function ProductBadgeComponent({ badge }: { badge: ProductBadge }) {
     'bottom-right': 'bottom-2 right-2',
   };
 
-  // Déterminer si c'est un dégradé ou une couleur unie
   const isGradient = badge.backgroundColor.includes('gradient') || 
                     badge.backgroundColor.includes('linear') || 
                     badge.backgroundColor.includes('radial');
 
   const badgeStyle = isGradient 
     ? { 
-        background: badge.backgroundColor,  // Utilise 'background' pour les dégradés
+        background: badge.backgroundColor,
         color: badge.textColor 
       }
     : { 
-        backgroundColor: badge.backgroundColor,  // Utilise 'backgroundColor' pour les couleurs unies
+        backgroundColor: badge.backgroundColor,
         color: badge.textColor 
       };
 
@@ -43,24 +43,6 @@ function ProductBadgeComponent({ badge }: { badge: ProductBadge }) {
     >
       {badge.text}
     </span>
-  );
-}
-
-// Buy Button Component
-function BuyButton({ productId }: { productId: string }) {
-  const handleBuyClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log('Achat produit:', productId);
-  };
-
-  return (
-    <button 
-      className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1.5 px-2 sm:px-3 transition-colors text-xs sm:text-sm whitespace-nowrap"
-      type="button"
-      onClick={handleBuyClick}
-    >
-      ACHETER
-    </button>
   );
 }
 
@@ -87,7 +69,7 @@ export function ProductCard({
   sizes = "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
 }: ProductCardProps) {
   
-  // Badges actifs depuis Firebase (tableau) - Force le typage
+  // Badges actifs depuis Firebase
   const badges = Array.isArray(product.badges) ? product.badges : [];
   const activeBadges = badges
     .filter((badge) => badge && badge.isActive)
@@ -174,9 +156,11 @@ export function ProductCard({
             </span>
           )}
         </div>
+      </Link>
         
-        {/* Product Info */}
-        <div className="p-2 space-y-1">
+      {/* Product Info */}
+      <div className="p-2 space-y-1">
+        <Link href={`/products/${product.slug}`}>
           <h3 
             className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm leading-tight line-clamp-2 min-h-[2.5rem]"
             itemProp="name"
@@ -184,60 +168,64 @@ export function ProductCard({
           >
             {product.title}
           </h3>
-          
-          {/* Specifications list */}
-          {displaySpecs.length > 0 && (
-            <ul className="space-y-1">
-              {displaySpecs.map(([key, value], index) => (
-                <li key={index} className="flex items-start text-xs text-gray-600">
-                  <div className="w-1.5 h-1.5 bg-yellow-500 mr-2 flex-shrink-0 mt-1.5"></div>
-                  <span className="truncate">{value}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          
-          {/* Delivery info */}
-          <div className="flex items-center gap-1 text-xs">
-            <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-            </svg>
-            <span className="text-gray-900">Livraison le</span>
-            <span className="text-green-600">{getDeliveryDate()}</span>
+        </Link>
+        
+        {/* Specifications list */}
+        {displaySpecs.length > 0 && (
+          <ul className="space-y-1">
+            {displaySpecs.map(([key, value], index) => (
+              <li key={index} className="flex items-start text-xs text-gray-600">
+                <div className="w-1.5 h-1.5 bg-yellow-500 mr-2 flex-shrink-0 mt-1.5"></div>
+                <span className="truncate">{value}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        
+        {/* Delivery info */}
+        <div className="flex items-center gap-1 text-xs">
+          <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+          </svg>
+          <span className="text-gray-900">Livraison le</span>
+          <span className="text-green-600">{getDeliveryDate()}</span>
+        </div>
+        
+        {/* Divider */}
+        <hr className="border-gray-200" />
+        
+        {/* Price and Button container */}
+        <div className="flex justify-between items-end gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+          {/* Price section */}
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-gray-400 line-through truncate min-h-[1rem]">
+              {product.oldPrice && product.oldPrice > product.price && (
+                <>
+                  {product.oldPrice.toLocaleString()} dh
+                </>
+              )}
+            </div>
+            <div
+              className="text-xs sm:text-lg font-bold text-red-600 truncate"
+              itemProp="price"
+              content={product.price.toString()}
+            >
+              {product.price.toLocaleString()} dh
+            </div>
+            <meta itemProp="priceCurrency" content="MAD" />
+            <meta itemProp="availability" content={product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"} />
           </div>
           
-          {/* Divider */}
-          <hr className="border-gray-200" />
-          
-          {/* Price and Button container */}
-          <div className="flex justify-between items-end gap-2" itemProp="offers" itemScope itemType="https://schema.org/Offer">
-            {/* Price section */}
-            <div className="flex-1 min-w-0">
-              <div className="text-xs text-gray-400 line-through truncate min-h-[1rem]">
-                {product.oldPrice && product.oldPrice > product.price && (
-                  <>
-                    {product.oldPrice.toLocaleString()} dh
-                  </>
-                )}
-              </div>
-              <div
-                className="text-xs sm:text-lg font-bold text-red-600 truncate"
-                itemProp="price"
-                content={product.price.toString()}
-              >
-                {product.price.toLocaleString()} dh
-              </div>
-              <meta itemProp="priceCurrency" content="MAD" />
-              <meta itemProp="availability" content={product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"} />
-            </div>
-            
-            {/* Buy button */}
-            <div className="flex-shrink-0">
-              <BuyButton productId={product.id} />
-            </div>
+          {/* Buy button - Remplacé par AddToCartButton */}
+          <div className="flex-shrink-0">
+            <AddToCartButton 
+              product={product}
+              variant="small"
+              showIcon={false}
+            />
           </div>
         </div>
-      </Link>
+      </div>
       
       {/* Hidden structured data */}
       <meta itemProp="sku" content={product.sku || product.id} />

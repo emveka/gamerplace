@@ -13,8 +13,9 @@ import { ProductVideoPlayer } from '@/components/product/ProductVideoPlayer';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Suspense } from 'react';
-// 🆕 Import du nouveau composant ProductSpecinfo (attention à la casse exacte)
-import { ProductSpecinfo } from '@/components/product/ProductSpecInfo';
+// ✅ Import du composant ProductFicheTechnique
+import { ProductFicheTechnique } from '@/components/product/ProductFicheTechnique';
+import { ProductInfoDetails } from '@/components/product/ProductInfoDetails';
 
 interface BreadcrumbItem {
   href: string;
@@ -55,7 +56,7 @@ async function getProduct(slug: string): Promise<Product | null> {
       primaryCategoryId: data.primaryCategoryId || '',
       primaryCategoryName: data.primaryCategoryName || '',
       price: data.price || 0,
-      oldPrice: data.oldPrice || undefined, // 🔧 Convertir null en undefined
+      oldPrice: data.oldPrice || undefined,
       costPrice: data.costPrice,
       images: data.images || [],
       imageAlts: data.imageAlts || [],
@@ -63,7 +64,7 @@ async function getProduct(slug: string): Promise<Product | null> {
       sku: data.sku,
       barcode: data.barcode,
       specifications: data.specifications || {},
-      // 🆕 Récupération des informations techniques
+      // ✅ Récupération des informations techniques
       technicalInfo: data.technicalInfo || {},
       tags: data.tags || [],
       badges: data.badges || [],
@@ -206,27 +207,36 @@ export default async function ProductPage({
           <img 
             src="/images/BannerNettoyagePcgamer.webp" 
             alt="Service Nettoyage PC Gamer" 
-            className="w-full "
+            className="w-full rounded-lg"
           />
         </div>
 
-        {/* 🆕 Spécifications techniques avec vraies données Firebase */}
-        <div className="mb-12">
-          <ProductSpecinfo product={serializedProduct} />
+        {/* Section en bas : Informations détaillées à gauche, Fiche technique à droite */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          
+          {/* Colonne de gauche - Informations détaillées du produit */}
+          <div className="space-y-4">
+            <ProductInfoDetails product={serializedProduct} />
+          </div>
+
+          {/* Colonne de droite - Fiche technique */}
+          <div className="space-y-4">
+            <ProductFicheTechnique product={serializedProduct} />
+          </div>
         </div>
 
         {/* Sections de description détaillées */}
         {product.productDescriptions && product.productDescriptions.length > 0 && (
           <div className="mb-12">
-            <ProductDescriptionSections descriptions={product.productDescriptions} />
+            <ProductDescriptionSections 
+              descriptions={product.productDescriptions} 
+              productTitle={product.title}
+            />
           </div>
         )}
 
         {/* Lecteur vidéo YouTube - Toujours affiché */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-gray-900 border-l-4 border-yellow-500 pl-4">
-            Vidéo du produit
-          </h2>
           <ProductVideoPlayer 
             videoUrl={product.videoUrl} 
             productTitle={product.title}

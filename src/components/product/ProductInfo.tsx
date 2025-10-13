@@ -1,9 +1,10 @@
-// components/product/ProductInfo.tsx
+// components/product/ProductInfo.tsx - MISE À JOUR avec AddToCartButton
 'use client';
 
 import { useState } from 'react';
+import { AddToCartButton } from '@/components/cart/AddToCartButton';
 
-// Ajoutez ce modal dans le même fichier ou créez un fichier séparé
+// Le modal WhatsApp reste inchangé
 interface WhatsAppShareModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,13 +19,10 @@ function WhatsAppShareModal({ isOpen, onClose, product }: WhatsAppShareModalProp
   if (!isOpen) return null;
 
   const productUrl = `${window.location.origin}/products/${product.slug}`;
-  
-  // Remplacez par votre numéro WhatsApp (format international sans +)
   const shopWhatsApp = "212600000000"; 
   
   const handleShareOffer = () => {
     const message = `Salut ! 👋\n\nRegarde cette offre sur Gamerplace.ma :\n\n🎮 ${product.title}\n💰 ${product.price.toLocaleString()} DH\n\n🔗 ${productUrl}`;
-    
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     onClose();
@@ -32,7 +30,6 @@ function WhatsAppShareModal({ isOpen, onClose, product }: WhatsAppShareModalProp
 
   const handleContactUs = () => {
     const message = `Salut ! 👋\n\nJ'ai une question concernant ce produit :\n\n🎮 ${product.title}\n💰 ${product.price.toLocaleString()} DH\n🔗 ${productUrl}\n\nMa question : `;
-    
     const whatsappUrl = `https://wa.me/${shopWhatsApp}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     onClose();
@@ -41,102 +38,52 @@ function WhatsAppShareModal({ isOpen, onClose, product }: WhatsAppShareModalProp
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
       <div className="bg-white border-4 border-yellow-500 shadow-2xl max-w-lg w-full mx-4 relative">
-        
-        {/* Header avec bordure jaune */}
         <div className="bg-yellow-500 px-6 py-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-black">
-            📱 Partager via WhatsApp
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-black hover:text-gray-700 transition-colors bg-white rounded-full p-1"
-          >
+          <h3 className="text-lg font-bold text-black">📱 Partager via WhatsApp</h3>
+          <button onClick={onClose} className="text-black hover:text-gray-700 transition-colors bg-white rounded-full p-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Contenu - 2 boutons côte à côte */}
         <div className="p-6">
           <div className="grid grid-cols-2 gap-4">
-            
-            {/* Option 1: Partager l'offre */}
-            <button
-              onClick={handleShareOffer}
-              className="flex flex-col items-center gap-3 p-4 border-2 border-green-400 bg-white hover:bg-green-50 hover:border-green-500 transition-all group rounded-lg"
-            >
+            <button onClick={handleShareOffer} className="flex flex-col items-center gap-3 p-4 border-2 border-green-400 bg-white hover:bg-green-50 hover:border-green-500 transition-all group rounded-lg">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                 </svg>
               </div>
               <div className="text-center">
-                <div className="font-bold text-black text-sm group-hover:text-green-700">
-                  Envoyer l&lsquo;offre
-                </div>
-                <div className="text-xs text-gray-600 mt-1">
-                  Partager avec amis
-                </div>
+                <div className="font-bold text-black text-sm group-hover:text-green-700">Envoyer l&lsquo;offre</div>
+                <div className="text-xs text-gray-600 mt-1">Partager avec amis</div>
               </div>
             </button>
 
-            {/* Option 2: Nous contacter */}
-            <button
-              onClick={handleContactUs}
-              className="flex flex-col items-center gap-3 p-4 border-2 border-yellow-400 bg-white hover:bg-yellow-50 hover:border-yellow-500 transition-all group rounded-lg"
-            >
+            <button onClick={handleContactUs} className="flex flex-col items-center gap-3 p-4 border-2 border-yellow-400 bg-white hover:bg-yellow-50 hover:border-yellow-500 transition-all group rounded-lg">
               <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
               <div className="text-center">
-                <div className="font-bold text-black text-sm group-hover:text-yellow-700">
-                  Nous contacter
-                </div>
-                <div className="text-xs text-gray-600 mt-1">
-                  Poser une question
-                </div>
+                <div className="font-bold text-black text-sm group-hover:text-yellow-700">Nous contacter</div>
+                <div className="text-xs text-gray-600 mt-1">Poser une question</div>
               </div>
             </button>
           </div>
         </div>
 
-        {/* Footer avec info */}
         <div className="bg-gray-50 px-6 py-3 border-t-2 border-yellow-500">
-          <p className="text-xs text-gray-600 text-center">
-            🚀 Redirection rapide vers WhatsApp
-          </p>
+          <p className="text-xs text-gray-600 text-center">🚀 Redirection rapide vers WhatsApp</p>
         </div>
       </div>
     </div>
   );
 }
 
-// Interface pour un badge produit
-interface ProductBadge {
-  id: string;
-  text: string;
-  backgroundColor: string;
-  textColor: string;
-  isActive: boolean;
-  priority?: number;
-}
-
-interface SerializedProduct {
-  id: string;
-  title: string;
-  slug: string;
-  shortDescription?: string;
-  brandName: string;
-  price: number;
-  oldPrice?: number;
-  stock: number;
-  sku?: string;
-  badges?: Array<ProductBadge>;
-  tags?: string[];
-}
+import { ProductBadge, SerializedProduct } from '@/utils/serialization';
 
 interface ProductInfoProps {
   product: SerializedProduct;
@@ -144,35 +91,25 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
-  const [showShareModal, setShowShareModal] = useState(false); // Nouvel état pour le modal
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const isInStock = product.stock > 0;
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
-  const discountAmount = hasDiscount 
-    ? product.oldPrice! - product.price
-    : 0;
+  const discountAmount = hasDiscount ? product.oldPrice! - product.price : 0;
 
-  // Badges actifs depuis Firebase (même logique que ProductCard)
   const badges = Array.isArray(product.badges) ? product.badges : [];
   const activeBadges = badges
     .filter((badge) => badge && badge.isActive)
     .sort((a, b) => (a.priority || 0) - (b.priority || 0));
 
-  // Fonction pour gérer les dégradés - CORRECTION du type any
   const getBadgeStyle = (badge: ProductBadge) => {
     const isGradient = badge.backgroundColor.includes('gradient') || 
                       badge.backgroundColor.includes('linear') || 
                       badge.backgroundColor.includes('radial');
 
     return isGradient 
-      ? { 
-          background: badge.backgroundColor,
-          color: badge.textColor 
-        }
-      : { 
-          backgroundColor: badge.backgroundColor,
-          color: badge.textColor 
-        };
+      ? { background: badge.backgroundColor, color: badge.textColor }
+      : { backgroundColor: badge.backgroundColor, color: badge.textColor };
   };
 
   const incrementQuantity = () => {
@@ -187,11 +124,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
     }
   };
 
-  const handleAddToCart = () => {
-    console.log('Ajouter au panier:', { productId: product.id, quantity });
-  };
-
-  // Nouvelle fonction pour ouvrir le modal
   const handleShare = () => {
     setShowShareModal(true);
   };
@@ -199,7 +131,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   return (
     <div className="space-y-4">
       
-      {/* Badges en haut à gauche */}
+      {/* Badges */}
       {activeBadges.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {activeBadges.map((badge, index) => (
@@ -220,7 +152,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
           {product.title}
         </h1>
         
-        {/* Marque et SKU sur la même ligne */}
         <div className="flex items-center gap-6 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-gray-600">Marque:</span>
@@ -256,7 +187,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
         </div>
         <p className="text-xs text-gray-600 mb-2">Prix TTC, livraison non comprise</p>
         
-        {/* Stock et livraison dans le container prix */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${isInStock ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -279,7 +209,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
       {/* Description courte */}
       {product.shortDescription && (
         <div>
-          <p className="text-gray-700 text-sm  leading-relaxed">
+          <p className="text-gray-700 text-sm leading-relaxed">
             {product.shortDescription}
           </p>
         </div>
@@ -288,7 +218,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
       {/* Section Montage Professionnel */}
       <div className="bg-gray-100 p-4 min-h-[80px]">
         <div className="flex items-center gap-4">
-          {/* Logo Thermal Grizzly */}
           <div className="flex-shrink-0">
             <img 
               src="/images/grizzlypate.jpg" 
@@ -297,9 +226,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
             />
           </div>
           
-          {/* Texte explicatif */}
           <div className="flex-1">
-            <h3 className="font-bold  text-black text-sm mb-1">
+            <h3 className="font-bold text-black text-sm mb-1">
              Montage Professionnel Gaming
             </h3>
             <p className="text-xs text-gray-700 text-justify leading-relaxed">
@@ -341,19 +269,15 @@ export function ProductInfo({ product }: ProductInfoProps) {
             </div>
           </div>
 
-          {/* Boutons d'action */}
+          {/* Boutons d'action - Remplacé par AddToCartButton */}
           <div className="flex gap-2">
-            <button
-              onClick={handleAddToCart}
-              className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-4 transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              <div className="flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13h10M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6" />
-                </svg>
-                <span className="text-sm">Ajouter au panier</span>
-              </div>
-            </button>
+            <AddToCartButton 
+              product={product}
+              quantity={quantity}
+              className="flex-1"
+              variant="primary"
+              showIcon={true}
+            />
             
             <button
               onClick={handleShare}

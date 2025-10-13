@@ -40,12 +40,15 @@ export function ProductVideoPlayer({ videoUrl, productTitle }: ProductVideoPlaye
   return (
     <>
       <div className="space-y-2">
-        
+        {/* Titre personnalisé avec le même style que les autres sections */}
+        <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-gray-900 border-l-4 border-yellow-500 pl-3 md:pl-4">
+          Vidéo du {productTitle}
+        </h2>
 
         {/* Aperçu de la vidéo */}
         <div className="relative max-w-4xl mx-auto">
           <div 
-            className={`relative aspect-video bg-gray-100 l overflow-hidden shadow-lg ${hasValidVideo ? 'cursor-pointer group' : 'cursor-not-allowed'}`}
+            className={`relative aspect-video bg-gray-100 overflow-hidden shadow-lg ${hasValidVideo ? 'cursor-pointer group' : 'cursor-not-allowed'}`}
             onClick={hasValidVideo ? openModal : undefined}
           >
             {hasValidVideo ? (

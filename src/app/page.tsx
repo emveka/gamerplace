@@ -1,4 +1,4 @@
-// app/page.tsx - CORRIGÉ avec generateMetadata optimisé SEO
+// app/page.tsx - CORRIGÉ avec H1 déplacé en bas pour le design
 import { Metadata } from 'next';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -146,18 +146,7 @@ export default async function HomePage() {
 
   return (
     <div className="w-full bg-white">
-      {/* ✅ H1 Principal - Critique pour le SEO */}
-      <div className="max-w-[1500px] mx-auto px-4 pt-4 pb-2">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-2">
-          PC Gamer Maroc - Ordinateurs Gaming Haute Performance
-        </h1>
-        <p className="text-gray-600 text-center text-sm md:text-base max-w-3xl mx-auto">
-          Découvrez la plus grande sélection de PC Gamer au Maroc chez Gamerplace.ma. 
-          Composants gaming, cartes graphiques RTX, processeurs AMD & Intel. Livraison partout au Maroc.
-        </p>
-      </div>
-
-      {/* Banner principal */}
+      {/* Banner principal - maintenant en première position */}
       <div className="max-w-[1500px] mx-auto pt-4">
         <Banner
           banners={banners}
@@ -194,6 +183,20 @@ export default async function HomePage() {
         maxProducts={6}
         priority={false}
       />
+
+      {/* ✅ H1 Principal déplacé en bas - adapté au design existant */}
+      <div className="max-w-[1500px] mx-auto px-4 py-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 text-left">
+          PC Gamer Maroc - Ordinateurs Gaming Haute Performance
+        </h1>
+        <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify">
+          Découvrez la plus grande sélection de <strong>PC Gamer au Maroc</strong> chez Gamerplace.ma. 
+          Composants gaming, <strong>cartes graphiques RTX</strong>, <strong>processeurs AMD & Intel</strong>. 
+          Livraison partout au Maroc avec un service client de qualité. Notre boutique spécialisée 
+          dans le gaming vous propose les meilleures marques et les dernières technologies pour 
+          optimiser vos performances de jeu.
+        </p>
+      </div>
 
       {/* Section SEO structurée */}
       <SEOPageHome />

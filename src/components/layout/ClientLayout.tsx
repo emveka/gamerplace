@@ -1,12 +1,13 @@
-// components/layout/ClientLayout.tsx - NOUVEAU : Toute la logique client extraite
-"use client";
+// components/layout/ClientLayout.tsx - MISE À JOUR avec CartDrawer
+'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Header } from "@/components/layout/Header";
-import { NavigationMenu } from "@/components/layout/NavigationMenu";
-import { SearchBarSticky } from "@/components/ui/SearchBarSticky";
-import { SEODebug } from "@/components/debug/SEODebug";
+import { Header } from './Header';
+import { NavigationMenu } from './NavigationMenu';
+import { SearchBarSticky } from '@/components/ui/SearchBarSticky';
+import { SEODebug } from '@/components/debug/SEODebug';
+import { CartDrawer } from '@/components/cart/CartDrawer';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -113,6 +114,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         isMobileMenuOpen={isMobileMenuOpen}
         onMobileMenuClose={handleMenuClose}
       />
+
+      {/* Cart Drawer */}
+      <CartDrawer />
 
       {/* Overlay sombre pour fermer le menu sur mobile */}
       {isMobileMenuOpen && (
