@@ -151,7 +151,7 @@ const composantsMenu: MenuCategory[] = [
   },
   {
     title: "Cartes Mères",
-    titleHref: "/categories/cartes-meres",
+    titleHref: "/categories/carte-meres",
     items: [
       { label: "Cartes mère INTEL", href: "/categories/cartes-meres-intel" },
       { label: "Cartes mère AMD", href: "/categories/cartes-meres-amd" },
@@ -248,7 +248,7 @@ const peripheriquesMenu: MenuCategory[] = [
   },
   {
     title: "Ecrans Moniteurs",
-    titleHref: "/categories/moniteurs",
+    titleHref: "/categories/ecrans-moniteurs",
     items: [
       { label: "Moniteurs Gaming", href: "/categories/moniteurs-gaming" },
       { label: "Accessoires Ecrans", href: "/categories/accessoires-moniteurs" },
@@ -288,6 +288,18 @@ const consolesMenu: MenuCategory[] = [
 ];
 
 const menuItems: MenuItem[] = [
+  {
+    label: "PC BUILDER",
+    href: "/pc-builder",
+    hasMegaMenu: false,
+    
+    megaMenuImage: {
+      src: "/images/pc-gaming-promo.webp",
+      alt: "PC Builder",
+      title: "PC Builder",
+      subtitle: "Haute Performance"
+    }
+  },
   {
     label: "PC GAMERS",
     href: "/categories/pc-gamer",

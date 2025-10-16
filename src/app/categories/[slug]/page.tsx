@@ -1,7 +1,6 @@
-// app/categories/[slug]/page.tsx - VERSION SIMPLIFIÉE
+// app/categories/[slug]/page.tsx - VERSION ULTRA OPTIMISÉE
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 
 // Services
 import { getCategory } from '@/services/categories';
@@ -137,49 +136,26 @@ export default async function CategoryPage({
         {/* Layout responsive : vertical sur mobile, horizontal sur desktop */}
         <div className="flex flex-col lg:flex-row gap-6">
          
-          {/* Sidebar Filters - En haut sur mobile, à gauche sur desktop */}
-          <Suspense fallback={
-            <aside className="w-full lg:w-64 lg:flex-shrink-0">
-              <div className="bg-white shadow-sm p-6 animate-pulse">
-                <div className="h-6 bg-gray-200 mb-4"></div>
-                <div className="space-y-2">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="h-4 bg-gray-200"></div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-          }>
+          {/* Sidebar Filters - SANS Suspense pour éviter double skeleton */}
+          <aside className="w-full lg:w-64 lg:flex-shrink-0">
             <CategoryFiltersContainer categoryId={category.id} />
-          </Suspense>
+          </aside>
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             <Breadcrumb items={breadcrumbItems} />
             <CategoryHeader category={category} />
 
-            <Suspense fallback={
-              <div className="space-y-6">
-                <div className="h-16 animate-pulse bg-gray-200"></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                  {Array.from({ length: 16 }).map((_, i) => (
-                    <div key={i} className="h-96 bg-gray-200 animate-pulse"></div>
-                  ))}
-                </div>
-              </div>
-            }>
-              <ProductsSection
-                categoryId={category.id}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                filters={filters}
-                searchParams={resolvedSearchParams}
-              />
-            </Suspense>
+            {/* Section produits - SANS Suspense pour UX fluide */}
+            <ProductsSection
+              categoryId={category.id}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              filters={filters}
+              searchParams={resolvedSearchParams}
+            />
 
-            <Suspense fallback={null}>
-              <CategoryDescription category={category} />
-            </Suspense>
+            <CategoryDescription category={category} />
           </main>
         </div>
       </div>

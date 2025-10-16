@@ -1,8 +1,5 @@
-// src/components/ui/Pagination.tsx
-"use client";
-
+// src/components/ui/Pagination.tsx - VERSION SSR PURE (sans hydratation)
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 
 // Interface pour les paramètres de recherche de la pagination
 interface PaginationSearchParams {
@@ -28,27 +25,6 @@ export function Pagination({
   searchParams,
   baseUrl = ''
 }: PaginationProps) {
-  // État pour gérer la détection mobile côté client
-  const [isMobile, setIsMobile] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  // Effet pour détecter la taille d'écran côté client
-  useEffect(() => {
-    setIsClient(true);
-    
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-    
-    // Vérification initiale
-    checkMobile();
-    
-    // Écouter les changements de taille
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
   if (totalPages <= 1) {
     return null;
   }
@@ -78,20 +54,19 @@ export function Pagination({
     return `${baseUrl}${query ? `?${query}` : ''}`;
   };
 
-  // Version desktop : avec détection mobile sécurisée
+  // Version responsive PURE SSR (sans détection client)
   const getVisiblePages = () => {
-    // Utiliser l'état mobile au lieu d'accéder directement à window
-    const delta = isMobile ? 1 : 2;
     const range: number[] = [];
     const rangeWithDots: (number | string)[] = [];
 
-    for (let i = Math.max(2, currentPage - delta); 
-         i <= Math.min(totalPages - 1, currentPage + delta); 
+    // Version desktop - plus de pages visibles
+    for (let i = Math.max(2, currentPage - 2); 
+         i <= Math.min(totalPages - 1, currentPage + 2); 
          i++) {
       range.push(i);
     }
 
-    if (currentPage - delta > 2) {
+    if (currentPage - 2 > 2) {
       rangeWithDots.push(1, '...');
     } else {
       rangeWithDots.push(1);
@@ -99,7 +74,7 @@ export function Pagination({
 
     rangeWithDots.push(...range);
 
-    if (currentPage + delta < totalPages - 1) {
+    if (currentPage + 2 < totalPages - 1) {
       rangeWithDots.push('...', totalPages);
     } else if (totalPages > 1) {
       rangeWithDots.push(totalPages);
@@ -108,85 +83,20 @@ export function Pagination({
     return rangeWithDots;
   };
 
-  // Version simplifiée pour mobile avec moins de pages
+  // Version mobile simplifiée
   const getMobileVisiblePages = () => {
-    const visiblePages: (number | string)[] = [];
-    
-    // Afficher maximum 5 éléments sur mobile
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) {
-        visiblePages.push(i);
-      }
-    } else {
-      // Logique simplifiée pour mobile
-      if (currentPage <= 3) {
-        visiblePages.push(1, 2, 3, '...', totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        visiblePages.push(1, '...', totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        visiblePages.push(1, '...', currentPage, '...', totalPages);
-      }
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
     
-    return visiblePages;
+    if (currentPage <= 2) {
+      return [1, 2, '...', totalPages];
+    } else if (currentPage >= totalPages - 1) {
+      return [1, '...', totalPages - 1, totalPages];
+    } else {
+      return [1, '...', currentPage, '...', totalPages];
+    }
   };
-
-  // Affichage conditionnel basé sur l'état client et mobile
-  if (!isClient) {
-    // Rendu côté serveur : version simple sans détection mobile
-    return (
-      <nav 
-        className="bg-white shadow-sm p-4 mb-6"
-        aria-label="Pagination"
-        role="navigation"
-      >
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Page {currentPage} sur {totalPages}
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {/* Previous button */}
-            {currentPage > 1 ? (
-              <Link
-                href={createUrl(currentPage - 1)}
-                className="px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors rounded"
-                aria-label="Page précédente"
-                rel="prev"
-              >
-                Précédent
-              </Link>
-            ) : (
-              <span className="px-4 py-2 border border-gray-300 text-gray-400 cursor-not-allowed rounded">
-                Précédent
-              </span>
-            )}
-            
-            {/* Current page indicator */}
-            <span className="px-3 py-2 bg-yellow-500 text-white font-medium rounded">
-              {currentPage}
-            </span>
-            
-            {/* Next button */}
-            {currentPage < totalPages ? (
-              <Link
-                href={createUrl(currentPage + 1)}
-                className="px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors rounded"
-                aria-label="Page suivante"
-                rel="next"
-              >
-                Suivant
-              </Link>
-            ) : (
-              <span className="px-4 py-2 border border-gray-300 text-gray-400 cursor-not-allowed rounded">
-                Suivant
-              </span>
-            )}
-          </div>
-        </div>
-      </nav>
-    );
-  }
 
   return (
     <nav 
@@ -194,14 +104,12 @@ export function Pagination({
       aria-label="Pagination"
       role="navigation"
     >
-      {/* Version mobile : layout vertical pour très petits écrans */}
+      {/* Version mobile */}
       <div className="block sm:hidden">
-        {/* Indicateur de page mobile */}
         <div className="text-xs text-gray-600 text-center mb-3">
           Page {currentPage} sur {totalPages}
         </div>
         
-        {/* Boutons navigation mobile */}
         <div className="flex items-center justify-between mb-3">
           {/* Previous button mobile */}
           {currentPage > 1 ? (
@@ -248,7 +156,7 @@ export function Pagination({
           )}
         </div>
 
-        {/* Page numbers mobile - version compacte */}
+        {/* Page numbers mobile */}
         <div className="flex items-center justify-center gap-1">
           {getMobileVisiblePages().map((page, index) => {
             if (page === '...') {
@@ -285,14 +193,14 @@ export function Pagination({
         </div>
       </div>
 
-      {/* Version desktop : layout horizontal */}
+      {/* Version desktop */}
       <div className="hidden sm:flex items-center justify-between">
         <div className="text-sm text-gray-600">
           Page {currentPage} sur {totalPages}
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Previous button desktop */}
+          {/* Previous button */}
           {currentPage > 1 ? (
             <Link
               href={createUrl(currentPage - 1)}
@@ -308,7 +216,7 @@ export function Pagination({
             </span>
           )}
           
-          {/* Page numbers desktop */}
+          {/* Page numbers */}
           <div className="flex items-center gap-1">
             {getVisiblePages().map((page, index) => {
               if (page === '...') {
@@ -344,7 +252,7 @@ export function Pagination({
             })}
           </div>
           
-          {/* Next button desktop */}
+          {/* Next button */}
           {currentPage < totalPages ? (
             <Link
               href={createUrl(currentPage + 1)}

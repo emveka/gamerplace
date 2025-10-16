@@ -1,4 +1,4 @@
-// src/components/product/ProductCard.tsx - MISE À JOUR avec AddToCartButton
+// src/components/product/ProductCard.tsx - VERSION FINALE CORRIGÉE
 'use client';
 
 import Image from 'next/image';
@@ -76,20 +76,56 @@ export function ProductCard({
     .sort((a, b) => (a.priority || 0) - (b.priority || 0))
     .slice(0, 2);
 
-  // Check if it's a PC Gamer category
+  // Check if it's a PC Gamer or Laptop Gamer category
   const isPCGamer = product.primaryCategoryName?.toLowerCase().includes('pc gamer') || 
                    product.categoryPath?.some(cat => cat.toLowerCase().includes('pc gamer'));
+  
+  const isLaptopGamer = product.primaryCategoryName?.toLowerCase().includes('laptop gamer') || 
+                       product.categoryPath?.some(cat => cat.toLowerCase().includes('laptop gamer'));
+  
+  const isGamerCategory = isPCGamer || isLaptopGamer;
 
-  // Get specifications for display
-  const getDisplaySpecs = () => {
-    if (!product.specifications) return [];
+  // 🔧 SYSTÈME DE FALLBACK: specificationCard puis specifications
+  const getDisplaySpecs = (): [string, string][] => {
+    // 1. PRIORITÉ: specificationCard (nouveaux produits)
+    let cardSpecs = product.specificationCard || {};
+    let source = 'specificationCard';
     
-    if (isPCGamer) {
+    // 2. FALLBACK: specifications (anciens produits)
+    if (Object.keys(cardSpecs).length === 0) {
+      cardSpecs = product.specifications || {};
+      source = 'specifications';
+    }
+    
+    // Debug log
+    console.log('🔍 ProductCard Specs Debug:', {
+      productTitle: product.title,
+      isPCGamer,
+      isLaptopGamer,
+      isGamerCategory,
+      source,
+      specificationCard: product.specificationCard,
+      specifications: product.specifications,
+      cardSpecsKeys: Object.keys(cardSpecs),
+      cardSpecsCount: Object.keys(cardSpecs).length
+    });
+    
+    if (Object.keys(cardSpecs).length === 0) {
+      return [];
+    }
+    
+    // Convertir toutes les valeurs en string avec type explicite
+    const specs: [string, string][] = Object.entries(cardSpecs).map(([key, value]) => [
+      key, 
+      typeof value === 'boolean' ? (value ? 'Oui' : 'Non') : String(value)
+    ]);
+    
+    // 🔧 LOGIQUE SPÉCIALE POUR PC GAMER ET LAPTOP GAMER (pour les deux sources)
+    if (isGamerCategory) {
       const pcGamerOrder = ['Processeur', 'Carte Graphique', 'Carte mère', 'RAM', 'SSD'];
-      const specs = Object.entries(product.specifications);
-      
       const orderedSpecs: [string, string][] = [];
       
+      // Ajouter dans l'ordre spécifique
       pcGamerOrder.forEach(key => {
         const spec = specs.find(([k]) => k === key);
         if (spec) {
@@ -97,14 +133,22 @@ export function ProductCard({
         }
       });
       
+      // Ajouter les specs restantes
       const remainingSpecs = specs.filter(([key]) => !pcGamerOrder.includes(key));
       orderedSpecs.push(...remainingSpecs);
       
+      // Pour PC Gamer et Laptop Gamer : toujours 5 specs max (que ce soit specificationCard ou specifications)
       return orderedSpecs.slice(0, 5);
     }
     
-    const specs = Object.entries(product.specifications);
-    return specs.slice(0, 2);
+    // Pour les autres produits (non PC Gamer)
+    if (source === 'specifications') {
+      // Pour les anciens produits non PC Gamer, afficher 2 specs max
+      return specs.slice(0, 2);
+    } else {
+      // Pour les nouveaux produits avec specificationCard non PC Gamer, afficher tout (normalement 2)
+      return specs;
+    }
   };
 
   const displaySpecs = getDisplaySpecs();
@@ -170,8 +214,8 @@ export function ProductCard({
           </h3>
         </Link>
         
-        {/* Specifications list */}
-        {displaySpecs.length > 0 && (
+        {/* Affichage des spécifications - valeur seulement */}
+        {displaySpecs.length > 0 ? (
           <ul className="space-y-1">
             {displaySpecs.map(([key, value], index) => (
               <li key={index} className="flex items-start text-xs text-gray-600">
@@ -180,6 +224,11 @@ export function ProductCard({
               </li>
             ))}
           </ul>
+        ) : (
+          // Debug: Afficher quand il n'y a pas de specs
+          <div className="text-xs text-red-500 bg-red-50 p-1 rounded">
+            Aucune spécification trouvée
+          </div>
         )}
         
         {/* Delivery info */}
@@ -216,7 +265,7 @@ export function ProductCard({
             <meta itemProp="availability" content={product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"} />
           </div>
           
-          {/* Buy button - Remplacé par AddToCartButton */}
+          {/* Buy button */}
           <div className="flex-shrink-0">
             <AddToCartButton 
               product={product}

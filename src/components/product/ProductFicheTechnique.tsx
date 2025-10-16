@@ -5,6 +5,8 @@ import { SerializedProduct } from '@/utils/serialization';
 
 interface ProductFicheTechniqueProps {
   product: SerializedProduct;
+  specificationCard?: { [key: string]: string | number | boolean };
+  specificationTech?: { [key: string]: string | number | boolean };
 }
 
 // Template pour PC Gamer
@@ -27,15 +29,13 @@ const ProcesseurTemplate = [
   { key: 'socket', label: 'Socket' },
   { key: 'frequence', label: 'Fréquence CPU' },
   { key: 'frequenceTurbo', label: 'Fréquence en mode Turbo' },
-  { key: 'coeurs', label: 'Nombre de coeurs' },
-  { key: 'threads', label: 'Nombre de threads' },
+  { key: 'coeurs & threads', label: 'Nombre de coeurs & threads' },
   { key: 'graphique', label: 'Contrôleur graphique intégré' },
   { key: 'cacheL1', label: 'Cache L1' },
   { key: 'cacheL2', label: 'Cache L2' },
   { key: 'cacheL3', label: 'Cache L3' },
   { key: 'tdp', label: 'TDP' },
   { key: 'versionBoite', label: 'Version Boîte' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -51,7 +51,6 @@ const CarteGraphiqueTemplate = [
   { key: 'alimentation', label: 'Alimentation' },
   { key: 'longueur', label: 'Longueur' },
   { key: 'refroidissement', label: 'Refroidissement' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -68,7 +67,6 @@ const CarteMereTemplate = [
   { key: 'usb', label: 'Ports USB' },
   { key: 'reseau', label: 'Réseau' },
   { key: 'audio', label: 'Audio' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -81,9 +79,6 @@ const MemoireRAMTemplate = [
   { key: 'modules', label: 'Nombre de modules' },
   { key: 'voltage', label: 'Voltage' },
   { key: 'profil', label: 'Profil XMP/DOCP' },
-  { key: 'ecc', label: 'Support ECC' },
-  { key: 'dissipateur', label: 'Dissipateur' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -92,14 +87,11 @@ const StockageTemplate = [
   { key: 'capacite', label: 'Capacité' },
   { key: 'typeStockage', label: 'Type de stockage' },
   { key: 'interface', label: 'Interface' },
-  { key: 'facteurForme', label: 'Facteur de forme' },
   { key: 'vitesseLecture', label: 'Vitesse de lecture' },
   { key: 'vitesseEcriture', label: 'Vitesse d\'écriture' },
   { key: 'memoireCache', label: 'Mémoire cache' },
   { key: 'nand', label: 'Type de NAND' },
   { key: 'controleur', label: 'Contrôleur' },
-  { key: 'endurance', label: 'Endurance (TBW)' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -108,13 +100,8 @@ const AlimentationTemplate = [
   { key: 'puissance', label: 'Puissance' },
   { key: 'certification', label: 'Certification' },
   { key: 'modulaire', label: 'Modulaire' },
-  { key: 'facteurForme', label: 'Facteur de forme' },
-  { key: 'rail12V', label: 'Rail +12V' },
   { key: 'connecteurs', label: 'Connecteurs' },
-  { key: 'ventilateur', label: 'Ventilateur' },
-  { key: 'protections', label: 'Protections' },
   { key: 'dimensions', label: 'Dimensions' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -129,7 +116,6 @@ const RefroidisseurTemplate = [
   { key: 'radiateur', label: 'Radiateur' },
   { key: 'dimensions', label: 'Dimensions' },
   { key: 'rgb', label: 'RGB' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -141,11 +127,8 @@ const SourisTemplate = [
   { key: 'connexion', label: 'Type de connexion' },
   { key: 'autonomie', label: 'Autonomie' },
   { key: 'poids', label: 'Poids' },
-  { key: 'dimensions', label: 'Dimensions' },
   { key: 'rgb', label: 'RGB' },
-  { key: 'gaming', label: 'Gaming' },
   { key: 'logiciel', label: 'Logiciel' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -153,31 +136,23 @@ const SourisTemplate = [
 const ClavierTemplate = [
   { key: 'typeClavier', label: 'Type de clavier' },
   { key: 'switches', label: 'Type de switches' },
-  { key: 'layout', label: 'Layout' },
   { key: 'connexion', label: 'Type de connexion' },
   { key: 'autonomie', label: 'Autonomie' },
   { key: 'rgb', label: 'RGB' },
   { key: 'multimedia', label: 'Touches multimédia' },
-  { key: 'reposeMains', label: 'Repose-mains' },
   { key: 'dimensions', label: 'Dimensions' },
   { key: 'logiciel', label: 'Logiciel' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
 // Template pour Chaise Gaming
 const ChaiseGamingTemplate = [
-  { key: 'materiauAssise', label: 'Matériau assise' },
-  { key: 'materiauDossier', label: 'Matériau dossier' },
   { key: 'reglages', label: 'Réglages' },
-  { key: 'accoudoirs', label: 'Accoudoirs' },
   { key: 'support', label: 'Support lombaire' },
   { key: 'inclinaison', label: 'Inclinaison' },
   { key: 'poidsMax', label: 'Poids maximum' },
-  { key: 'roulettes', label: 'Roulettes' },
   { key: 'dimensions', label: 'Dimensions' },
   { key: 'couleurs', label: 'Couleurs disponibles' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
 ];
 
@@ -187,14 +162,22 @@ const BureauGamingTemplate = [
   { key: 'dimensions', label: 'Dimensions' },
   { key: 'hauteur', label: 'Hauteur' },
   { key: 'reglable', label: 'Hauteur réglable' },
-  { key: 'pieds', label: 'Type de pieds' },
-  { key: 'accessoires', label: 'Accessoires inclus' },
-  { key: 'gestionCables', label: 'Gestion des câbles' },
   { key: 'rgb', label: 'Éclairage RGB' },
   { key: 'poidsMax', label: 'Poids maximum' },
   { key: 'montage', label: 'Facilité de montage' },
-  { key: 'marque', label: 'Marque' },
   { key: 'garantie', label: 'Garantie' },
+];
+
+// Template pour Ecran Gaming
+const EcranGamingTemplate = [
+  { key: 'tailleEcran', label: 'Taille Ecran'},
+  { key: 'formatEcran', label: 'Format Ecran'},
+  { key: 'typeDalle', label: 'Type dalle'},
+  { key: 'resolution', label: 'Résolution Optimale'},
+  { key: 'typeEcran', label: 'Type Ecran'},
+  { key: 'tempsReponse', label: 'Temps Réponse'},
+  { key: 'frequence', label: 'Fréquence Hertz'},
+  { key: 'garantie', label: 'Garantie'},
 ];
 
 // Mapping des templates par type de produit
@@ -211,6 +194,7 @@ const productTemplates = {
   'clavier': ClavierTemplate,
   'chaise-gaming': ChaiseGamingTemplate,
   'bureau-gaming': BureauGamingTemplate,
+  'ecrans': EcranGamingTemplate,
 };
 
 // Fonction pour détecter le type de produit
@@ -232,26 +216,47 @@ const detectProductType = (product: SerializedProduct): string => {
   if (title.includes('clavier') || title.includes('keyboard') || category.includes('clavier')) return 'clavier';
   if (title.includes('chaise') || title.includes('fauteuil') || category.includes('chaise')) return 'chaise-gaming';
   if (title.includes('bureau') || title.includes('desk') || category.includes('bureau')) return 'bureau-gaming';
+  if (title.includes('ecrans') || title.includes('écran') || category.includes('ecrans')) return 'ecrans';
   
   // Fallback: utilise le template processeur par défaut
   return 'processeur';
 };
 
-export const ProductFicheTechnique: React.FC<ProductFicheTechniqueProps> = ({ product }) => {
+export const ProductFicheTechnique: React.FC<ProductFicheTechniqueProps> = ({ 
+  product,
+  specificationCard = {},
+  specificationTech = {}
+}) => {
   const productType = detectProductType(product);
   const template = productTemplates[productType as keyof typeof productTemplates] || ProcesseurTemplate;
   
-  // Récupérer les données techniques du produit
+  // UNIQUEMENT LES TECHNICAL SPECS pour ce composant
+  const technicalSpecs = specificationTech || {};
+  
+  // Récupérer les anciennes données pour compatibilité
+  const legacySpecs = product.specifications || {};
   const technicalInfo = product.technicalInfo || {};
-  const specifications = product.specifications || {};
   
-  // Combiner les données techniques et les spécifications legacy
-  const allSpecs = { ...specifications, ...technicalInfo };
+  // PRIORITÉ: technicalSpecs > legacySpecs > technicalInfo
+  const allSpecs = {
+    ...technicalInfo,        // Plus basse priorité
+    ...legacySpecs,          // Priorité moyenne  
+    ...technicalSpecs        // Plus haute priorité (ce qu'on veut afficher)
+  };
   
-  // Filtrer les spécifications qui ont des valeurs
+  // Filtrer selon le template
   const availableSpecs = template.filter(spec => {
     const value = allSpecs[spec.key];
     return value && value !== '' && value !== 'Non' && value !== 'N/A';
+  });
+  
+  // Debug log
+  console.log('ProductFicheTechnique Debug:', {
+    productType,
+    technicalSpecsCount: Object.keys(technicalSpecs).length,
+    availableSpecsCount: availableSpecs.length,
+    technicalSpecs,
+    template: template.map(t => t.key)
   });
   
   if (availableSpecs.length === 0) {
@@ -260,12 +265,10 @@ export const ProductFicheTechnique: React.FC<ProductFicheTechniqueProps> = ({ pr
 
   return (
     <div>
-      {/* Titre séparé comme les autres sections */}
       <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-gray-900 border-l-4 border-yellow-500 pl-3 md:pl-4">
         Fiche technique {product.title}
       </h2>
       
-      {/* Tableau des spécifications */}
       <div className="bg-white border border-gray-200 shadow-sm">
         <div className="p-3 md:p-6">
           <div className="overflow-hidden">

@@ -1,4 +1,4 @@
-// services/products.ts
+// services/products.ts - VERSION CORRIGÉE
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/types/product';
@@ -26,8 +26,9 @@ export async function getProducts(
     let allProducts = allProductsSnapshot.docs.map(doc => {
       const data = doc.data();
       
-      // DEBUG: Vérifier la présence des badges dans Firebase
+      // DEBUG: Vérifier la présence des badges et specs dans Firebase
       console.log(`Firebase Doc ID: ${doc.id}, Title: ${data.title}, Badges:`, data.badges);
+      console.log(`🔍 SPECS DEBUG - Card:`, data.specificationCard, `Tech:`, data.specificationTech);
       
       // Créer d'abord l'objet Product avec Timestamps
       const product: Product = {
@@ -49,7 +50,17 @@ export async function getProducts(
         stock: data.stock ?? 0,
         sku: data.sku,
         barcode: data.barcode,
+        
+        // ✅ CORRECTION: Ajouter les nouveaux champs
+        specificationCard: data.specificationCard ?? {},
+        specificationTech: data.specificationTech ?? {},
+        
+        // Ancien champ pour rétrocompatibilité
         specifications: data.specifications ?? {},
+        
+        // Informations techniques (pour compatibilité)
+        technicalInfo: data.technicalInfo ?? {},
+        
         tags: data.tags ?? [],
         badges: data.badges ?? [],
         productDescriptions: data.productDescriptions ?? [],

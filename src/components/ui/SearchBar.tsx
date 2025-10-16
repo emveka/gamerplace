@@ -47,7 +47,6 @@ export function SearchBar({
   const [isMobile, setIsMobile] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Détection mobile
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -59,7 +58,6 @@ export function SearchBar({
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-  // Fermer les résultats quand on clique ailleurs
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -71,7 +69,6 @@ export function SearchBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fermer les résultats lors du scroll
   useEffect(() => {
     function handleScroll() {
       setShowResults(false);
@@ -81,9 +78,9 @@ export function SearchBar({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Recherche en temps réel avec Firebase - Inchangé
+  // Recherche à partir de 3 caractères
   useEffect(() => {
-    if (searchQuery.length < 2) {
+    if (searchQuery.length < 3) {
       setResults([]);
       setShowResults(false);
       return;
@@ -93,26 +90,35 @@ export function SearchBar({
       setIsLoading(true);
       
       try {
-        const searchTermLower = searchQuery.toLowerCase().trim();
+        const searchTerm = searchQuery.trim();
+        const searchTermLower = searchTerm.toLowerCase();
         const searchResults: SearchResult[] = [];
         const seenIds = new Set<string>();
 
-        // Recherche par titre
+        // Récupérer tous les produits actifs et filtrer côté client
         try {
-          const titleQuery = firebaseQuery(
+          const allProductsQuery = firebaseQuery(
             collection(db, 'products'),
             where('isActive', '==', true),
-            where('title', '>=', searchTermLower),
-            where('title', '<=', searchTermLower + '\uf8ff'),
-            orderBy('title'),
-            limit(6)
+            limit(100)
           );
 
-          const titleSnapshot = await getDocs(titleQuery);
-          titleSnapshot.forEach(doc => {
+          const snapshot = await getDocs(allProductsQuery);
+          
+          snapshot.forEach(doc => {
             const data = doc.data() as FirebaseProductData;
             const product: FirebaseProductData = { ...data, id: doc.id };
-            if (!seenIds.has(product.id)) {
+            
+            // Recherche insensible à la casse
+            const titleLower = product.title?.toLowerCase() || '';
+            const brandLower = product.brandName?.toLowerCase() || '';
+            const tagsLower = product.tags?.map(tag => tag.toLowerCase()) || [];
+            
+            const titleMatch = titleLower.includes(searchTermLower);
+            const brandMatch = brandLower.includes(searchTermLower);
+            const tagsMatch = tagsLower.some(tag => tag.includes(searchTermLower));
+            
+            if ((titleMatch || brandMatch || tagsMatch) && !seenIds.has(product.id)) {
               searchResults.push({
                 id: product.id,
                 title: product.title,
@@ -126,73 +132,7 @@ export function SearchBar({
             }
           });
         } catch (error) {
-          console.log('Recherche par titre échouée:', error);
-        }
-
-        // Recherche par marque
-        if (searchResults.length < 6) {
-          try {
-            const brandQuery = firebaseQuery(
-              collection(db, 'products'),
-              where('isActive', '==', true),
-              where('brandName', '>=', searchTermLower),
-              where('brandName', '<=', searchTermLower + '\uf8ff'),
-              orderBy('brandName'),
-              limit(4)
-            );
-
-            const brandSnapshot = await getDocs(brandQuery);
-            brandSnapshot.forEach(doc => {
-              const data = doc.data() as FirebaseProductData;
-              const product: FirebaseProductData = { ...data, id: doc.id };
-              if (!seenIds.has(product.id)) {
-                searchResults.push({
-                  id: product.id,
-                  title: product.title,
-                  slug: product.slug,
-                  price: product.price,
-                  imageUrl: product.images?.[0],
-                  categoryName: product.primaryCategoryName,
-                  brandName: product.brandName
-                });
-                seenIds.add(product.id);
-              }
-            });
-          } catch (error) {
-            console.log('Recherche par marque échouée:', error);
-          }
-        }
-
-        // Recherche par tags
-        if (searchResults.length < 6) {
-          try {
-            const tagsQuery = firebaseQuery(
-              collection(db, 'products'),
-              where('isActive', '==', true),
-              where('tags', 'array-contains-any', [searchTermLower]),
-              limit(4)
-            );
-
-            const tagsSnapshot = await getDocs(tagsQuery);
-            tagsSnapshot.forEach(doc => {
-              const data = doc.data() as FirebaseProductData;
-              const product: FirebaseProductData = { ...data, id: doc.id };
-              if (!seenIds.has(product.id)) {
-                searchResults.push({
-                  id: product.id,
-                  title: product.title,
-                  slug: product.slug,
-                  price: product.price,
-                  imageUrl: product.images?.[0],
-                  categoryName: product.primaryCategoryName,
-                  brandName: product.brandName
-                });
-                seenIds.add(product.id);
-              }
-            });
-          } catch (error) {
-            console.log('Recherche par tags échouée:', error);
-          }
+          console.error('Erreur de recherche:', error);
         }
 
         // Limiter à 6 résultats pour mobile, 8 pour desktop
@@ -236,7 +176,6 @@ export function SearchBar({
     }).format(price);
   };
 
-  // Placeholder adaptatif selon la taille d'écran
   const getPlaceholder = () => {
     if (isMobile) {
       return "Rechercher...";
@@ -246,7 +185,6 @@ export function SearchBar({
 
   return (
     <div ref={searchRef} className={`relative ${className}`}>
-      {/* Barre de recherche responsive */}
       <form
         onSubmit={handleSubmit}
         className="flex-1 relative flex items-stretch"
@@ -259,7 +197,7 @@ export function SearchBar({
           placeholder={getPlaceholder()}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
+          onFocus={() => searchQuery.length >= 3 && setShowResults(true)}
           className={`w-full rounded-l bg-white text-black outline-none placeholder:text-gray-400 ${
             isMobile ? 'px-3 py-1.5 text-sm' : 'px-3 sm:px-4 py-2 text-sm'
           }`}
@@ -283,13 +221,12 @@ export function SearchBar({
         </button>
       </form>
 
-      {/* Résultats de recherche responsives */}
       {showResults && (
         <div 
           className={`fixed bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-y-auto ${
             isMobile 
-              ? 'left-2 right-2 max-h-[70vh]' // Pleine largeur sur mobile avec marges
-              : 'max-h-96' // Largeur normale sur desktop
+              ? 'left-2 right-2 max-h-[70vh]'
+              : 'max-h-96'
           }`}
           style={!isMobile ? {
             top: searchRef.current ? searchRef.current.getBoundingClientRect().bottom + window.scrollY + 4 : 0,
@@ -315,7 +252,6 @@ export function SearchBar({
                     isMobile ? 'p-3' : 'p-3'
                   }`}
                 >
-                  {/* Image du produit */}
                   <div className={`relative flex-shrink-0 mr-3 ${
                     isMobile ? 'w-10 h-10' : 'w-12 h-12'
                   }`}>
@@ -327,42 +263,18 @@ export function SearchBar({
                     />
                   </div>
                   
-                  {/* Informations du produit */}
                   <div className="flex-1 min-w-0">
-                    <h4 className={`font-medium text-gray-900 ${
-                      isMobile 
-                        ? 'text-sm truncate' 
-                        : 'text-sm truncate'
-                    }`}>
+                    <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
                       {result.title}
                     </h4>
-                    
-                    {/* Marque et catégorie - Cachés sur très petits écrans */}
-                    <p className={`text-gray-500 ${
-                      isMobile 
-                        ? 'text-xs truncate' 
-                        : 'text-sm'
-                    }`}>
-                      {isMobile ? (
-                        // Sur mobile, afficher seulement la marque
-                        result.brandName
-                      ) : (
-                        // Sur desktop, afficher marque et catégorie
-                        `${result.brandName} • ${result.categoryName}`
-                      )}
-                    </p>
                   </div>
                   
-                  {/* Prix */}
-                  <div className={`font-semibold text-yellow-600 ${
-                    isMobile ? 'text-sm' : 'text-sm'
-                  }`}>
+                  <div className={`font-semibold text-yellow-600 text-sm ml-3`}>
                     {formatPrice(result.price)}
                   </div>
                 </Link>
               ))}
               
-              {/* Bouton voir tous les résultats */}
               <div className={`border-t border-gray-100 bg-gray-50 ${
                 isMobile ? 'p-3' : 'p-3'
               }`}>
@@ -378,7 +290,7 @@ export function SearchBar({
                 </button>
               </div>
             </div>
-          ) : searchQuery.length >= 2 ? (
+          ) : searchQuery.length >= 3 ? (
             <div className={`text-center text-gray-500 ${
               isMobile ? 'p-6' : 'p-4'
             }`}>

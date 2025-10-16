@@ -1,11 +1,11 @@
-// app/products/[slug]/page.tsx
+// app/products/[slug]/page.tsx - CORRECTION POUR RÉCUPÉRER LES NOUVEAUX CHAMPS
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/types/product';
-import { serializeProduct, SerializedProduct } from '@/utils/serialization';
+import { serializeProduct, SerializedProduct, getCategorizedSpecifications } from '@/utils/serialization';
 import { ProductImageGallery } from '@/components/product/ProductImageGallery';
 import { ProductInfo } from '@/components/product/ProductInfo';
 import { ProductDescriptionSections } from '@/components/product/ProductDescriptionSections';
@@ -13,7 +13,6 @@ import { ProductVideoPlayer } from '@/components/product/ProductVideoPlayer';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Suspense } from 'react';
-// ✅ Import du composant ProductFicheTechnique
 import { ProductFicheTechnique } from '@/components/product/ProductFicheTechnique';
 import { ProductInfoDetails } from '@/components/product/ProductInfoDetails';
 
@@ -43,7 +42,19 @@ async function getProduct(slug: string): Promise<Product | null> {
     const productDoc = productSnapshot.docs[0];
     const data = productDoc.data();
     
-    return {
+    // 🔧 DEBUG: Voir les données brutes de Firebase
+    console.log('🔍 FIREBASE RAW DATA:', {
+      id: productDoc.id,
+      title: data.title,
+      specificationCard: data.specificationCard,
+      specificationTech: data.specificationTech,
+      technicalSpecs: data.technicalSpecs,
+      specifications: data.specifications,
+      technicalInfo: data.technicalInfo,
+      allKeys: Object.keys(data)
+    });
+    
+    const product = {
       id: productDoc.id,
       title: data.title || '',
       slug: data.slug || '',
@@ -63,9 +74,17 @@ async function getProduct(slug: string): Promise<Product | null> {
       stock: data.stock || 0,
       sku: data.sku,
       barcode: data.barcode,
+      
+      // 🔧 CORRECTION: Récupération des nouveaux champs
+      specificationCard: data.specificationCard || {},
+      specificationTech: data.specificationTech || data.technicalSpecs || {}, // Fallback sur technicalSpecs
+      
+      // ANCIEN CHAMP pour rétrocompatibilité
       specifications: data.specifications || {},
-      // ✅ Récupération des informations techniques
+      
+      // Informations techniques (pour compatibilité)
       technicalInfo: data.technicalInfo || {},
+      
       tags: data.tags || [],
       badges: data.badges || [],
       productDescriptions: data.productDescriptions || [],
@@ -79,6 +98,20 @@ async function getProduct(slug: string): Promise<Product | null> {
       createdAt: data.createdAt,
       updatedAt: data.updatedAt
     } as Product;
+
+    // 🔧 DEBUG: Voir le produit final avant sérialisation
+    console.log('🔧 PRODUCT BEFORE SERIALIZATION:', {
+      id: product.id,
+      title: product.title,
+      specificationCard: product.specificationCard,
+      specificationTech: product.specificationTech,
+      specifications: product.specifications,
+      cardCount: Object.keys(product.specificationCard || {}).length,
+      techCount: Object.keys(product.specificationTech || {}).length,
+      legacyCount: Object.keys(product.specifications || {}).length
+    });
+
+    return product;
   } catch (error) {
     console.error('Error fetching product:', error);
     return null;
@@ -174,6 +207,25 @@ export default async function ProductPage({
 
   const serializedProduct = serializeProduct(product);
   const breadcrumbItems = buildProductBreadcrumb(product);
+  
+  // ✅ Obtenir les spécifications catégorisées
+  const specCategories = getCategorizedSpecifications(serializedProduct);
+  
+  // 🔧 DEBUG: Log final pour vérifier que tout est bien passé
+  console.log('🎯 FINAL DEBUG - Page Product:', {
+    productId: product.id,
+    title: product.title,
+    serializedCard: serializedProduct.specificationCard,
+    serializedTech: serializedProduct.specificationTech,
+    categorizedCard: specCategories.card,
+    categorizedTech: specCategories.technical,
+    counts: {
+      card: Object.keys(specCategories.card).length,
+      technical: Object.keys(specCategories.technical).length,
+      legacy: Object.keys(specCategories.legacy).length,
+      merged: Object.keys(specCategories.merged).length
+    }
+  });
 
   return (
     <div className="min-h-screen bg-white">
@@ -221,7 +273,12 @@ export default async function ProductPage({
 
           {/* Colonne de droite - Fiche technique */}
           <div className="space-y-4">
-            <ProductFicheTechnique product={serializedProduct} />
+            {/* ✅ CORRECTION: Passer les spécifications catégorisées */}
+            <ProductFicheTechnique 
+              product={serializedProduct}
+              specificationCard={specCategories.card}
+              specificationTech={specCategories.technical}
+            />
           </div>
         </div>
 
@@ -235,7 +292,7 @@ export default async function ProductPage({
           </div>
         )}
 
-        {/* Lecteur vidéo YouTube - Toujours affiché */}
+        {/* Lecteur vidéo YouTube */}
         <div className="mb-12">
           <ProductVideoPlayer 
             videoUrl={product.videoUrl} 

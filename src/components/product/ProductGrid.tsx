@@ -1,4 +1,4 @@
-// src/components/product/ProductGrid.tsx - VERSION AVEC SÉRIALISATION
+// src/components/product/ProductGrid.tsx - VERSION AVEC DEBUG
 'use client';
 
 import { SerializedProduct } from '@/utils/serialization';
@@ -26,6 +26,31 @@ function BackButton() {
 }
 
 export function ProductGrid({ products }: ProductGridProps) {
+  // 🔍 DEBUG: Vérifier les données qui arrivent dans ProductGrid
+  console.log('🔍 PRODUCTGRID DEBUG:', {
+    productsCount: products.length,
+    firstProduct: products[0] ? {
+      id: products[0].id,
+      title: products[0].title,
+      specificationCard: products[0].specificationCard,
+      specificationTech: products[0].specificationTech,
+      specifications: products[0].specifications,
+      cardSpecsCount: Object.keys(products[0].specificationCard || {}).length,
+      techSpecsCount: Object.keys(products[0].specificationTech || {}).length,
+      legacySpecsCount: Object.keys(products[0].specifications || {}).length
+    } : 'No products',
+    allProductsSpecs: products.slice(0, 3).map(p => ({
+      id: p.id,
+      title: p.title,
+      hasSpecCard: Object.keys(p.specificationCard || {}).length > 0,
+      hasSpecTech: Object.keys(p.specificationTech || {}).length > 0,
+      hasSpecLegacy: Object.keys(p.specifications || {}).length > 0,
+      cardKeys: Object.keys(p.specificationCard || {}),
+      techKeys: Object.keys(p.specificationTech || {}),
+      legacyKeys: Object.keys(p.specifications || {})
+    }))
+  });
+
   if (products.length === 0) {
     return (
       <div className="p-6 mb-6">

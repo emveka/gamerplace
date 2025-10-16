@@ -11,14 +11,14 @@ export interface ProductDescription {
   order: number;
 }
 
-// 🆕 Type pour les informations techniques
+// Type pour les informations techniques
 export interface TechnicalInfo {
   [sectionId: string]: {
     [fieldId: string]: string | number | boolean;
   };
 }
 
-// 🆕 Interface pour un champ technique
+// Interface pour un champ technique
 export interface TechnicalField {
   id: string;
   label: string;
@@ -30,7 +30,7 @@ export interface TechnicalField {
   unit?: string;
 }
 
-// 🆕 Interface pour une section technique
+// Interface pour une section technique
 export interface TechnicalSection {
   id: string;
   name: string;
@@ -65,18 +65,26 @@ export interface Product {
   barcode?: string;
   order?: number;
   
-  specifications?: {
-    [key: string]: string;
+  // NOUVEAUX CHAMPS SÉPARÉS
+  specificationCard?: {
+    [key: string]: string | number | boolean;
+  };
+  specificationTech?: {
+    [key: string]: string | number | boolean;
   };
   
-  // 🆕 Informations techniques dynamiques
+  // Ancien champ pour rétrocompatibilité
+  specifications?: {
+    [key: string]: string | number | boolean;
+  };
+  
+  // Informations techniques dynamiques (gardé pour compatibilité)
   technicalInfo?: TechnicalInfo;
   
   tags?: string[];
   badges?: ProductBadge[];
   productDescriptions?: ProductDescription[];
   
-  // ✅ videoUrl maintenant optionnel
   videoUrl?: string;
   
   metaTitle: string;

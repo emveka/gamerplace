@@ -1,4 +1,4 @@
-// src/components/product/ProductGridHomeCategoryServer.tsx - VERSION AVEC SÉRIALISATION
+// src/components/product/ProductGridHomeCategoryServer.tsx - VERSION CORRIGÉE
 import { collection, getDocs, query, where, limit, orderBy, QueryDocumentSnapshot, DocumentData, QuerySnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -24,6 +24,58 @@ const toTimestamp = (ts: unknown): Timestamp => {
     ? new Timestamp(ts.seconds, ts.nanoseconds)
     : Timestamp.fromMillis(0);
 };
+
+// 🔧 FONCTION DE MAPPING CORRIGÉE
+function mapFirebaseDocToProduct(doc: QueryDocumentSnapshot<DocumentData>): Product {
+  const data = doc.data();
+  
+  // 🔍 DEBUG: Voir les données brutes de Firebase
+  console.log('Firebase Doc ID:', doc.id, ', Title:', data.title, ', Badges:', data.badges);
+  
+  return {
+    id: doc.id,
+    title: data.title ?? '',
+    slug: data.slug ?? '',
+    shortDescription: data.shortDescription,
+    brandId: data.brandId ?? '',
+    brandName: data.brandName ?? '',
+    categoryIds: data.categoryIds ?? [],
+    categoryPath: data.categoryPath ?? [],
+    primaryCategoryId: data.primaryCategoryId ?? '',
+    primaryCategoryName: data.primaryCategoryName ?? '',
+    price: data.price ?? 0,
+    oldPrice: data.oldPrice,
+    costPrice: data.costPrice,
+    images: data.images ?? [],
+    imageAlts: data.imageAlts ?? [],
+    stock: data.stock ?? 0,
+    sku: data.sku,
+    barcode: data.barcode,
+    
+    // ✅ CORRECTION: Récupérer les nouveaux champs
+    specificationCard: data.specificationCard ?? {},
+    specificationTech: data.specificationTech ?? {},
+    
+    // Ancien champ pour rétrocompatibilité
+    specifications: data.specifications ?? {},
+    
+    // Informations techniques (pour compatibilité)
+    technicalInfo: data.technicalInfo ?? {},
+    
+    tags: data.tags ?? [],
+    badges: data.badges ?? [],
+    productDescriptions: data.productDescriptions ?? [],
+    videoUrl: data.videoUrl,
+    metaTitle: data.metaTitle ?? '',
+    metaDescription: data.metaDescription ?? '',
+    keywords: data.keywords ?? [],
+    canonicalUrl: data.canonicalUrl,
+    isActive: data.isActive !== false,
+    isNewArrival: data.isNewArrival ?? false,
+    createdAt: toTimestamp(data.createdAt),
+    updatedAt: toTimestamp(data.updatedAt),
+  };
+}
 
 // Fonction pour récupérer les produits côté serveur - RETOURNE SerializedProduct[]
 async function getCategoryProducts(categoryId: string, maxProducts: number = 6): Promise<SerializedProduct[]> {
@@ -53,42 +105,8 @@ async function getCategoryProducts(categoryId: string, maxProducts: number = 6):
     
     // Ajouter les produits de la catégorie principale
     mainCategoryProductsSnapshot.docs.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-      const data = doc.data();
-      
-      // Créer d'abord l'objet Product avec Timestamps
-      const product: Product = {
-        id: doc.id,
-        title: data.title ?? '',
-        slug: data.slug ?? '',
-        shortDescription: data.shortDescription,
-        brandId: data.brandId ?? '',
-        brandName: data.brandName ?? '',
-        categoryIds: data.categoryIds ?? [],
-        categoryPath: data.categoryPath ?? [],
-        primaryCategoryId: data.primaryCategoryId ?? '',
-        primaryCategoryName: data.primaryCategoryName ?? '',
-        price: data.price ?? 0,
-        oldPrice: data.oldPrice,
-        costPrice: data.costPrice,
-        images: data.images ?? [],
-        imageAlts: data.imageAlts ?? [],
-        stock: data.stock ?? 0,
-        sku: data.sku,
-        barcode: data.barcode,
-        specifications: data.specifications ?? {},
-        tags: data.tags ?? [],
-        badges: data.badges ?? [],
-        productDescriptions: data.productDescriptions ?? [],
-        videoUrl: data.videoUrl,
-        metaTitle: data.metaTitle ?? '',
-        metaDescription: data.metaDescription ?? '',
-        keywords: data.keywords ?? [],
-        canonicalUrl: data.canonicalUrl,
-        isActive: data.isActive !== false,
-        isNewArrival: data.isNewArrival ?? false,
-        createdAt: toTimestamp(data.createdAt),
-        updatedAt: toTimestamp(data.updatedAt),
-      };
+      // ✅ UTILISER LA FONCTION DE MAPPING CORRIGÉE
+      const product = mapFirebaseDocToProduct(doc);
       
       // Puis sérialiser pour le client
       allProducts.push(serializeProduct(product));
@@ -121,42 +139,8 @@ async function getCategoryProducts(categoryId: string, maxProducts: number = 6):
       // Ajouter les produits des sous-catégories
       subCategorySnapshots.forEach(snapshot => {
         snapshot.docs.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const data = doc.data();
-          
-          // Créer d'abord l'objet Product avec Timestamps
-          const product: Product = {
-            id: doc.id,
-            title: data.title ?? '',
-            slug: data.slug ?? '',
-            shortDescription: data.shortDescription,
-            brandId: data.brandId ?? '',
-            brandName: data.brandName ?? '',
-            categoryIds: data.categoryIds ?? [],
-            categoryPath: data.categoryPath ?? [],
-            primaryCategoryId: data.primaryCategoryId ?? '',
-            primaryCategoryName: data.primaryCategoryName ?? '',
-            price: data.price ?? 0,
-            oldPrice: data.oldPrice,
-            costPrice: data.costPrice,
-            images: data.images ?? [],
-            imageAlts: data.imageAlts ?? [],
-            stock: data.stock ?? 0,
-            sku: data.sku,
-            barcode: data.barcode,
-            specifications: data.specifications ?? {},
-            tags: data.tags ?? [],
-            badges: data.badges ?? [],
-            productDescriptions: data.productDescriptions ?? [],
-            videoUrl: data.videoUrl,
-            metaTitle: data.metaTitle ?? '',
-            metaDescription: data.metaDescription ?? '',
-            keywords: data.keywords ?? [],
-            canonicalUrl: data.canonicalUrl,
-            isActive: data.isActive !== false,
-            isNewArrival: data.isNewArrival ?? false,
-            createdAt: toTimestamp(data.createdAt),
-            updatedAt: toTimestamp(data.updatedAt),
-          };
+          // ✅ UTILISER LA FONCTION DE MAPPING CORRIGÉE
+          const product = mapFirebaseDocToProduct(doc);
           
           // Puis sérialiser pour le client
           const serializedProduct = serializeProduct(product);
