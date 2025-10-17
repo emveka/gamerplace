@@ -1,7 +1,8 @@
-// components/checkout/CheckoutForm.tsx
+// components/checkout/CheckoutForm.tsx - AVEC GESTION DES POINTS
 'use client';
 
 import { useState } from 'react';
+import { useCartStore } from '@/stores/cartStore';
 import { ShippingSelector } from '@/components/cart/ShippingSelector';
 
 interface FormData {
@@ -40,6 +41,9 @@ interface CheckoutFormProps {
 }
 
 export function CheckoutForm({ onFormChange }: CheckoutFormProps) {
+  const { hasPointsProducts, getPointsSummary } = useCartStore();
+  const pointsSummary = getPointsSummary();
+  
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -279,13 +283,40 @@ export function CheckoutForm({ onFormChange }: CheckoutFormProps) {
           </div>
         </div>
 
-        {/* Méthode de paiement */}
+        {/* Méthode de paiement avec impact sur les points */}
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Mode de paiement
-          </h3>
+          <div className="flex items-center gap-2 mb-4">
+            <h3 className="text-lg font-medium text-gray-900">
+              Mode de paiement
+            </h3>
+            {hasPointsProducts() && (
+              <span className="text-yellow-600">🎁</span>
+            )}
+          </div>
+
+          {/* Alerte points selon paiement */}
+          {hasPointsProducts() && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium text-blue-900">
+                  Attribution des {pointsSummary.totalPointsToEarn} points fidélité
+                </span>
+              </div>
+              <div className="text-sm text-blue-800">
+                Le mode de paiement influence quand vous recevrez vos points :
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
-            <label className="flex items-center p-4 border border-gray-300 rounded-md cursor-pointer hover:border-yellow-500 transition-colors">
+            <label className={`flex items-center p-4 border rounded-md cursor-pointer transition-colors ${
+              formData.paymentMethod === 'cod' 
+                ? 'border-yellow-500 bg-yellow-50' 
+                : 'border-gray-300 hover:border-yellow-500'
+            }`}>
               <input
                 type="radio"
                 name="paymentMethod"
@@ -301,13 +332,26 @@ export function CheckoutForm({ onFormChange }: CheckoutFormProps) {
                 <div className="text-sm text-gray-600">
                   Payez en espèces au livreur Cathedis
                 </div>
+                {/* Info points pour paiement livraison */}
+                {hasPointsProducts() && formData.paymentMethod === 'cod' && (
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    <span className="text-orange-600">⏳</span>
+                    <span className="text-orange-700">
+                      Points ajoutés après confirmation de réception
+                    </span>
+                  </div>
+                )}
               </div>
               <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" />
               </svg>
             </label>
 
-            <label className="flex items-center p-4 border border-gray-300 rounded-md cursor-pointer hover:border-yellow-500 transition-colors">
+            <label className={`flex items-center p-4 border rounded-md cursor-pointer transition-colors ${
+              formData.paymentMethod === 'online' 
+                ? 'border-yellow-500 bg-yellow-50' 
+                : 'border-gray-300 hover:border-yellow-500'
+            }`}>
               <input
                 type="radio"
                 name="paymentMethod"
@@ -323,12 +367,49 @@ export function CheckoutForm({ onFormChange }: CheckoutFormProps) {
                 <div className="text-sm text-gray-600">
                   Carte bancaire, virement (bientôt disponible)
                 </div>
+                {/* Info points pour paiement en ligne */}
+                {hasPointsProducts() && formData.paymentMethod === 'online' && (
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    <span className="text-green-600">✓</span>
+                    <span className="text-green-700 font-medium">
+                      Points ajoutés immédiatement après paiement
+                    </span>
+                  </div>
+                )}
               </div>
               <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
             </label>
           </div>
+
+          {/* Récapitulatif points selon mode choisi */}
+          {hasPointsProducts() && (
+            <div className="mt-4 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-600">🎁</span>
+                  <span className="text-sm font-medium text-yellow-800">
+                    Avec votre mode de paiement :
+                  </span>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold text-yellow-600">
+                    {pointsSummary.totalPointsToEarn} points
+                  </div>
+                  <div className="text-xs text-yellow-600">
+                    ≈ {(pointsSummary.totalPointsToEarn * 0.05).toFixed(0)} DH
+                  </div>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-yellow-700">
+                {formData.paymentMethod === 'online' 
+                  ? "Attribution immédiate après paiement confirmé"
+                  : "Attribution après confirmation que vous avez reçu votre commande"
+                }
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Conditions et newsletter */}
@@ -377,6 +458,11 @@ export function CheckoutForm({ onFormChange }: CheckoutFormProps) {
             disabled={!formData.acceptTerms}
           >
             Confirmer ma commande
+            {hasPointsProducts() && (
+              <span className="ml-2">
+                🎁 +{pointsSummary.totalPointsToEarn}pts
+              </span>
+            )}
           </button>
           <p className="text-xs text-gray-500 text-center mt-2">
             En confirmant, vous acceptez nos conditions générales

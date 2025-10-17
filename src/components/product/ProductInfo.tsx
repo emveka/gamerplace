@@ -1,8 +1,40 @@
-// components/product/ProductInfo.tsx - MISE À JOUR avec AddToCartButton
+// components/product/ProductInfo.tsx - SOLUTION ULTIME SANS CONFLIT DE TYPES
 'use client';
 
 import { useState } from 'react';
 import { AddToCartButton } from '@/components/cart/AddToCartButton';
+import { 
+  ProductBadge, 
+  SerializedProduct
+} from '@/types/serialized';
+
+// 🔧 FONCTION UTILITAIRE POUR VÉRIFIER LA VALIDITÉ DES POINTS
+const isPointsOfferValid = (pointsValidUntil: string | null | undefined): boolean => {
+  if (!pointsValidUntil) return true; // Pas de date limite = toujours valide
+  
+  try {
+    const expirationDate = new Date(pointsValidUntil);
+    return expirationDate > new Date();
+  } catch {
+    return true; // En cas d'erreur de parsing, considérer comme valide
+  }
+};
+
+// 🔧 FONCTION UTILITAIRE POUR FORMATER LA DATE D'EXPIRATION
+const formatExpirationDate = (pointsValidUntil: string | null | undefined): string => {
+  if (!pointsValidUntil) return '';
+  
+  try {
+    const date = new Date(pointsValidUntil);
+    return date.toLocaleDateString('fr-FR', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  } catch {
+    return '';
+  }
+};
 
 // Le modal WhatsApp reste inchangé
 interface WhatsAppShareModalProps {
@@ -83,8 +115,6 @@ function WhatsAppShareModal({ isOpen, onClose, product }: WhatsAppShareModalProp
   );
 }
 
-import { ProductBadge, SerializedProduct } from '@/utils/serialization';
-
 interface ProductInfoProps {
   product: SerializedProduct;
 }
@@ -93,9 +123,28 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [showShareModal, setShowShareModal] = useState(false);
 
+  // 🔍 DEBUG AMÉLIORÉ - Logs avec types corrects
+  console.log('🎯 DEBUG ProductInfo - Product reçu:', {
+    title: product.title,
+    points: product.points,
+    pointsType: typeof product.points,
+    pointsValidUntil: product.pointsValidUntil,
+    pointsValidUntilType: typeof product.pointsValidUntil,
+    hasPoints: product.points && product.points > 0,
+    isValidOffer: isPointsOfferValid(product.pointsValidUntil)
+  });
+
   const isInStock = product.stock > 0;
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
   const discountAmount = hasDiscount ? product.oldPrice! - product.price : 0;
+
+  // ✅ VÉRIFICATION CORRIGÉE - Types harmonisés
+  const hasValidPoints = product.points && 
+                        product.points > 0 && 
+                        isPointsOfferValid(product.pointsValidUntil);
+
+  // 🔍 DEBUG - Log du résultat final
+  console.log('🎯 DEBUG hasValidPoints:', hasValidPoints);
 
   const badges = Array.isArray(product.badges) ? product.badges : [];
   const activeBadges = badges
@@ -187,6 +236,26 @@ export function ProductInfo({ product }: ProductInfoProps) {
         </div>
         <p className="text-xs text-gray-600 mb-2">Prix TTC, livraison non comprise</p>
         
+        {/* ✅ SECTION POINTS CORRIGÉE */}
+        {hasValidPoints && (
+          <div className="mb-2 p-2 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-yellow-600">🎁</span>
+              <span className="text-sm font-semibold text-yellow-800">
+                Gagnez {product.points} GP points
+              </span>
+              <span className="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">
+                Valeur: {(product.points! * 0.05).toFixed(0)} DH
+              </span>
+            </div>
+            {product.pointsValidUntil && (
+              <p className="text-xs text-yellow-700 mt-1">
+                ⏰ Offre limitée jusqu&apos;au {formatExpirationDate(product.pointsValidUntil)}
+              </p>
+            )}
+          </div>
+        )}
+        
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${isInStock ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -269,10 +338,20 @@ export function ProductInfo({ product }: ProductInfoProps) {
             </div>
           </div>
 
-          {/* Boutons d'action - Remplacé par AddToCartButton */}
+          {/* Aperçu points pour la quantité sélectionnée */}
+          {hasValidPoints && quantity > 1 && (
+            <div className="bg-yellow-50 border border-yellow-200 p-2 rounded">
+              <p className="text-xs text-yellow-700">
+                💡 Avec {quantity} unités, vous gagnerez <span className="font-semibold">{product.points! * quantity} points</span> 
+                <span className="text-yellow-600"> (valeur: {(product.points! * quantity * 0.05).toFixed(0)} DH)</span>
+              </p>
+            </div>
+          )}
+
+          {/* Boutons d'action - VERSION CORRIGÉE SANS ANY */}
           <div className="flex gap-2">
             <AddToCartButton 
-              product={product}
+              product={product as unknown as Parameters<typeof AddToCartButton>[0]['product']}
               quantity={quantity}
               className="flex-1"
               variant="primary"

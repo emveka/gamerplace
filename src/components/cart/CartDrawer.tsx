@@ -1,4 +1,4 @@
-// components/cart/CartDrawer.tsx - VERSION CORRIGÉE
+// components/cart/CartDrawer.tsx - VERSION AVEC POINTS
 'use client';
 
 import { useCartStore } from '@/stores/cartStore';
@@ -7,7 +7,19 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, totalPrice, totalItems } = useCartStore();
+  const { 
+    items, 
+    isOpen, 
+    closeCart, 
+    totalPrice, 
+    totalItems,
+    hasPointsProducts,
+    getTotalPointsToEarn,
+    getPointsSummary
+  } = useCartStore();
+
+  // Récupérer le résumé des points
+  const pointsSummary = getPointsSummary();
 
   // Fermer avec Escape
   useEffect(() => {
@@ -34,7 +46,7 @@ export function CartDrawer() {
     <>
       {/* Overlay */}
       <div 
-        className="fixed inset-0 bg-opacity-50 z-50"
+        className="fixed inset-0 bg-black bg-opacity-50 z-50"
         onClick={closeCart}
       />
       
@@ -92,6 +104,38 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="border-t bg-gray-50 p-4 space-y-4 flex-shrink-0">
             
+            {/* 🆕 SECTION POINTS */}
+            {hasPointsProducts() && (
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-yellow-600">🎁</span>
+                  <span className="text-sm font-semibold text-yellow-800">
+                    Points à gagner
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-yellow-700">
+                    Total des points :
+                  </span>
+                  <div className="text-right">
+                    <span className="font-bold text-yellow-800">
+                      {pointsSummary.totalPointsToEarn} points
+                    </span>
+                    <div className="text-xs text-yellow-600">
+                      Valeur: {(pointsSummary.totalPointsToEarn * 0.05).toFixed(0)} DH
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Affichage des offres expirées */}
+                {pointsSummary.hasExpiredOffers && (
+                  <div className="mt-2 text-xs text-orange-600">
+                    ⚠️ Certaines offres points ont expirées
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Total */}
             <div className="flex justify-between items-center text-lg font-bold">
               <span>Total:</span>

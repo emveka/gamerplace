@@ -1,7 +1,8 @@
-// app/layout.tsx - CORRIGÉ : Server Component avec métadonnées de fallback
+// app/layout.tsx - CORRIGÉ avec AuthProvider structure
 import "./globals.css";
 import { Metadata } from 'next';
-import { ClientLayout } from "@/components/layout/ClientLayout";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ClientLayoutWrapper } from "@/components/layout/ClientLayoutWrapper";
 import { Roboto, Inter } from 'next/font/google';
 
 const inter = Inter({
@@ -158,10 +159,12 @@ export default function RootLayout({
         style={{ fontFamily: 'Inter, sans-serif' }} 
         className="min-h-screen bg-gray-50 antialiased"
       >
-        {/* ✅ Déléguer toute la logique client au composant ClientLayout */}
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+        {/* ✅ STRUCTURE CORRIGÉE : AuthProvider en premier */}
+        <AuthProvider>
+          <ClientLayoutWrapper>
+            {children}
+          </ClientLayoutWrapper>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-// types/product.ts
+// types/product.ts - CORRECTION DU TYPE pointsValidUntil
 
 import { Timestamp } from "firebase/firestore";
 
@@ -80,6 +80,10 @@ export interface Product {
   
   // Informations techniques dynamiques (gardé pour compatibilité)
   technicalInfo?: TechnicalInfo;
+  
+  // 🔧 CHAMPS POINTS - TYPE CORRIGÉ
+  points?: number | null;
+  pointsValidUntil?: string | Timestamp | null; // ✅ CORRIGÉ: string OU Timestamp
   
   tags?: string[];
   badges?: ProductBadge[];

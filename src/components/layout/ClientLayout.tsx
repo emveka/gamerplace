@@ -1,4 +1,4 @@
-// components/layout/ClientLayout.tsx - MISE À JOUR avec CartDrawer
+// components/layout/ClientLayout.tsx - MISE À JOUR sans useAuth direct
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,12 +8,23 @@ import { NavigationMenu } from './NavigationMenu';
 import { SearchBarSticky } from '@/components/ui/SearchBarSticky';
 import { SEODebug } from '@/components/debug/SEODebug';
 import { CartDrawer } from '@/components/cart/CartDrawer';
+import { User } from '@/types/user';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
+  user?: User | null;
+  isAuthenticated?: boolean;
+  onSignOut?: () => Promise<void>;
+  isLoading?: boolean;
 }
 
-export function ClientLayout({ children }: ClientLayoutProps) {
+export function ClientLayout({ 
+  children, 
+  user, 
+  isAuthenticated = false, 
+  onSignOut, 
+  isLoading = false 
+}: ClientLayoutProps) {
   // État pour gérer l'ouverture/fermeture du menu mobile
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -36,6 +47,20 @@ export function ClientLayout({ children }: ClientLayoutProps) {
     
     // Redirection vers la page de recherche
     window.location.href = `/search?q=${encodeURIComponent(query)}`;
+  };
+
+  // Fonction de déconnexion
+  const handleSignOut = async () => {
+    try {
+      if (onSignOut) {
+        await onSignOut();
+        console.log('Déconnexion réussie');
+      }
+      // Optionnel : Redirection vers page d'accueil après déconnexion
+      // window.location.href = '/';
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    }
   };
 
   // Fermer le menu mobile quand on redimensionne vers desktop
@@ -99,11 +124,14 @@ export function ClientLayout({ children }: ClientLayoutProps) {
 
   return (
     <>
-      {/* Header avec SearchBar intégrée (desktop) + bouton hamburger */}
+      {/* Header avec authentification intégrée */}
       <Header 
         onSearch={handleSearch}
         onMenuToggle={handleMenuToggle}
         isMenuOpen={isMobileMenuOpen}
+        user={user}
+        isAuthenticated={isAuthenticated}
+        onSignOut={handleSignOut}
       />
 
       {/* SearchBar sticky mobile - Visible uniquement sur mobile/tablette */}
@@ -134,7 +162,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         />
       )}
 
-      {/* Contenu principal */}
+      {/* Contenu principal avec loader auth */}
       <main 
         className={`relative transition-all duration-300 ${
           isMobileMenuOpen ? 'lg:opacity-100 opacity-50' : 'opacity-100'
@@ -144,7 +172,17 @@ export function ClientLayout({ children }: ClientLayoutProps) {
           minHeight: '100vh'
         }}
       >
-        {children}
+        {/* 🎯 LOADER PENDANT CHARGEMENT AUTH */}
+        {isLoading ? (
+          <div className="min-h-screen flex items-center justify-center bg-white">
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+              <span className="text-gray-600 font-medium">Chargement...</span>
+            </div>
+          </div>
+        ) : (
+          children
+        )}
       </main>
 
       {/* Footer amélioré */}

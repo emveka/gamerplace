@@ -1,20 +1,33 @@
-// components/layout/Header.tsx - MISE À JOUR avec CartIcon
+// components/layout/Header.tsx - MISE À JOUR avec UserMenu
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { CartIcon } from "@/components/cart/CartIcon";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { User } from "@/types/user";
 
 type HeaderProps = {
   onMenuToggle?: () => void;
   isMenuOpen?: boolean;
   onSearch?: (q: string) => void;
+  // Props pour l'authentification
+  user?: User | null;
+  isAuthenticated?: boolean;
+  onSignOut?: () => void;
 };
 
-export function Header({ onMenuToggle, isMenuOpen = false, onSearch }: HeaderProps) {
+export function Header({ 
+  onMenuToggle, 
+  isMenuOpen = false, 
+  onSearch,
+  user,
+  isAuthenticated = false,
+  onSignOut
+}: HeaderProps) {
   return (
-    <header className="bg-black text-white sticky top-0 z-50 shadow-lg overflow-hidden">
+    <header className="bg-black text-white sticky top-0 z-50 shadow-lg ">
       <div className="mx-auto max-w-[1500px] py-3 sm:py-4 w-full">
         <div className="flex items-center justify-between lg:gap-20 px-1 sm:px-2 lg:px-0 gap-1 sm:gap-2">
           
@@ -75,29 +88,14 @@ export function Header({ onMenuToggle, isMenuOpen = false, onSearch }: HeaderPro
 
           {/* Zone 3 : Navigation utilisateur */}
           <div className="flex items-center gap-1 sm:gap-3 lg:gap-6 min-w-0">
-            {/* Mon Compte */}
-            <Link
-              href="/account"
-              className="flex flex-col items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
-              aria-label="Mon Compte"
-              title="Mon Compte"
-            >
-              <Image
-                src="/icons/Login_Icon.svg"
-                alt="Mon Compte"
-                width={24}
-                height={24}
-                className="h-4 sm:h-5 lg:h-6 w-4 sm:w-5 lg:w-6"
-              />
-              <span className="text-[10px] sm:text-xs font-medium text-white whitespace-nowrap hidden sm:block">
-                Mon Compte
-              </span>
-              <span className="text-[8px] sm:text-[9px] font-medium text-white sm:hidden">
-                Compte
-              </span>
-            </Link>
+            {/* Menu Utilisateur - Remplace l'ancien lien Mon Compte */}
+            <UserMenu 
+              user={user}
+              isAuthenticated={isAuthenticated}
+              onSignOut={onSignOut}
+            />
 
-            {/* Mon Panier - Remplacé par CartIcon */}
+            {/* Mon Panier */}
             <CartIcon />
           </div>
         </div>

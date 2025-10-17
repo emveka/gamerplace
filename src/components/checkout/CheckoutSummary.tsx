@@ -1,4 +1,4 @@
-// components/checkout/CheckoutSummary.tsx
+// components/checkout/CheckoutSummary.tsx - AVEC SYSTÈME DE POINTS
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,7 +8,13 @@ import { useCartStore } from '@/stores/cartStore';
 import { calculateShippingCost, getDeliveryTime, getShippingInfo } from '@/utils/shipping';
 
 export function CheckoutSummary() {
-  const { items, totalPrice, totalItems } = useCartStore();
+  const { 
+    items, 
+    totalPrice, 
+    totalItems, 
+    hasPointsProducts, 
+    getPointsSummary 
+  } = useCartStore();
   const [shippingCity, setShippingCity] = useState('casa');
   const [isClient, setIsClient] = useState(false);
 
@@ -61,6 +67,9 @@ export function CheckoutSummary() {
   const total = subtotal + shippingCost;
   const deliveryTime = getDeliveryTime(shippingCity);
   const cityInfo = getShippingInfo(shippingCity);
+  
+  // 🆕 RÉCUPÉRER LE RÉSUMÉ DES POINTS
+  const pointsSummary = getPointsSummary();
 
   return (
     <div className="bg-white shadow-sm border border-gray-200 p-6 sticky top-4">
@@ -98,9 +107,21 @@ export function CheckoutSummary() {
                 <h4 className="text-sm font-medium text-gray-900 line-clamp-2">
                   {item.title}
                 </h4>
-                <p className="text-sm text-gray-600">
-                  Qté: {item.quantity} × {item.price.toLocaleString()} DH
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-gray-600">
+                    Qté: {item.quantity} × {item.price.toLocaleString()} DH
+                  </p>
+                  
+                  {/* 🆕 AFFICHAGE POINTS PAR ITEM */}
+                  {item.points && item.points > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-yellow-600 text-xs">🎁</span>
+                      <span className="text-xs text-yellow-600 font-medium">
+                        {item.points * item.quantity}pts
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="text-sm font-medium text-gray-900">
@@ -118,6 +139,38 @@ export function CheckoutSummary() {
           Modifier le panier
         </Link>
       </div>
+
+      {/* 🆕 SECTION POINTS RÉSUMÉ COMPACT */}
+      {hasPointsProducts() && (
+        <div className="mb-6 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-yellow-600">🎁</span>
+            <span className="text-sm font-semibold text-yellow-800">
+              Points à gagner
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-yellow-700">
+              Total des points :
+            </span>
+            <div className="text-right">
+              <span className="font-bold text-yellow-800">
+                {pointsSummary.totalPointsToEarn} points
+              </span>
+              <div className="text-xs text-yellow-600">
+                Valeur: {(pointsSummary.totalPointsToEarn * 0.05).toFixed(0)} DH
+              </div>
+            </div>
+          </div>
+          
+          {/* Affichage des offres expirées */}
+          {pointsSummary.hasExpiredOffers && (
+            <div className="mt-2 text-xs text-orange-600">
+              ⚠️ Certaines offres points ont expirées
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Calculs */}
       <div className="space-y-3 py-4 border-t border-gray-200">
@@ -138,6 +191,16 @@ export function CheckoutSummary() {
           <span className="font-medium text-blue-600">{shippingCost.toLocaleString()} DH</span>
         </div>
         
+        {/* 🆕 LIGNE POINTS ÉCONOMISÉS (optionnel) */}
+        {hasPointsProducts() && (
+          <div className="flex justify-between">
+            <span className="text-gray-600 text-sm">Points à gagner</span>
+            <span className="font-medium text-yellow-600 text-sm">
+              {pointsSummary.totalPointsToEarn} pts (~{(pointsSummary.totalPointsToEarn * 0.05).toFixed(0)} DH)
+            </span>
+          </div>
+        )}
+        
         <hr className="border-gray-200" />
         
         <div className="flex justify-between text-lg font-bold">
@@ -145,6 +208,29 @@ export function CheckoutSummary() {
           <span className="text-yellow-600">{total.toLocaleString()} DH</span>
         </div>
       </div>
+
+      {/* 🆕 SECTION INFO ATTRIBUTION POINTS */}
+      {hasPointsProducts() && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+          <h4 className="font-medium text-blue-900 mb-3">💳 Attribution des points</h4>
+          <div className="space-y-2 text-sm text-blue-800">
+            <div className="flex items-start gap-2">
+              <span className="text-green-600 mt-0.5">✓</span>
+              <div>
+                <strong>Paiement par carte :</strong>
+                <br />Points ajoutés immédiatement après paiement
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-orange-600 mt-0.5">⏳</span>
+              <div>
+                <strong>Paiement à la livraison :</strong>
+                <br />Points ajoutés après confirmation de réception
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Informations de livraison */}
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200">

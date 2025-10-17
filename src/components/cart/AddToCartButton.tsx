@@ -1,4 +1,4 @@
-// components/cart/AddToCartButton.tsx
+// components/cart/AddToCartButton.tsx - Mise à jour avec points
 'use client';
 
 import { useState } from 'react';
@@ -38,7 +38,7 @@ export function AddToCartButton({
     // Simulation d'un petit délai pour l'UX
     await new Promise(resolve => setTimeout(resolve, 200));
 
-    // Ajouter au panier
+    // Ajouter au panier avec les informations de points
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: product.id,
@@ -47,7 +47,12 @@ export function AddToCartButton({
         price: product.price,
         imageUrl: product.images[0],
         slug: product.slug,
-        stock: product.stock
+        stock: product.stock,
+        // 🆕 AJOUT DES CHAMPS POINTS
+        points: product.points || null,
+        pointsValidUntil: typeof product.pointsValidUntil === 'string' 
+          ? product.pointsValidUntil 
+          : null
       });
     }
 

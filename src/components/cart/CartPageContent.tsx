@@ -1,4 +1,4 @@
-// components/cart/CartPageContent.tsx
+// components/cart/CartPageContent.tsx - VERSION COMPLÈTE AVEC SYSTÈME DE POINTS
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,7 +8,14 @@ import { CartPageItem } from '@/components/cart/CartPageItem';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 
 export function CartPageContent() {
-  const { items, totalPrice, totalItems, clearCart } = useCartStore();
+  const { 
+    items, 
+    totalPrice, 
+    totalItems, 
+    clearCart,
+    hasPointsProducts,
+    getPointsSummary
+  } = useCartStore();
   const [isClient, setIsClient] = useState(false);
 
   // Hydratation côté client pour éviter les erreurs SSR
@@ -24,6 +31,7 @@ export function CartPageContent() {
 
   // Calculs pour l'affichage
   const subtotal = totalPrice();
+  const pointsSummary = getPointsSummary();
 
   const handleClearCart = () => {
     if (window.confirm('Êtes-vous sûr de vouloir vider votre panier ?')) {
@@ -124,6 +132,80 @@ export function CartPageContent() {
                 </div>
               </div>
 
+              {/* Section Points Détaillée */}
+              {hasPointsProducts() && (
+                <div className="bg-white shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-yellow-600 text-xl">🎁</span>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Points fidélité
+                    </h2>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded p-4 mb-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-lg font-semibold text-yellow-800">
+                        Total des points à gagner :
+                      </span>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-yellow-600">
+                          {pointsSummary.totalPointsToEarn} points
+                        </div>
+                        <div className="text-sm text-yellow-700">
+                          Valeur: {(pointsSummary.totalPointsToEarn * 0.05).toFixed(0)} DH
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Détail par produit */}
+                    <div className="space-y-2">
+                      {pointsSummary.productsWithPoints.map(product => (
+                        <div key={product.productId} className="flex justify-between items-center text-sm">
+                          <span className="text-yellow-700">
+                            {product.title.substring(0, 40)}
+                            {product.title.length > 40 ? '...' : ''}
+                          </span>
+                          <span className="font-medium text-yellow-800">
+                            {product.totalPoints} pts
+                            {product.quantity > 1 && (
+                              <span className="text-yellow-600 ml-1">
+                                ({product.quantity}x{product.pointsPerUnit})
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Alertes offres expirées */}
+                    {pointsSummary.hasExpiredOffers && (
+                      <div className="mt-3 p-2 bg-orange-100 border border-orange-300 rounded">
+                        <div className="flex items-center gap-2 text-orange-700">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm font-medium">
+                            Attention : Certaines offres points ont expirées
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info système de points */}
+                  <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                    <h3 className="font-medium text-blue-900 mb-2">ℹ️ Comment ça marche ?</h3>
+                    <ul className="text-sm text-blue-800 space-y-1">
+                      <li>• 1 point = 0.05 DH de valeur de rachat</li>
+                      <li>• Les points sont ajoutés après confirmation de commande</li>
+                      <li>• Paiement carte : points immédiats</li>
+                      <li>• Paiement livraison : points après réception</li>
+                      <li>• Les points expirent 3 mois après le dernier achat</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
               {/* Liste des articles */}
               <div className="space-y-4">
                 {items.map((item) => (
@@ -152,22 +234,66 @@ export function CartPageContent() {
               </div>
             </div>
 
-            {/* Colonne droite : Résumé de commande simplifié */}
+            {/* Colonne droite : Résumé de commande avec points */}
             <div className="mt-8 lg:mt-0">
               <div className="bg-white shadow-sm border border-gray-200 p-6 sticky top-4">
                 <h2 className="text-lg font-semibold text-gray-900 mb-6">
                   Résumé du panier
                 </h2>
 
-                {/* Détails du total simplifié */}
+                {/* Détails du total */}
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Sous-total</span>
                     <span className="text-yellow-600">{subtotal.toLocaleString()} DH</span>
                   </div>
+
+                  {/* Résumé Points Compact */}
+                  {hasPointsProducts() && (
+                    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded p-3">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <span className="text-yellow-600">🎁</span>
+                          <span className="text-sm font-medium text-yellow-800">
+                            Points à gagner
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-yellow-600">
+                            {pointsSummary.totalPointsToEarn} pts
+                          </div>
+                          <div className="text-xs text-yellow-600">
+                            ≈ {(pointsSummary.totalPointsToEarn * 0.05).toFixed(0)} DH
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-sm text-gray-600">
                     Les frais de livraison seront calculés à l&apos;étape suivante
                   </p>
+                </div>
+
+                {/* Section mode de paiement et points */}
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+                  <h3 className="font-medium text-blue-900 mb-3">💳 Attribution des points</h3>
+                  <div className="space-y-2 text-sm text-blue-800">
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 mt-0.5">✓</span>
+                      <div>
+                        <strong>Paiement par carte :</strong>
+                        <br />Points ajoutés immédiatement après paiement
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-orange-600 mt-0.5">⏳</span>
+                      <div>
+                        <strong>Paiement à la livraison :</strong>
+                        <br />Points ajoutés après confirmation de réception
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bouton checkout */}

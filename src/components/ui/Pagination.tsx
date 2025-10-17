@@ -1,21 +1,12 @@
-// src/components/ui/Pagination.tsx - VERSION SSR PURE (sans hydratation)
+// src/components/ui/Pagination.tsx - VERSION CORRIGÉE (utilise vos types existants)
 import Link from 'next/link';
-
-// Interface pour les paramètres de recherche de la pagination
-interface PaginationSearchParams {
-  page?: string;
-  sort?: string;
-  priceRange?: string;
-  brand?: string;
-  condition?: string;
-  stock?: string;
-  [key: string]: string | string[] | undefined;
-}
+import { SearchParams } from '@/types/filters';
+import { createPaginationUrl } from '@/utils/searchParamsUtils';
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  searchParams: PaginationSearchParams;
+  searchParams: SearchParams;
   baseUrl?: string;
 }
 
@@ -29,29 +20,12 @@ export function Pagination({
     return null;
   }
 
-  const createUrl = (page: number) => {
-    const params = new URLSearchParams();
-    
-    // Ajouter tous les paramètres de recherche existants
-    Object.entries(searchParams).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          value.forEach(v => params.append(key, v));
-        } else {
-          params.set(key, String(value));
-        }
-      }
-    });
-    
-    // Gérer le paramètre page
-    if (page === 1) {
-      params.delete('page');
-    } else {
-      params.set('page', page.toString());
-    }
-    
-    const query = params.toString();
-    return `${baseUrl}${query ? `?${query}` : ''}`;
+  // Utilise la fonction utilitaire pour créer les URLs
+  const createUrl = (page: number) => createPaginationUrl(searchParams, page, baseUrl);
+
+  // CORRECTION 4 : Validation des pages
+  const isValidPage = (page: number) => {
+    return page >= 1 && page <= totalPages && Number.isInteger(page);
   };
 
   // Version responsive PURE SSR (sans détection client)
@@ -59,24 +33,34 @@ export function Pagination({
     const range: number[] = [];
     const rangeWithDots: (number | string)[] = [];
 
-    // Version desktop - plus de pages visibles
-    for (let i = Math.max(2, currentPage - 2); 
-         i <= Math.min(totalPages - 1, currentPage + 2); 
-         i++) {
-      range.push(i);
-    }
-
-    if (currentPage - 2 > 2) {
-      rangeWithDots.push(1, '...');
+    // Ajout de la première page si elle n'est pas dans la range
+    if (currentPage > 3) {
+      rangeWithDots.push(1);
+      if (currentPage > 4) {
+        rangeWithDots.push('...');
+      }
     } else {
       rangeWithDots.push(1);
     }
 
+    // Pages autour de la page actuelle
+    for (let i = Math.max(2, currentPage - 1); 
+         i <= Math.min(totalPages - 1, currentPage + 1); 
+         i++) {
+      if (i !== 1 && i !== totalPages) {
+        range.push(i);
+      }
+    }
+
     rangeWithDots.push(...range);
 
-    if (currentPage + 2 < totalPages - 1) {
-      rangeWithDots.push('...', totalPages);
-    } else if (totalPages > 1) {
+    // Ajout de la dernière page si elle n'est pas dans la range
+    if (currentPage < totalPages - 2) {
+      if (currentPage < totalPages - 3) {
+        rangeWithDots.push('...');
+      }
+      rangeWithDots.push(totalPages);
+    } else if (totalPages > 1 && !rangeWithDots.includes(totalPages)) {
       rangeWithDots.push(totalPages);
     }
 
@@ -118,6 +102,7 @@ export function Pagination({
               className="flex items-center justify-center px-3 py-2 text-sm border border-gray-300 hover:bg-gray-50 transition-colors rounded"
               aria-label="Page précédente"
               rel="prev"
+              prefetch={true}
             >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -140,6 +125,7 @@ export function Pagination({
               className="flex items-center justify-center px-3 py-2 text-sm border border-gray-300 hover:bg-gray-50 transition-colors rounded"
               aria-label="Page suivante"
               rel="next"
+              prefetch={true}
             >
               Suiv.
               <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,6 +171,7 @@ export function Pagination({
                 href={createUrl(pageNumber)}
                 className="px-2 py-1 border border-gray-300 hover:bg-gray-50 transition-colors text-sm rounded min-w-[32px] text-center"
                 aria-label={`Aller à la page ${pageNumber}`}
+                prefetch={true}
               >
                 {pageNumber}
               </Link>
@@ -207,6 +194,7 @@ export function Pagination({
               className="px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors rounded"
               aria-label="Page précédente"
               rel="prev"
+              prefetch={true}
             >
               Précédent
             </Link>
@@ -245,6 +233,7 @@ export function Pagination({
                   href={createUrl(pageNumber)}
                   className="px-3 py-2 border border-gray-300 hover:bg-gray-50 transition-colors rounded"
                   aria-label={`Aller à la page ${pageNumber}`}
+                  prefetch={true}
                 >
                   {pageNumber}
                 </Link>
@@ -259,6 +248,7 @@ export function Pagination({
               className="px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors rounded"
               aria-label="Page suivante"
               rel="next"
+              prefetch={true}
             >
               Suivant
             </Link>

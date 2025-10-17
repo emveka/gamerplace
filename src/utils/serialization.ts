@@ -1,11 +1,11 @@
-// utils/serialization.ts - VERSION CORRIGÉE SANS ANY
+// utils/serialization.ts - VERSION COMPLÈTE CORRIGÉE AVEC POINTS
 
 import { Product, ProductBadge, ProductDescription, TechnicalInfo } from '@/types/product';
 import { Timestamp } from 'firebase/firestore';
 
 export type { ProductBadge };
 
-// Interface pour le produit sérialisé - TYPES CORRIGÉS
+// Interface pour le produit sérialisé - AVEC POINTS CORRIGÉS
 export interface SerializedProduct {
   id: string;
   title: string;
@@ -32,13 +32,15 @@ export interface SerializedProduct {
   barcode?: string;
   order?: number;
   
-  // 🔧 NOUVEAUX CHAMPS - Types mixtes acceptés
+  // Spécifications
   specificationCard?: { [key: string]: string | number | boolean };
   specificationTech?: { [key: string]: string | number | boolean };
-  
-  // Ancien champ pour rétrocompatibilité - TYPE CORRIGÉ
   specifications?: { [key: string]: string | number | boolean };
-  technicalInfo?: TechnicalInfo; // ✅ CORRIGÉ: Type spécifique au lieu de any
+  technicalInfo?: TechnicalInfo;
+  
+  // CHAMPS POINTS - FORMAT CORRIGÉ
+  points?: number | null;
+  pointsValidUntil?: string | null; // Toujours string ISO ou null
   
   tags?: string[];
   badges?: ProductBadge[];
@@ -58,16 +60,63 @@ export interface SerializedProduct {
   updatedAt: string | null;
 }
 
-// Fonction principale de sérialisation
+// Fonction utilitaire pour normaliser les dates de points
+function normalizePointsValidUntil(pointsValidUntil: string | Timestamp | { toDate?: () => Date; seconds?: number } | null | undefined): string | null {
+  if (!pointsValidUntil) {
+    return null;
+  }
+
+  // Firebase Timestamp
+  if (pointsValidUntil instanceof Timestamp) {
+    return pointsValidUntil.toDate().toISOString();
+  }
+
+  // String
+  if (typeof pointsValidUntil === 'string') {
+    // Déjà au format ISO
+    if (pointsValidUntil.includes('T')) {
+      return pointsValidUntil;
+    }
+    // Format date simple "2025-10-31" -> ajouter l'heure de fin de journée
+    if (pointsValidUntil.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return `${pointsValidUntil}T23:59:59.999Z`;
+    }
+    // Autre format string, essayer de parser
+    try {
+      return new Date(pointsValidUntil).toISOString();
+    } catch {
+      console.warn('Format de date pointsValidUntil non reconnu:', pointsValidUntil);
+      return null;
+    }
+  }
+
+  // Object avec toDate (Firebase dans certains contextes)
+  if (pointsValidUntil && typeof pointsValidUntil.toDate === 'function') {
+    return pointsValidUntil.toDate().toISOString();
+  }
+
+  // Object avec seconds (Firebase Timestamp déstructuré)
+  if (pointsValidUntil && typeof pointsValidUntil.seconds === 'number') {
+    return new Date(pointsValidUntil.seconds * 1000).toISOString();
+  }
+
+  console.warn('Type pointsValidUntil non géré:', typeof pointsValidUntil, pointsValidUntil);
+  return null;
+}
+
+// Fonction principale de sérialisation - CORRIGÉE
 export function serializeProduct(product: Product): SerializedProduct {
   console.log('🔄 SERIALIZATION DEBUG - Input Product:', {
     id: product.id,
     title: product.title,
-    specificationCard: product.specificationCard,
-    specificationTech: product.specificationTech,
-    specifications: product.specifications,
-    technicalInfo: product.technicalInfo
+    points: product.points,
+    pointsValidUntil: product.pointsValidUntil,
+    pointsValidUntilType: typeof product.pointsValidUntil
   });
+
+  // Normaliser les points
+  const normalizedPoints = product.points || null;
+  const normalizedPointsValidUntil = normalizePointsValidUntil(product.pointsValidUntil);
 
   const serialized = {
     id: product.id,
@@ -95,13 +144,15 @@ export function serializeProduct(product: Product): SerializedProduct {
     barcode: product.barcode,
     order: product.order,
     
-    // 🔧 NOUVEAUX CHAMPS - Sérialisation directe
+    // Spécifications
     specificationCard: product.specificationCard || {},
     specificationTech: product.specificationTech || {},
-    
-    // Anciens champs pour compatibilité
     specifications: product.specifications || {},
     technicalInfo: product.technicalInfo || {},
+    
+    // POINTS CORRIGÉS
+    points: normalizedPoints,
+    pointsValidUntil: normalizedPointsValidUntil,
     
     tags: product.tags || [],
     badges: product.badges || [],
@@ -128,15 +179,30 @@ export function serializeProduct(product: Product): SerializedProduct {
   console.log('✅ SERIALIZATION DEBUG - Output Serialized:', {
     id: serialized.id,
     title: serialized.title,
-    specificationCard: serialized.specificationCard,
-    specificationTech: serialized.specificationTech,
-    specifications: serialized.specifications,
-    cardCount: Object.keys(serialized.specificationCard).length,
-    techCount: Object.keys(serialized.specificationTech).length,
-    legacyCount: Object.keys(serialized.specifications).length
+    points: serialized.points,
+    pointsValidUntil: serialized.pointsValidUntil,
+    pointsValidUntilParsed: serialized.pointsValidUntil ? new Date(serialized.pointsValidUntil) : null
   });
 
   return serialized;
+}
+
+// Fonction de test pour les points
+export function testPointsSerialization() {
+  console.log('🧪 TEST DE SÉRIALISATION DES POINTS');
+  
+  const testCases = [
+    { input: '2025-10-31', expected: '2025-10-31T23:59:59.999Z' },
+    { input: '2025-10-31T23:59:59.999Z', expected: '2025-10-31T23:59:59.999Z' },
+    { input: null, expected: null },
+    { input: undefined, expected: null }
+  ];
+
+  testCases.forEach(test => {
+    const result = normalizePointsValidUntil(test.input);
+    console.log(`Input: ${test.input} -> Output: ${result} -> Expected: ${test.expected}`);
+    console.log(`✅ ${result === test.expected ? 'PASS' : 'FAIL'}`);
+  });
 }
 
 // Fonction utilitaire pour obtenir les spécifications par catégorie
@@ -151,20 +217,6 @@ export function getCategorizedSpecifications(product: SerializedProduct) {
       ...product.specificationTech || {}
     }
   };
-
-  console.log('📊 CATEGORIZED SPECS DEBUG:', {
-    productId: product.id,
-    title: product.title,
-    cardSpecs: result.card,
-    technicalSpecs: result.technical,
-    legacySpecs: result.legacy,
-    counts: {
-      card: Object.keys(result.card).length,
-      technical: Object.keys(result.technical).length,
-      legacy: Object.keys(result.legacy).length,
-      merged: Object.keys(result.merged).length
-    }
-  });
 
   return result;
 }

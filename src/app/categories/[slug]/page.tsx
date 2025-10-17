@@ -1,6 +1,6 @@
-// app/categories/[slug]/page.tsx - VERSION ULTRA OPTIMISÉE
+// app/categories/[slug]/page.tsx - VERSION CORRIGÉE (utilise vos types existants)
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 // Services
 import { getCategory } from '@/services/categories';
@@ -12,17 +12,27 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { CategoryFiltersContainer } from '@/components/category/CategoryFiltersContainer';
 import { ProductsSection } from '@/components/category/ProductsSection';
 
-// Types
+// Types - utilise vos types existants
 import { SearchParams, ProductFilters } from '@/types/filters';
 
 // Utils
 import { buildCategoryBreadcrumb } from '@/utils/breadcrumb';
+import { 
+  normalizeSearchParams, 
+  validateAndSanitizeSearchParams, 
+  buildCleanUrl, 
+  hasSearchParamsChanged 
+} from '@/utils/searchParamsUtils';
 
-// Génération des métadonnées
+// Génération des métadonnées (inchangée mais avec gestion d'erreur améliorée)
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  
   try {
+    const { slug } = await params;
+    
+    if (!slug || typeof slug !== 'string') {
+      throw new Error('Slug invalide');
+    }
+    
     const category = await getCategory(slug);
     
     if (!category) {
@@ -88,18 +98,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   } catch (error) {
     console.error('Erreur generateMetadata:', error);
     
+    // Fallback sécurisé
     return {
-      title: `Catégorie ${slug} | Gamerplace.ma`,
+      title: 'Gamerplace.ma - Votre boutique gaming',
       description: 'Découvrez nos produits gaming sur Gamerplace.ma',
       robots: 'index, follow',
-      alternates: {
-        canonical: `https://gamerplace.ma/categories/${slug}`,
-      },
     };
   }
 }
 
-// Composant principal de la page
+// CORRECTION 3 : Composant principal avec validation complète (simplifié avec les utils)
 export default async function CategoryPage({ 
   params, 
   searchParams 
@@ -107,63 +115,118 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<SearchParams>;
 }) {
-  const { slug } = await params;
-  const resolvedSearchParams = await searchParams;
-  
-  const category = await getCategory(slug);
-  
-  if (!category) {
-    notFound();
-  }
+  try {
+    const { slug } = await params;
+    const rawSearchParams = await searchParams;
+    
+    // VALIDATION 1 : Vérification du slug
+    if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+      console.error('Slug invalide:', slug);
+      notFound();
+    }
+    
+    // CONVERSION : Normaliser les searchParams Next.js
+    const normalizedSearchParams = normalizeSearchParams(rawSearchParams);
+    
+    // VALIDATION 2 : Nettoyage et validation des paramètres de recherche
+    const sanitizedSearchParams = validateAndSanitizeSearchParams(normalizedSearchParams);
+    
+    // VALIDATION 3 : Redirection si les paramètres ont été modifiés
+    if (hasSearchParamsChanged(normalizedSearchParams, sanitizedSearchParams)) {
+      const redirectUrl = buildCleanUrl(slug, sanitizedSearchParams);
+      console.log('Redirection vers URL propre:', redirectUrl);
+      redirect(redirectUrl);
+    }
+    
+    // VALIDATION 4 : Récupération et vérification de la catégorie
+    const category = await getCategory(slug);
+    
+    if (!category) {
+      console.error('Catégorie non trouvée:', slug);
+      notFound();
+    }
+    
+    // DEBUG COMPLET : Vérifier toutes les propriétés de la catégorie
+    console.log('🔍 DEBUG COMPLET - Catégorie récupérée:', {
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      slugType: typeof category.slug,
+      slugExists: !!category.slug,
+      originalSlug: slug,
+      allKeys: Object.keys(category),
+      fullCategory: category
+    });
+    
+    // VALIDATION 5 : Vérification du slug de la catégorie avec fallback robuste
+    const categorySlug = category.slug || slug;
+    
+    console.log('🔍 Slug final utilisé:', {
+      categorySlug,
+      fromCategory: category.slug,
+      fromUrl: slug,
+      isEqual: category.slug === slug
+    });
 
-  const currentPage = parseInt(resolvedSearchParams.page || '1');
-  const itemsPerPage = 16;
-  
-  const filters: ProductFilters = {
-    sort: resolvedSearchParams.sort || 'newest',
-    brand: resolvedSearchParams.brand,
-    condition: resolvedSearchParams.condition,
-    priceRange: resolvedSearchParams.priceRange,
-    stock: resolvedSearchParams.stock,
-  };
+    // VALIDATION 5 : Traitement des paramètres de pagination
+    const currentPage = Math.max(1, parseInt(sanitizedSearchParams.page || '1'));
+    const itemsPerPage = 16;
+    
+    // VALIDATION 6 : Construction des filtres
+    const filters: ProductFilters = {
+      sort: sanitizedSearchParams.sort || 'newest',
+      brand: sanitizedSearchParams.brand || undefined,
+      condition: sanitizedSearchParams.condition || undefined,
+      priceRange: sanitizedSearchParams.priceRange || undefined,
+      stock: sanitizedSearchParams.stock || undefined,
+    };
 
-  // Construction du breadcrumb hiérarchique
-  const breadcrumbItems = await buildCategoryBreadcrumb(category);
+    // Construction du breadcrumb hiérarchique
+    const breadcrumbItems = await buildCategoryBreadcrumb(category);
 
-  return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-[1500px] mx-auto px-2 py-6">
-        {/* Layout responsive : vertical sur mobile, horizontal sur desktop */}
-        <div className="flex flex-col lg:flex-row gap-6">
-         
-          {/* Sidebar Filters - SANS Suspense pour éviter double skeleton */}
-          <aside className="w-full lg:w-64 lg:flex-shrink-0">
-            <CategoryFiltersContainer categoryId={category.id} />
-          </aside>
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[1500px] mx-auto px-2 py-6">
+          {/* Layout responsive : vertical sur mobile, horizontal sur desktop */}
+          <div className="flex flex-col lg:flex-row gap-6">
+           
+            {/* Sidebar Filters */}
+            <aside className="w-full lg:w-64 lg:flex-shrink-0">
+              <CategoryFiltersContainer categoryId={category.id} />
+            </aside>
 
-          {/* Main Content */}
-          <main className="flex-1 min-w-0">
-            <Breadcrumb items={breadcrumbItems} />
-            <CategoryHeader category={category} />
+            {/* Main Content */}
+            <main className="flex-1 min-w-0">
+              <Breadcrumb items={breadcrumbItems} />
+              <CategoryHeader category={category} />
 
-            {/* Section produits - SANS Suspense pour UX fluide */}
-            <ProductsSection
-              categoryId={category.id}
-              currentPage={currentPage}
-              itemsPerPage={itemsPerPage}
-              filters={filters}
-              searchParams={resolvedSearchParams}
-            />
+              {/* Section produits avec gestion d'erreur */}
+              <div className="relative">
+                <ProductsSection
+                  categoryId={category.id}
+                  categorySlug={slug} // SOLUTION SÛRE : utilise directement le slug de l'URL
+                  currentPage={currentPage}
+                  itemsPerPage={itemsPerPage}
+                  filters={filters}
+                  searchParams={sanitizedSearchParams}
+                />
+              </div>
 
-            <CategoryDescription category={category} />
-          </main>
+              <CategoryDescription category={category} />
+            </main>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('Erreur dans CategoryPage:', error);
+    
+    // En cas d'erreur non gérée, rediriger vers 404
+    notFound();
+  }
 }
 
-// Optimisations Next.js
-export const dynamic = 'auto';
+// CORRECTION 4 : Configuration Next.js optimisée
+export const dynamic = 'force-dynamic'; // Pour s'assurer que les paramètres sont traités côté serveur
 export const revalidate = 3600;
 export const runtime = 'nodejs';

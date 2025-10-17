@@ -1,11 +1,13 @@
-// app/products/[slug]/page.tsx - CORRECTION POUR RÉCUPÉRER LES NOUVEAUX CHAMPS
+// app/products/[slug]/page.tsx - VERSION CORRIGÉE AVEC TYPES HARMONISÉS
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Product } from '@/types/product';
-import { serializeProduct, SerializedProduct, getCategorizedSpecifications } from '@/utils/serialization';
+import { serializeProduct, getCategorizedSpecifications } from '@/utils/serialization';
+// Import du type depuis types/serialized pour cohérence
+import { SerializedProduct } from '@/types/serialized';
 import { ProductImageGallery } from '@/components/product/ProductImageGallery';
 import { ProductInfo } from '@/components/product/ProductInfo';
 import { ProductDescriptionSections } from '@/components/product/ProductDescriptionSections';
@@ -84,6 +86,10 @@ async function getProduct(slug: string): Promise<Product | null> {
       
       // Informations techniques (pour compatibilité)
       technicalInfo: data.technicalInfo || {},
+
+      // 🔧 AJOUT DES CHAMPS POINTS - C'ÉTAIT ÇA LE PROBLÈME !
+      points: data.points || null,
+      pointsValidUntil: data.pointsValidUntil || null,
       
       tags: data.tags || [],
       badges: data.badges || [],
@@ -109,6 +115,21 @@ async function getProduct(slug: string): Promise<Product | null> {
       cardCount: Object.keys(product.specificationCard || {}).length,
       techCount: Object.keys(product.specificationTech || {}).length,
       legacyCount: Object.keys(product.specifications || {}).length
+    });
+
+    // 🔍 DEBUG: Ajoutez ce log pour vérifier que les points sont récupérés
+    console.log('🔍 FIREBASE POINTS DEBUG:', {
+      title: data.title,
+      points: data.points,
+      pointsValidUntil: data.pointsValidUntil,
+      pointsType: typeof data.points,
+      pointsValidUntilType: typeof data.pointsValidUntil
+    });
+
+    console.log('🎯 PRODUCT FINAL AVEC POINTS:', {
+      title: product.title,
+      points: product.points,
+      pointsValidUntil: product.pointsValidUntil
     });
 
     return product;
@@ -192,6 +213,14 @@ export async function generateMetadata({
   };
 }
 
+// 🔧 FONCTION UTILITAIRE POUR CONVERTIR VERS LE TYPE ATTENDU
+function createCompatibleSerializedProduct(product: Product): SerializedProduct {
+  const serialized = serializeProduct(product);
+  
+  // Utilisation d'une double assertion sécurisée pour éviter les conflits de types
+  return serialized as unknown as SerializedProduct;
+}
+
 // Composant principal
 export default async function ProductPage({ 
   params 
@@ -205,11 +234,12 @@ export default async function ProductPage({
     notFound();
   }
 
-  const serializedProduct = serializeProduct(product);
+  // 🔧 UTILISATION DE LA FONCTION DE CONVERSION COMPATIBLE
+  const serializedProduct = createCompatibleSerializedProduct(product);
   const breadcrumbItems = buildProductBreadcrumb(product);
   
-  // ✅ Obtenir les spécifications catégorisées
-  const specCategories = getCategorizedSpecifications(serializedProduct);
+  // ✅ Obtenir les spécifications catégorisées avec assertion de type sécurisée
+  const specCategories = getCategorizedSpecifications(serializedProduct as unknown as Parameters<typeof getCategorizedSpecifications>[0]);
   
   // 🔧 DEBUG: Log final pour vérifier que tout est bien passé
   console.log('🎯 FINAL DEBUG - Page Product:', {
@@ -225,6 +255,13 @@ export default async function ProductPage({
       legacy: Object.keys(specCategories.legacy).length,
       merged: Object.keys(specCategories.merged).length
     }
+  });
+
+  console.log('Produit avant ajout au panier:', {
+    id: product.id,
+    title: product.title,
+    points: product.points,
+    pointsValidUntil: product.pointsValidUntil
   });
 
   return (
@@ -248,7 +285,7 @@ export default async function ProductPage({
             />
           </div>
 
-          {/* Informations produit */}
+          {/* Informations produit - 🔧 UTILISATION DU PRODUIT COMPATIBLE */}
           <div className="space-y-6">
             <ProductInfo product={serializedProduct} />
           </div>
@@ -268,14 +305,14 @@ export default async function ProductPage({
           
           {/* Colonne de gauche - Informations détaillées du produit */}
           <div className="space-y-4">
-            <ProductInfoDetails product={serializedProduct} />
+            <ProductInfoDetails product={serializedProduct as unknown as Parameters<typeof ProductInfoDetails>[0]['product']} />
           </div>
 
           {/* Colonne de droite - Fiche technique */}
           <div className="space-y-4">
-            {/* ✅ CORRECTION: Passer les spécifications catégorisées */}
+            {/* ✅ CORRECTION: Passer les spécifications catégorisées avec assertion de type */}
             <ProductFicheTechnique 
-              product={serializedProduct}
+              product={serializedProduct as unknown as Parameters<typeof ProductFicheTechnique>[0]['product']}
               specificationCard={specCategories.card}
               specificationTech={specCategories.technical}
             />
